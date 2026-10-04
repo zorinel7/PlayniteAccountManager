@@ -44,20 +44,31 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            string exe = FindEAExecutable();
-            if (string.IsNullOrWhiteSpace(exe) || !File.Exists(exe))
-            {
-                error = "Nie znaleziono EA App na tym komputerze.";
-                return false;
-            }
-
             try
             {
-                bool started = StartEA(exe);
-                if (!started)
+                // Do not scan Start Menu/registry when EA is already running.
+                // That scan can be surprisingly slow and was the main source
+                // of the ~1 minute delay observed before automation started.
+                IntPtr existingHwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
+                if (existingHwnd != IntPtr.Zero)
                 {
-                    error = "Nie udało się uruchomić EA App.";
-                    return false;
+                    log("EA App: wykryto już uruchomione okno. Pomijam wyszukiwanie pliku EA App.");
+                }
+                else
+                {
+                    string exe = FindEAExecutable();
+                    if (string.IsNullOrWhiteSpace(exe) || !File.Exists(exe))
+                    {
+                        error = "Nie znaleziono EA App na tym komputerze.";
+                        return false;
+                    }
+
+                    bool started = StartEA(exe);
+                    if (!started)
+                    {
+                        error = "Nie udało się uruchomić EA App.";
+                        return false;
+                    }
                 }
 
                 if (!uiAutomation.PrepareAndLogin(account.UserName, password, 60, out error))
