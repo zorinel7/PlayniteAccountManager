@@ -73,6 +73,11 @@ namespace PlayniteAccountManager.Services
 
             EnsureWindowForeground(hwnd);
 
+            // Give EA's WebView a short settling period only when its state is
+            // genuinely unknown. Do not wait when the authenticated navigation
+            // or login surface is already positively visible.
+            Thread.Sleep(120);
+
             bool authenticated;
             if (!WaitForEAState(hwnd, 6, out authenticated))
             {
@@ -491,36 +496,81 @@ namespace PlayniteAccountManager.Services
         {
             try
             {
-                string text = GetVisibleText(hwnd);
-                if (string.IsNullOrWhiteSpace(text))
+                AutomationElement root = AutomationElement.FromHandle(hwnd);
+                if (root == null)
                     return EAUiState.Unknown;
 
-                bool hasLibrary = text.IndexOf("Biblioteka", StringComparison.OrdinalIgnoreCase) >= 0;
-                bool hasHome = text.IndexOf("Strona główna", StringComparison.OrdinalIgnoreCase) >= 0;
-                bool hasInstalled = text.IndexOf("Zainstalowane gry", StringComparison.OrdinalIgnoreCase) >= 0;
-                bool hasSearch = text.IndexOf("Szukaj", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool hasLibrary = false;
+                bool hasHome = false;
+                bool hasInstalled = false;
+                bool hasSearch = false;
+                bool hasLoginHeader = false;
+                bool hasEmailHint = false;
+                bool hasPasswordHint = false;
+                int visibleEdits = 0;
 
-                // Authenticated state is a strong positive signal. Check it
-                // before the generic Edit-count fallback because the main EA
-                // screen contains the search Edit control too.
-                if ((hasLibrary && hasHome) || (hasLibrary && hasInstalled) || (hasHome && hasSearch))
+                // Read the accessibility tree once and classify it from the
+                // actual visible element names. The previous implementation
+                // joined every visible name into one huge string, which can
+                // contain stale WebView/login text and falsely classify an
+                // already-authenticated EA window as the login screen.
+                var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
+                foreach (AutomationElement e in all)
+                {
+                    try
+                    {
+                        if (e.Current.IsOffscreen || !e.Current.IsEnabled)
+                            continue;
+
+                        string name = (e.Current.Name ?? string.Empty).Trim();
+                        if (!string.IsNullOrWhiteSpace(name))
+                        {
+                            if (name.Equals("Biblioteka", StringComparison.OrdinalIgnoreCase))
+                                hasLibrary = true;
+                            else if (name.Equals("Strona główna", StringComparison.OrdinalIgnoreCase))
+                                hasHome = true;
+                            else if (name.Equals("Zainstalowane gry", StringComparison.OrdinalIgnoreCase))
+                                hasInstalled = true;
+                            else if (name.Equals("Szukaj", StringComparison.OrdinalIgnoreCase))
+                                hasSearch = true;
+
+                            if (name.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0)
+                                hasLoginHeader = true;
+                            if (name.IndexOf("TWÓJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                name.IndexOf("TWOJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0)
+                                hasEmailHint = true;
+                            if (name.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0)
+                                hasPasswordHint = true;
+                        }
+
+                        if (e.Current.ControlType == ControlType.Edit)
+                            visibleEdits++;
+                    }
+                    catch { }
+                }
+
+                // Strong authenticated signals from the EA diagnostic:
+                // visible "Strona główna", "Biblioteka" and "Zainstalowane gry".
+                // These must win over any generic edit/login hints.
+                if ((hasLibrary && hasHome) ||
+                    (hasLibrary && hasInstalled) ||
+                    (hasHome && hasSearch))
+                {
                     return EAUiState.Authenticated;
+                }
 
-                bool loginHint =
-                    text.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    text.IndexOf("TWOJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    text.IndexOf("TWÓJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    text.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0;
-
-                if (loginHint)
+                // The login header/field hints are positive login signals only
+                // when the authenticated navigation is not present.
+                if (hasLoginHeader || hasEmailHint || hasPasswordHint)
                     return EAUiState.Login;
 
-                // Only perform the second UIA query when the text itself was
-                // not enough to decide. This avoids scanning the whole tree
-                // twice on every polling cycle.
-                return CountVisibleEdits(hwnd) >= 1
-                    ? EAUiState.Login
-                    : EAUiState.Unknown;
+                // A login page normally exposes an Edit, while the authenticated
+                // screen's search field is already handled by the strong auth
+                // checks above.
+                if (visibleEdits >= 1)
+                    return EAUiState.Login;
+
+                return EAUiState.Unknown;
             }
             catch
             {
@@ -575,26 +625,6 @@ namespace PlayniteAccountManager.Services
                 return true;
 
             return false;
-        }
-
-        private static int CountVisibleEdits(IntPtr hwnd)
-        {
-            try
-            {
-                AutomationElement root = AutomationElement.FromHandle(hwnd);
-                if (root == null)
-                    return 0;
-
-                return root.FindAll(TreeScope.Descendants,
-                    new AndCondition(
-                        new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit),
-                        new PropertyCondition(AutomationElement.IsEnabledProperty, true),
-                        new PropertyCondition(AutomationElement.IsOffscreenProperty, false))).Count;
-            }
-            catch
-            {
-                return 0;
-            }
         }
 
         private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
