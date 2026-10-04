@@ -64,6 +64,7 @@ namespace PlayniteAccountManager.Services
 
                 StopLauncherProcesses();
                 TryStopBackgroundService();
+                log("EA App: procesy i usługa przygotowane do zmiany sesji.");
 
                 if (hasSavedSession)
                 {
@@ -72,13 +73,12 @@ namespace PlayniteAccountManager.Services
                     if (!sessionStore.Restore(account.Id, out error))
                         return false;
 
-                    if (!StartEA(exe))
-                    {
-                        error = "Nie udało się uruchomić EA App po przywróceniu sesji.";
+                    if (!StartEAWithService(exe, out error))
                         return false;
-                    }
 
-                    if (uiAutomation.WaitUntilAuthenticated(25, out error))
+                    log("EA App: uruchomienie po przywróceniu sesji zakończone. Czekam na potwierdzenie zalogowania.");
+
+                    if (uiAutomation.WaitUntilAuthenticated(15, out error))
                     {
                         log("EA App: zapisany stan sesji konta „" + account.Name + "” działa poprawnie.");
                         return true;
@@ -93,11 +93,8 @@ namespace PlayniteAccountManager.Services
                     if (!sessionStore.ClearLiveState(out error))
                         return false;
 
-                    if (!StartEA(exe))
-                    {
-                        error = "Nie udało się ponownie uruchomić EA App.";
+                    if (!StartEAWithService(exe, out error))
                         return false;
-                    }
                 }
                 else
                 {
@@ -106,17 +103,15 @@ namespace PlayniteAccountManager.Services
                     if (!sessionStore.ClearLiveState(out error))
                         return false;
 
-                    if (!StartEA(exe))
-                    {
-                        error = "Nie udało się uruchomić EA App.";
+                    if (!StartEAWithService(exe, out error))
                         return false;
-                    }
                 }
 
                 if (!uiAutomation.PrepareAndLogin(account.UserName, password, 20, out error))
                     return false;
 
                 string saveError;
+                log("EA App: logowanie zakończone. Zapisuję snapshot sesji dla tego konta.");
                 if (!sessionStore.SaveCurrent(account.Id, out saveError))
                 {
                     // The game can still start with the newly authenticated
@@ -191,21 +186,115 @@ namespace PlayniteAccountManager.Services
             Thread.Sleep(250);
         }
 
-        private static bool StartEA(string exe)
+        private bool StartEAWithService(string exe, out string error)
         {
-            IntPtr hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
-            if (hwnd != IntPtr.Zero)
-                return true;
+            error = null;
 
-            using (var p = Process.Start(new ProcessStartInfo
+            try
             {
-                FileName = exe,
-                WorkingDirectory = Path.GetDirectoryName(exe),
-                UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Normal
-            }))
+                IntPtr existing = EAAppUiAutomation.FindMainWindowHandlePublic();
+                if (existing != IntPtr.Zero)
+                {
+                    return true;
+                }
+
+                Log("EA App: uruchamiam usługę EABackgroundService.");
+                TryStartBackgroundService();
+
+                logStatic("EA App: uruchamiam EADesktop.exe: " + exe);
+
+                using (var p = Process.Start(new ProcessStartInfo
+                {
+                    FileName = exe,
+                    WorkingDirectory = Path.GetDirectoryName(exe),
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Normal
+                }))
+                {
+                    if (p == null)
+                    {
+                        error = "Nie udało się uruchomić EADesktop.exe.";
+                        return false;
+                    }
+                }
+
+                // EADesktop.exe is a launcher/bootstrapper. Give it a short
+                // head start, then let UIAutomation discover the actual Qt
+                // window. This avoids the previous long blind delay.
+                Thread.Sleep(450);
+
+                IntPtr hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
+                if (hwnd != IntPtr.Zero)
+                {
+                    logStatic("EA App: okno główne zostało wykryte.");
+                    return true;
+                }
+
+                // If the first process is still bootstrapping, give it a few
+                // quick checks rather than sleeping for tens of seconds.
+                DateTime deadline = DateTime.UtcNow.AddSeconds(12);
+                while (DateTime.UtcNow < deadline)
+                {
+                    Thread.Sleep(250);
+                    hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
+                    if (hwnd != IntPtr.Zero)
+                    {
+                        logStatic("EA App: okno główne wykryte po uruchomieniu.");
+                        return true;
+                    }
+                }
+
+                error = "EADesktop.exe został uruchomiony, ale EA App nie utworzyła okna w ciągu 12 sekund.";
+                logStatic("EA App: " + error);
+                return false;
+            }
+            catch (Exception ex)
             {
-                return p != null;
+                error = "Nie udało się uruchomić EA App: " + ex.Message;
+                logStatic(error);
+                return false;
+            }
+        }
+
+        private void TryStartBackgroundService()
+        {
+            try
+            {
+                using (var p = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "sc.exe",
+                    Arguments = "start EABackgroundService",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                }))
+                {
+                    if (p == null)
+                        return;
+
+                    string stdout = p.StandardOutput.ReadToEnd();
+                    string stderr = p.StandardError.ReadToEnd();
+                    p.WaitForExit(4000);
+
+                    if (p.ExitCode == 0)
+                    {
+                        logStatic("EA App: usługa EABackgroundService została uruchomiona.");
+                    }
+                    else if (stdout.IndexOf("already been started", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                             stderr.IndexOf("already been started", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        logStatic("EA App: EABackgroundService już działa.");
+                    }
+                    else
+                    {
+                        logStatic("EA App: start EABackgroundService zwrócił kod " + p.ExitCode + ".");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logStatic("EA App: nie udało się uruchomić EABackgroundService: " + ex.Message);
             }
         }
 
