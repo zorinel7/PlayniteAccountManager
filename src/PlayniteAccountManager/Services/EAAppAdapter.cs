@@ -279,22 +279,22 @@ namespace PlayniteAccountManager.Services
 
                     if (p.ExitCode == 0)
                     {
-                        logStatic("EA App: usługa EABackgroundService została uruchomiona.");
+                        log("EA App: usługa EABackgroundService została uruchomiona.");
                     }
                     else if (stdout.IndexOf("already been started", StringComparison.OrdinalIgnoreCase) >= 0 ||
                              stderr.IndexOf("already been started", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        logStatic("EA App: EABackgroundService już działa.");
+                        log("EA App: EABackgroundService już działa.");
                     }
                     else
                     {
-                        logStatic("EA App: start EABackgroundService zwrócił kod " + p.ExitCode + ".");
+                        log("EA App: start EABackgroundService zwrócił kod " + p.ExitCode + ".");
                     }
                 }
             }
             catch (Exception ex)
             {
-                logStatic("EA App: nie udało się uruchomić EABackgroundService: " + ex.Message);
+                log("EA App: nie udało się uruchomić EABackgroundService: " + ex.Message);
             }
         }
 
