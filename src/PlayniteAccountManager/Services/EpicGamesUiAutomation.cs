@@ -142,7 +142,7 @@ namespace PlayniteAccountManager.Services
             IntPtr hwnd, string[] names, int maxTabs, string description)
         {
             AutomationElement element = FindNamedInvokable(hwnd, names);
-            if (element != null && Invoke(element))
+            if (element != null && TryInvoke(element))
             {
                 log("Epic Games UIA: wykonano " + description + ".");
                 return true;
