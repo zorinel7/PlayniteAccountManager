@@ -107,9 +107,7 @@ namespace PlayniteAccountManager
             catch (Exception ex)
             {
                 logger.Error(ex, "Nie udało się otworzyć Menadżera Kont.");
-                PlayniteApi.Dialogs.ShowErrorMessage("Nie udało się otworzyć Menadżera Kont.
-
-" + ex.Message, "Menadżer Kont");
+                PlayniteApi.Dialogs.ShowErrorMessage("Nie udało się otworzyć Menadżera Kont.\n\n" + ex.Message, "Menadżer Kont");
             }
         }
 
