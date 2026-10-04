@@ -1,3 +1,74 @@
+using AutomationCondition = System.Windows.Automation.Condition;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
+using System.Windows;
+using System.Windows.Automation;
+
+namespace PlayniteAccountManager.Services
+{
+    /// <summary>
+    /// EA App UI automation used only for the first login of an account.
+    /// Account switching itself is handled by EAAppSessionStore, which swaps
+    /// the launcher session files instead of clicking EA's logout menu.
+    /// </summary>
+    internal sealed class EAAppUiAutomation
+    {
+        private readonly Action<string> log;
+        private const int SW_RESTORE = 9;
+
+        private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+        private const uint MOUSEEVENTF_LEFTUP = 0x0004;
+
+        public EAAppUiAutomation(Action<string> log)
+        {
+            this.log = log ?? (_ => { });
+        }
+
+        public static IntPtr FindMainWindowHandlePublic()
+        {
+            return FindMainWindowHandle();
+        }
+
+        public bool PrepareAndLogin(string username, string password, int timeoutSeconds, out string error)
+        {
+            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
+                return PrepareAndLoginCore(username, password, timeoutSeconds, out error);
+
+            bool result = false;
+            string workerError = null;
+            Exception workerException = null;
+
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    result = PrepareAndLoginCore(username, password, timeoutSeconds, out workerError);
+                }
+                catch (Exception ex)
+                {
+                    workerException = ex;
+                }
+            });
+
+            thread.IsBackground = true;
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
+            thread.Join();
+
+            if (workerException != null)
+            {
+                error = "Błąd wątku automatyzacji EA App: " + workerException.Message;
+                return false;
+            }
+
+            error = workerError;
+            return result;
+        }
 
         public bool WaitUntilAuthenticated(int timeoutSeconds, out string error)
         {
@@ -19,18 +90,51 @@
                     return true;
 
                 Thread.Sleep(140);
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                    continue;
             }
 
             error = "EA App nie potwierdziła zalogowania.";
             return false;
         }
 
+        private bool PrepareAndLoginCore(string username, string password, int timeoutSeconds, out string error)
+        {
+            error = null;
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
+            {
+                error = "Brak loginu lub hasła zapisanych dla konta EA App.";
+                return false;
+            }
+
+            IntPtr hwnd = WaitForMainWindow(timeoutSeconds);
+            if (hwnd == IntPtr.Zero)
+            {
+                error = "Nie znaleziono okna EA App po uruchomieniu.";
+                return false;
+            }
+
+            EnsureWindowForeground(hwnd);
+
+            // After session reset there should be a login page. We do not
+            // perform GUI logout and we do not touch "Nie wylogowuj mnie".
+            if (!WaitForLoginScreen(hwnd, 6))
+                log("EA App: UIA nie potwierdziła ekranu logowania. Używam natywnego logowania.");
+
+            if (!PerformLogin(hwnd, username, password, 10, out error))
+                return false;
+
+            return WaitUntilAuthenticated(15, out error);
+        }
+
         private bool PerformLogin(IntPtr hwnd, string username, string password, int timeoutSeconds, out string error)
         {
             error = null;
 
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Min(4, Math.Max(2, timeoutSeconds)));
             AutomationElement emailEdit = null;
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Min(4, Math.Max(2, timeoutSeconds)));
 
             while (DateTime.UtcNow < deadline && emailEdit == null)
             {
@@ -40,10 +144,12 @@
             }
 
             if (emailEdit != null && FocusElement(emailEdit))
-                log("EA UIA: znaleziono i ustawiono fokus pola e-mail.");
+            {
+                log("EA UIA: ustawiono fokus pola e-mail.");
+            }
             else
             {
-                log("EA UIA: pole e-mail nie jest dostępne przez UIA. Używam natywnego kliknięcia.");
+                log("EA UIA: pole e-mail nie jest dostępne. Używam natywnego kliknięcia.");
                 if (!NativeClickRelative(hwnd, 0.50, 0.49, "pole e-mail / EA ID"))
                 {
                     error = "Nie udało się ustawić pola e-mail / EA ID.";
@@ -57,15 +163,16 @@
                 return false;
             }
 
-            // Important: do NOT toggle "Nie wylogowuj mnie". The account
-            // snapshot contains the login state that belongs to this account.
             Thread.Sleep(100);
 
             AutomationElement next = FindButtonByNames(hwnd, "Dalej", "Continue", "Next");
             if (next != null && Invoke(next))
+            {
                 log("EA UIA: wykonano przycisk „Dalej”.");
+            }
             else
             {
+                log("EA UIA: przycisk „Dalej” nie jest dostępny. Używam natywnego kliknięcia / Enter.");
                 if (!NativeClickRelative(hwnd, 0.50, 0.685, "przycisk „DALEJ”") &&
                     !NativeKeyboardInput.SendEnter(log))
                 {
@@ -78,6 +185,7 @@
 
             AutomationElement passwordEdit = null;
             DateTime passDeadline = DateTime.UtcNow.AddSeconds(4);
+
             while (DateTime.UtcNow < passDeadline && passwordEdit == null)
             {
                 passwordEdit = FindPasswordEdit(hwnd);
@@ -86,10 +194,12 @@
             }
 
             if (passwordEdit != null && FocusElement(passwordEdit))
-                log("EA UIA: znaleziono i ustawiono fokus pola hasła.");
+            {
+                log("EA UIA: ustawiono fokus pola hasła.");
+            }
             else
             {
-                log("EA UIA: pole hasła nie jest dostępne przez UIA. Używam natywnego kliknięcia.");
+                log("EA UIA: pole hasła nie jest dostępne. Używam natywnego kliknięcia.");
                 if (!NativeClickRelative(hwnd, 0.50, 0.47, "pole hasła"))
                 {
                     error = "Nie udało się ustawić pola hasła EA App.";
@@ -105,11 +215,16 @@
 
             Thread.Sleep(220);
 
-            AutomationElement loginButton = FindButtonByNames(hwnd, "Zaloguj", "Zaloguj się", "Log in", "Sign in");
+            AutomationElement loginButton = FindButtonByNames(
+                hwnd, "Zaloguj", "Zaloguj się", "Log in", "Sign in");
+
             if (loginButton != null && Invoke(loginButton))
+            {
                 log("EA UIA: wykonano przycisk logowania.");
+            }
             else
             {
+                log("EA UIA: przycisk logowania nie jest dostępny. Używam natywnego kliknięcia / Enter.");
                 if (!NativeClickRelative(hwnd, 0.50, 0.56, "przycisk „ZALOGUJ”") &&
                     !NativeKeyboardInput.SendEnter(log))
                 {
@@ -127,7 +242,8 @@
             if (root == null)
                 return null;
 
-            var edits = root.FindAll(TreeScope.Descendants,
+            var edits = root.FindAll(
+                TreeScope.Descendants,
                 new AndCondition(
                     new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit),
                     new PropertyCondition(AutomationElement.IsEnabledProperty, true),
@@ -143,7 +259,8 @@
             if (root == null)
                 return null;
 
-            var edits = root.FindAll(TreeScope.Descendants,
+            var edits = root.FindAll(
+                TreeScope.Descendants,
                 new AndCondition(
                     new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Edit),
                     new PropertyCondition(AutomationElement.IsEnabledProperty, true),
@@ -166,13 +283,14 @@
         private static List<AutomationElement> OrderByScreenPosition(AutomationElementCollection collection)
         {
             var list = new List<Tuple<double, AutomationElement>>();
+
             foreach (AutomationElement e in collection)
             {
                 try
                 {
-                    var r = e.Current.BoundingRectangle;
-                    if (r.Width > 0 && r.Height > 0)
-                        list.Add(Tuple.Create(r.Top * 100000 + r.Left, e));
+                    var rect = e.Current.BoundingRectangle;
+                    if (rect.Width > 0 && rect.Height > 0)
+                        list.Add(Tuple.Create(rect.Top * 100000 + rect.Left, e));
                 }
                 catch { }
             }
@@ -188,16 +306,18 @@
                 return null;
 
             var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
+
             foreach (AutomationElement e in all)
             {
                 try
                 {
-                    if (!e.Current.IsEnabled || e.Current.IsOffscreen)
-                        continue;
-                    if (e.Current.ControlType != ControlType.Button)
+                    if (!e.Current.IsEnabled ||
+                        e.Current.IsOffscreen ||
+                        e.Current.ControlType != ControlType.Button)
                         continue;
 
                     string name = e.Current.Name ?? string.Empty;
+
                     if (names.Any(n => name.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0))
                         return e;
                 }
@@ -205,315 +325,6 @@
             }
 
             return null;
-        }
-
-        private static bool IsLoginScreen(IntPtr hwnd)
-        {
-            return DetectEAState(hwnd) == EAUiState.Login;
-        }
-
-        private static bool IsAuthenticatedScreen(IntPtr hwnd)
-        {
-            return DetectEAState(hwnd) == EAUiState.Authenticated;
-        }
-
-        private static bool WaitForEAState(IntPtr hwnd, int seconds, out bool authenticated)
-        {
-            authenticated = false;
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
-
-            while (DateTime.UtcNow < deadline)
-            {
-                EAUiState state = DetectEAState(hwnd);
-                if (state == EAUiState.Authenticated)
-                {
-                    authenticated = true;
-                    return true;
-                }
-
-                if (state == EAUiState.Login)
-                {
-                    authenticated = false;
-                    return true;
-                }
-
-                Thread.Sleep(120);
-                hwnd = FindMainWindowHandle();
-                if (hwnd == IntPtr.Zero)
-                    continue;
-            }
-
-            EAUiState finalState = DetectEAState(hwnd);
-            if (finalState == EAUiState.Authenticated)
-            {
-                authenticated = true;
-                return true;
-            }
-
-            if (finalState == EAUiState.Login)
-                return true;
-
-            return false;
-        }
-
-        private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
-        {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
-            while (DateTime.UtcNow < deadline)
-            {
-                if (IsLoginScreen(hwnd))
-                    return true;
-
-                Thread.Sleep(120);
-                hwnd = FindMainWindowHandle();
-                if (hwnd == IntPtr.Zero)
-                    continue;
-            }
-
-            return IsLoginScreen(hwnd);
-        }
-
-        private static bool WaitForAuthenticated(IntPtr hwnd, int seconds)
-        {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
-            while (DateTime.UtcNow < deadline)
-            {
-                EAUiState state = DetectEAState(hwnd);
-                if (state == EAUiState.Authenticated)
-                    return true;
-
-                Thread.Sleep(140);
-                hwnd = FindMainWindowHandle();
-                if (hwnd == IntPtr.Zero)
-                    continue;
-            }
-
-            return DetectEAState(hwnd) == EAUiState.Authenticated;
-        }
-
-        private static AutomationElement FindClickableAtRelativeRegion(
-            IntPtr hwnd,
-            double leftPct,
-            double topPct,
-            double rightPct,
-            double bottomPct,
-            bool preferButton)
-        {
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return null;
-
-            double left = rect.Left + (rect.Right - rect.Left) * leftPct;
-            double top = rect.Top + (rect.Bottom - rect.Top) * topPct;
-            double right = rect.Left + (rect.Right - rect.Left) * rightPct;
-            double bottom = rect.Top + (rect.Bottom - rect.Top) * bottomPct;
-
-            AutomationElement best = null;
-            double bestScore = double.MaxValue;
-
-            for (double y = top; y <= Math.Max(top, bottom); y += 6)
-            for (double x = left; x <= Math.Max(left, right); x += 6)
-            {
-                try
-                {
-                    AutomationElement e = AutomationElement.FromPoint(new Point(x, y));
-                    if (e == null || e.Current.IsOffscreen || !e.Current.IsEnabled)
-                        continue;
-
-                    bool invokable = false;
-                    try
-                    {
-                        e.GetCurrentPattern(InvokePattern.Pattern);
-                        invokable = true;
-                    }
-                    catch { }
-
-                    if (!invokable)
-                        continue;
-
-                    if (preferButton &&
-                        e.Current.ControlType != ControlType.Button &&
-                        e.Current.ControlType != ControlType.Custom)
-                        continue;
-
-                    var r = e.Current.BoundingRectangle;
-                    if (r.Width <= 0 || r.Height <= 0)
-                        continue;
-
-                    // Avoid invoking a huge root/container element returned
-                    // by FromPoint instead of the actual clickable control.
-                    if (r.Width > 240 || r.Height > 120)
-                        continue;
-
-                    double centerX = r.Left + r.Width / 2.0;
-                    double centerY = r.Top + r.Height / 2.0;
-                    double targetX = left + (right - left) / 2.0;
-                    double targetY = top + (bottom - top) / 2.0;
-                    double score = Math.Abs(centerX - targetX) + Math.Abs(centerY - targetY);
-
-                    if (score < bestScore)
-                    {
-                        bestScore = score;
-                        best = e;
-                    }
-                }
-                catch { }
-            }
-
-            return best;
-        }
-
-        private static AutomationElement FindTextInPopup(IntPtr hwnd, string[] needles)
-        {
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return null;
-
-            double left = rect.Left;
-            double right = rect.Left + Math.Min(420, rect.Right - rect.Left);
-            double top = rect.Top + Math.Min(100, (rect.Bottom - rect.Top) * 0.12);
-            double bottom = rect.Top + Math.Min(560, (rect.Bottom - rect.Top) * 0.70);
-
-            var seen = new HashSet<int>();
-            for (double y = top; y <= bottom; y += 8)
-            for (double x = left + 5; x <= right; x += 8)
-            {
-                try
-                {
-                    AutomationElement e = AutomationElement.FromPoint(new Point(x, y));
-                    if (e == null || !seen.Add(e.GetHashCode()))
-                        continue;
-
-                    AutomationElement current = e;
-                    for (int level = 0; current != null && level < 8; level++)
-                    {
-                        string name = SafeName(current);
-                        if (!string.IsNullOrWhiteSpace(name) &&
-                            needles.Any(n => name.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0))
-                        {
-                            try
-                            {
-                                if (!current.Current.IsEnabled || current.Current.IsOffscreen)
-                                {
-                                    current = SafeParent(current);
-                                    continue;
-                                }
-                            }
-                            catch { }
-
-                            try
-                            {
-                                current.GetCurrentPattern(InvokePattern.Pattern);
-                                return current;
-                            }
-                            catch { }
-
-                            AutomationElement parent = SafeParent(current);
-                            for (int p = 0; parent != null && p < 5; p++, parent = SafeParent(parent))
-                            {
-                                try
-                                {
-                                    if (!parent.Current.IsEnabled || parent.Current.IsOffscreen)
-                                        continue;
-
-                                    parent.GetCurrentPattern(InvokePattern.Pattern);
-                                    return parent;
-                                }
-                                catch { }
-                            }
-                        }
-
-                        current = SafeParent(current);
-                    }
-                }
-                catch { }
-            }
-
-            return null;
-        }
-
-        private bool TryInvokePointedMenuItem(IntPtr hwnd, double menuX, double menuY)
-        {
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return false;
-
-            int x = rect.Left + (int)Math.Round(menuX);
-            int y = rect.Top + (int)Math.Round(menuY);
-
-            try
-            {
-                AutomationElement current = AutomationElement.FromPoint(new Point(x, y));
-                for (int i = 0; current != null && i < 8; i++, current = SafeParent(current))
-                {
-                    try
-                    {
-                        if (current.Current.IsOffscreen || !current.Current.IsEnabled)
-                            continue;
-
-                        string name = current.Current.Name ?? string.Empty;
-                        log("EA UIA: punkt menu (" + menuX.ToString("0") + "," + menuY.ToString("0") +
-                            ") -> „" + name + "” / " + current.Current.ControlType.ProgrammaticName + ".");
-
-                        // Never invoke a generic Custom ancestor just because it
-                        // happens to expose InvokePattern. It may represent
-                        // another menu row ("Tryb offline") and cause the wrong
-                        // action.
-                        if (name.IndexOf("Wyloguj", StringComparison.OrdinalIgnoreCase) < 0 &&
-                            name.IndexOf("Sign out", StringComparison.OrdinalIgnoreCase) < 0 &&
-                            name.IndexOf("Log out", StringComparison.OrdinalIgnoreCase) < 0)
-                        {
-                            continue;
-                        }
-
-                        try
-                        {
-                            var invoke = (InvokePattern)current.GetCurrentPattern(InvokePattern.Pattern);
-                            invoke.Invoke();
-                            return true;
-                        }
-                        catch { }
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-
-            return false;
-        }
-
-        private bool TryKeyboardMenuLogout()
-        {
-            try
-            {
-                // Start from a known position in the opened menu. This prevents
-                // the previous "five DOWN" routine from depending on where EA
-                // happened to leave keyboard focus.
-                if (!NativeKeyboardInput.Key(VK_HOME, log))
-                    return false;
-
-                Thread.Sleep(70);
-
-                // Menu order shown by the user's EA screenshot:
-                // Widok, Ustawienia, Pomoc, Informacje, Tryb offline,
-                // Wyloguj się, Wyjdź -> five DOWN presses from the first row.
-                for (int i = 0; i < 5; i++)
-                {
-                    if (!NativeKeyboardInput.Key(VK_DOWN, log))
-                        return false;
-                    Thread.Sleep(50);
-                }
-
-                if (!NativeKeyboardInput.SendEnter(log))
-                    return false;
-
-                Thread.Sleep(150);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private enum EAUiState
@@ -538,7 +349,9 @@
                 bool loginEmail = false;
                 bool loginPassword = false;
 
-                foreach (AutomationElement e in root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition))
+                var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
+
+                foreach (AutomationElement e in all)
                 {
                     try
                     {
@@ -546,18 +359,23 @@
                             continue;
 
                         string name = (e.Current.Name ?? string.Empty).Trim();
+
                         if (name.Equals("Biblioteka", StringComparison.OrdinalIgnoreCase))
                             hasLibrary = true;
+
                         if (name.Equals("Strona główna", StringComparison.OrdinalIgnoreCase))
                             hasHome = true;
+
                         if (name.Equals("Zainstalowane gry", StringComparison.OrdinalIgnoreCase))
                             hasInstalled = true;
 
                         if (name.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0)
                             loginHeader = true;
+
                         if (name.IndexOf("TWÓJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
                             name.IndexOf("TWOJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0)
                             loginEmail = true;
+
                         if (name.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0)
                             loginPassword = true;
                     }
@@ -588,108 +406,6 @@
             return DetectEAState(hwnd) == EAUiState.Authenticated;
         }
 
-        private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
-        {
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return false;
-
-            int x = rect.Left + (int)((rect.Right - rect.Left) * xPct);
-            int y = rect.Top + (int)((rect.Bottom - rect.Top) * yPct);
-            return NativeClickScreen(x, y, what);
-        }
-
-        private bool ForceRememberMeUnchecked(IntPtr hwnd)
-        {
-            try
-            {
-                // Put focus on the actual e-mail edit using the same stable
-                // native click already used for login.
-                if (!NativeClickRelative(hwnd, 0.50, 0.49, "pole e-mail przed odznaczeniem"))
-                    return false;
-
-                Thread.Sleep(70);
-
-                // On the current EA login page the next focusable control is
-                // "Nie wylogowuj mnie".
-                if (!NativeKeyboardInput.SendTab(log))
-                    return false;
-
-                Thread.Sleep(70);
-
-                if (!NativeKeyboardInput.Key(0x20, log)) // VK_SPACE
-                    return false;
-
-                Thread.Sleep(180);
-                log("EA keyboard: przełączono „Nie wylogowuj mnie” przez E-mail -> Tab -> Spacja.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                log("EA keyboard: błąd przełączania „Nie wylogowuj mnie”: " + ex.Message);
-                return false;
-            }
-        }
-
-        private bool NativeClickMenuLogoutAt(IntPtr hwnd, double menuX, double menuY)
-        {
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return false;
-
-            // These are screen pixels relative to the top-left of the EA
-            // window. Do not apply DPI scaling a second time.
-            int x = rect.Left + (int)Math.Round(menuX);
-            int y = rect.Top + (int)Math.Round(menuY);
-            return NativeClickScreen(x, y, "pozycję „Wyloguj się”");
-        }
-
-        private bool NativeClickMenuLogout(IntPtr hwnd)
-        {
-            return NativeClickMenuLogoutAt(hwnd, 44.0, 255.0);
-        }
-
-        private bool NativeClickScreen(int x, int y, string what)
-        {
-            try
-            {
-                if (!SetCursorPos(x, y))
-                {
-                    log("EA native: SetCursorPos nie powiódł się dla " + what + ".");
-                    return false;
-                }
-
-                Thread.Sleep(80);
-
-                INPUT[] inputs =
-                {
-                    CreateMouseInput(MOUSEEVENTF_LEFTDOWN),
-                    CreateMouseInput(MOUSEEVENTF_LEFTUP)
-                };
-
-                uint sent = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
-                if (sent != inputs.Length)
-                {
-                    log("EA native: SendInput myszy zwrócił " + sent + "/" + inputs.Length +
-                        " dla " + what + ", Win32=" + Marshal.GetLastWin32Error() +
-                        ". Próbuję mouse_event.");
-
-                    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
-                    Thread.Sleep(60);
-                    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
-                }
-
-                Thread.Sleep(220);
-                log("EA native: wykonano kliknięcie " + what + " w (" + x + "," + y + ").");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                log("EA native: błąd kliknięcia " + what + ": " + ex.Message);
-                return false;
-            }
-        }
-
         private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
         {
             DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
@@ -708,28 +424,70 @@
             return IsLoginScreen(hwnd);
         }
 
-        private static bool WaitForAuthenticated(int seconds, out string error)
+        private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
         {
-            error = null;
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
+            RECT rect;
+            if (!GetWindowRect(hwnd, out rect))
+                return false;
 
-            while (DateTime.UtcNow < deadline)
-            {
-                IntPtr hwnd = FindMainWindowHandle();
-                if (hwnd != IntPtr.Zero && IsAuthenticatedScreen(hwnd))
-                    return true;
+            int x = rect.Left + (int)Math.Round((rect.Right - rect.Left) * xPct);
+            int y = rect.Top + (int)Math.Round((rect.Bottom - rect.Top) * yPct);
 
-                Thread.Sleep(140);
-            }
-
-            error = "EA App nie potwierdziła zalogowania.";
-            return false;
+            return NativeClickScreen(x, y, what);
         }
 
-        private static AutomationElement SafeParent(AutomationElement element)
+        private bool NativeClickScreen(int x, int y, string what)
         {
-            try { return element == null ? null : TreeWalker.RawViewWalker.GetParent(element); }
-            catch { return null; }
+            try
+            {
+                if (!SetCursorPos(x, y))
+                    return false;
+
+                Thread.Sleep(40);
+
+                INPUT[] inputs =
+                {
+                    CreateMouseInput(MOUSEEVENTF_LEFTDOWN),
+                    CreateMouseInput(MOUSEEVENTF_LEFTUP)
+                };
+
+                uint sent = SendInput(
+                    (uint)inputs.Length,
+                    inputs,
+                    Marshal.SizeOf(typeof(INPUT)));
+
+                if (sent != inputs.Length)
+                {
+                    log("EA native: SendInput nie wykonał pełnego kliknięcia " + what + ".");
+                    return false;
+                }
+
+                Thread.Sleep(120);
+                log("EA native: wykonano kliknięcie " + what + " w (" + x + "," + y + ").");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log("EA native: błąd kliknięcia " + what + ": " + ex.Message);
+                return false;
+            }
+        }
+
+        private static INPUT CreateMouseInput(uint flags)
+        {
+            return new INPUT
+            {
+                type = 0,
+                u = new InputUnion
+                {
+                    mi = new MOUSEINPUT
+                    {
+                        dwFlags = flags,
+                        time = 0,
+                        dwExtraInfo = UIntPtr.Zero
+                    }
+                }
+            };
         }
 
         private static bool Invoke(AutomationElement element)
@@ -754,7 +512,7 @@
                     return false;
 
                 element.SetFocus();
-                Thread.Sleep(120);
+                Thread.Sleep(80);
                 return true;
             }
             catch
@@ -763,49 +521,17 @@
             }
         }
 
-        private static string GetVisibleText(IntPtr hwnd)
-        {
-            try
-            {
-                AutomationElement root = AutomationElement.FromHandle(hwnd);
-                if (root == null)
-                    return string.Empty;
-
-                var names = new List<string>();
-                foreach (AutomationElement e in root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition))
-                {
-                    try
-                    {
-                        if (!e.Current.IsOffscreen && !string.IsNullOrWhiteSpace(e.Current.Name))
-                            names.Add(e.Current.Name);
-                    }
-                    catch { }
-                }
-
-                return string.Join(" ", names);
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        private static string SafeName(AutomationElement e)
-        {
-            try { return e.Current.Name ?? string.Empty; }
-            catch { return string.Empty; }
-        }
-
         private static IntPtr WaitForMainWindow(int timeoutSeconds)
         {
             DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, timeoutSeconds));
+
             while (DateTime.UtcNow < deadline)
             {
                 IntPtr hwnd = FindMainWindowHandle();
                 if (hwnd != IntPtr.Zero)
                     return hwnd;
 
-                Thread.Sleep(120);
+                Thread.Sleep(80);
             }
 
             return IntPtr.Zero;
@@ -813,24 +539,28 @@
 
         private static IntPtr FindMainWindowHandle()
         {
-            foreach (Process p in SafeGetProcesses("EADesktop"))
+            foreach (Process process in SafeGetProcesses("EADesktop"))
             {
                 try
                 {
-                    if (p.HasExited)
+                    if (process.HasExited)
                         continue;
 
-                    IntPtr hwnd = p.MainWindowHandle;
+                    IntPtr hwnd = process.MainWindowHandle;
+
                     if (IsUsefulEAMainWindow(hwnd))
                         return hwnd;
                 }
                 catch { }
-                finally { p.Dispose(); }
+                finally
+                {
+                    process.Dispose();
+                }
             }
 
-            IntPtr found = FindEADesktopWindowByEnumeration();
-            if (found != IntPtr.Zero)
-                return found;
+            IntPtr enumerated = FindEADesktopWindowByEnumeration();
+            if (enumerated != IntPtr.Zero)
+                return enumerated;
 
             return FindWindow(null, "EA");
         }
@@ -847,15 +577,22 @@
 
                 StringBuilder title = new StringBuilder(64);
                 GetWindowText(hwnd, title, title.Capacity);
+
                 return title.ToString().Equals("EA", StringComparison.OrdinalIgnoreCase) ||
-                       GetWindowClassName(hwnd).Equals("Qt5152QWindowOwnDCIcon", StringComparison.OrdinalIgnoreCase);
+                       GetWindowClassName(hwnd).Equals(
+                           "Qt5152QWindowOwnDCIcon",
+                           StringComparison.OrdinalIgnoreCase);
             }
-            catch { return false; }
+            catch
+            {
+                return false;
+            }
         }
 
         private static IntPtr FindEADesktopWindowByEnumeration()
         {
             IntPtr result = IntPtr.Zero;
+
             EnumWindows((hwnd, lParam) =>
             {
                 if (!IsWindowVisible(hwnd))
@@ -866,20 +603,22 @@
 
                 try
                 {
-                    using (var p = Process.GetProcessById((int)pid))
+                    using (var process = Process.GetProcessById((int)pid))
                     {
-                        if (!p.ProcessName.Equals("EADesktop", StringComparison.OrdinalIgnoreCase))
+                        if (!process.ProcessName.Equals("EADesktop", StringComparison.OrdinalIgnoreCase))
                             return true;
                     }
                 }
-                catch { return true; }
+                catch
+                {
+                    return true;
+                }
 
                 string className = GetWindowClassName(hwnd);
-                StringBuilder title = new StringBuilder(64);
-                GetWindowText(hwnd, title, title.Capacity);
 
-                if (className.Equals("Qt5152QWindowOwnDCIcon", StringComparison.OrdinalIgnoreCase) ||
-                    title.ToString().Equals("EA", StringComparison.OrdinalIgnoreCase))
+                if (className.Equals(
+                        "Qt5152QWindowOwnDCIcon",
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     result = hwnd;
                     return false;
@@ -887,28 +626,40 @@
 
                 return true;
             }, IntPtr.Zero);
+
             return result;
         }
 
         private static string GetWindowClassName(IntPtr hwnd)
         {
             StringBuilder sb = new StringBuilder(128);
+
             try
             {
                 GetClassName(hwnd, sb, sb.Capacity);
                 return sb.ToString();
             }
-            catch { return string.Empty; }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         private static IEnumerable<Process> SafeGetProcesses(string name)
         {
-            Process[] ps;
-            try { ps = Process.GetProcessesByName(name); }
-            catch { yield break; }
+            Process[] processes;
 
-            foreach (var p in ps)
-                yield return p;
+            try
+            {
+                processes = Process.GetProcessesByName(name);
+            }
+            catch
+            {
+                yield break;
+            }
+
+            foreach (Process process in processes)
+                yield return process;
         }
 
         private static bool EnsureWindowForeground(IntPtr hwnd)
@@ -920,61 +671,22 @@
             {
                 ShowWindow(hwnd, SW_RESTORE);
 
-                IntPtr foreground = GetForegroundWindow();
-                uint currentThread = GetCurrentThreadId();
-                uint foregroundThread = foreground == IntPtr.Zero ? 0 : GetWindowThreadProcessId(foreground, IntPtr.Zero);
-                uint targetThread = GetWindowThreadProcessId(hwnd, IntPtr.Zero);
-
-                bool attached = false;
-                try
+                for (int i = 0; i < 4; i++)
                 {
-                    if (foregroundThread != 0 && targetThread != 0 && foregroundThread != targetThread)
-                    {
-                        attached = AttachThreadInput(foregroundThread, currentThread, true);
-                        if (attached)
-                            AttachThreadInput(currentThread, targetThread, true);
-                    }
+                    if (GetForegroundWindow() == hwnd)
+                        return true;
 
-                    for (int i = 0; i < 8; i++)
-                    {
-                        if (GetForegroundWindow() == hwnd)
-                            return true;
-
-                        BringWindowToTop(hwnd);
-                        SetForegroundWindow(hwnd);
-                        Thread.Sleep(100);
-                    }
-
-                    return GetForegroundWindow() == hwnd;
+                    BringWindowToTop(hwnd);
+                    SetForegroundWindow(hwnd);
+                    Thread.Sleep(50);
                 }
-                finally
-                {
-                    if (attached)
-                    {
-                        if (targetThread != 0)
-                            AttachThreadInput(currentThread, targetThread, false);
-                        if (foregroundThread != 0)
-                            AttachThreadInput(foregroundThread, currentThread, false);
-                    }
-                }
+
+                return GetForegroundWindow() == hwnd;
             }
             catch
             {
                 return false;
             }
-        }
-
-        private const uint INPUT_MOUSE = 0;
-        private const uint WM_MOUSEMOVE = 0x0200;
-        private const uint WM_LBUTTONDOWN = 0x0201;
-        private const uint WM_LBUTTONUP = 0x0202;
-        private const int MK_LBUTTON = 0x0001;
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct POINT
-        {
-            public int X;
-            public int Y;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -1002,26 +714,6 @@
             public UIntPtr dwExtraInfo;
         }
 
-        private static INPUT CreateMouseInput(uint flags)
-        {
-            return new INPUT
-            {
-                type = INPUT_MOUSE,
-                u = new InputUnion
-                {
-                    mi = new MOUSEINPUT
-                    {
-                        dx = 0,
-                        dy = 0,
-                        mouseData = 0,
-                        dwFlags = flags,
-                        time = 0,
-                        dwExtraInfo = UIntPtr.Zero
-                    }
-                }
-            };
-        }
-
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT
         {
@@ -1030,6 +722,8 @@
             public int Right;
             public int Bottom;
         }
+
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
@@ -1043,60 +737,37 @@
         [DllImport("user32.dll")]
         private static extern bool BringWindowToTop(IntPtr hWnd);
 
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport("user32.dll")]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
-        [DllImport("user32.dll")]
-        private static extern bool IsWindowVisible(IntPtr hWnd);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowText(
+            IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+        private static extern int GetClassName(
+            IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
+        private static extern IntPtr FindWindow(
+            string lpClassName, string lpWindowName);
 
         [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+        private static extern uint GetWindowThreadProcessId(
+            IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(
+            IntPtr hWnd, out RECT lpRect);
 
         [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr WindowFromPoint(POINT point);
-
-        [DllImport("user32.dll")]
-        private static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-
         [DllImport("user32.dll", SetLastError = true)]
-        private static extern uint SendInput(uint nInputs, [In] INPUT[] pInputs, int cbSize);
-
-        [DllImport("user32.dll")]
-        private static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, UIntPtr dwExtraInfo);
-
-        [DllImport("user32.dll")]
-        private static extern uint GetCurrentThreadId();
-
-        [DllImport("user32.dll")]
-        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr lpdwProcessId);
-
-        [DllImport("user32.dll")]
-        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetDC(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
-
-        [DllImport("gdi32.dll")]
-        private static extern uint GetPixel(IntPtr hdc, int x, int y);
+        private static extern uint SendInput(
+            uint nInputs, [In] INPUT[] pInputs, int cbSize);
     }
 }
