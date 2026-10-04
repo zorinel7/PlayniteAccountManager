@@ -276,8 +276,7 @@ namespace PlayniteAccountManager.EAHelper
             try
             {
                 string resultFile = requestFile + ".result";
-                string content = ok ? "OK" : "ERROR
-" + (error ?? "Nieznany błąd.");
+                string content = ok ? "OK" : "ERROR\\n" + (error ?? "Nieznany błąd.");
                 File.WriteAllText(resultFile, content);
 
                 return ok ? 0 : 1;
