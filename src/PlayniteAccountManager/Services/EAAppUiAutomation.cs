@@ -144,9 +144,8 @@ namespace PlayniteAccountManager.Services
             if (!EnsureWindowForeground(hwnd))
                 log("EA App: nie uzyskano pełnej pewności aktywnego okna, ale kontynuuję.");
 
-            // EA's hamburger is not exposed reliably through UIA. Use the
-            // actual on-screen click first; UIA is only a fallback.
-            log("EA: otwieram menu przez natywne kliknięcie hamburgera.");
+            // The hamburger is stable in the supplied 1664x900 screenshot.
+            // Use the real click first so Qt/Cef receives normal mouse input.
             if (!NativeClickRelative(hwnd, 0.010, 0.017, "hamburger menu"))
             {
                 AutomationElement button = FindClickableAtRelativeRegion(hwnd, 0.0, 0.0, 0.055, 0.055, true);
@@ -157,66 +156,49 @@ namespace PlayniteAccountManager.Services
                 }
             }
 
-            Thread.Sleep(280);
+            Thread.Sleep(220);
 
-            // The supplied screenshot shows the logout row at roughly
-            // y=255 px. Start with the center of the text row, then try two
-            // nearby points only when the first click did not change state.
-            double[,] logoutPoints =
+            // First try the exact logout item via UIA hit-testing. This is much
+            // cheaper and more reliable than scanning an 8 px grid of the popup.
+            if (TryInvokePointedMenuItem(hwnd, 56.0, 254.0))
             {
-                { 56.0, 255.0 },
-                { 44.0, 255.0 },
-                { 72.0, 255.0 }
-            };
-
-            for (int i = 0; i < logoutPoints.GetLength(0); i++)
-            {
-                if (NativeClickMenuLogoutAt(hwnd, logoutPoints[i, 0], logoutPoints[i, 1]))
-                {
-                    log("EA native: kliknięto „Wyloguj się” (" +
-                        logoutPoints[i, 0].ToString("0") + "," +
-                        logoutPoints[i, 1].ToString("0") + ").");
-
-                    if (WaitForLoginScreen(hwnd, 2))
-                    {
-                        log("EA: wylogowanie potwierdzone ekranem logowania.");
-                        return true;
-                    }
-
-                    Thread.Sleep(100);
-                }
-            }
-
-            // UIA fallback: some EA builds expose the menu row only after it
-            // has been rendered for a moment.
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, timeoutSeconds));
-            while (DateTime.UtcNow < deadline)
-            {
-                AutomationElement logout = FindVisibleNamedInvokable(hwnd, new[] { "Wyloguj się", "Wyloguj", "Sign out", "Log out" });
-                if (logout == null)
-                    logout = FindTextInPopup(hwnd, new[] { "Wyloguj się", "Wyloguj", "Sign out", "Log out" });
-
-                if (logout != null)
-                {
-                    log("EA UIA: znaleziono pozycję wylogowania: „" + SafeName(logout) + "”.");
-                    if (Invoke(logout) && WaitForLoginScreen(hwnd, 2))
-                        return true;
-                    break;
-                }
-
-                Thread.Sleep(100);
-            }
-
-            // Last fallback: if the menu captured keyboard focus, navigate to
-            // the logout row and press Enter.
-            if (TryKeyboardMenuLogout())
-            {
-                log("EA native: próba wylogowania przez nawigację klawiaturą.");
+                log("EA UIA: wykonano „Wyloguj się” przez punkt menu.");
                 if (WaitForLoginScreen(hwnd, 2))
                     return true;
             }
 
-            error = "Po otwarciu menu EA App nie udało się wykonać pozycji „Wyloguj się”.";
+            // Real click: screenshot shows the center of the logout row at
+            // about x=56, y=254 px from the top-left of the EA window.
+            if (NativeClickMenuLogoutAt(hwnd, 56.0, 254.0) &&
+                WaitForLoginScreen(hwnd, 2))
+            {
+                log("EA: wylogowanie potwierdzone po natywnym kliknięciu.");
+                return true;
+            }
+
+            // Some Qt/Cef builds ignore SendInput at the top-level window but
+            // react to WM_LBUTTON messages sent to the child under the cursor.
+            if (NativeClickMenuLogoutMessage(hwnd, 56.0, 254.0) &&
+                WaitForLoginScreen(hwnd, 2))
+            {
+                log("EA: wylogowanie potwierdzone po WM_LBUTTON.");
+                return true;
+            }
+
+            // Keyboard fallback: the menu has 7 rows in the supplied screenshot,
+            // with logout as item #6 -> five DOWN presses from the first row.
+            if (TryKeyboardMenuLogout() && WaitForLoginScreen(hwnd, 2))
+            {
+                log("EA: wylogowanie potwierdzone przez klawiaturę.");
+                return true;
+            }
+
+            // Final UIA text fallback for builds with a delayed accessibility tree.
+            AutomationElement logout = FindVisibleNamedInvokable(hwnd, new[] { "Wyloguj się", "Wyloguj", "Sign out", "Log out" });
+            if (logout != null && Invoke(logout) && WaitForLoginScreen(hwnd, 2))
+                return true;
+
+            error = "EA App nie wykonała polecenia „Wyloguj się”.";
             return false;
         }
 
@@ -265,12 +247,25 @@ namespace PlayniteAccountManager.Services
 
             Thread.Sleep(250);
 
-            // IMPORTANT: do this after the e-mail has been entered. On some
-            // EA Qt/Cef builds clicking the checkbox before the first edit can
-            // steal focus and make the subsequent keyboard input unreliable.
+            // EA's current login form keeps focus in the e-mail edit after
+            // TypeText(). The first Tab moves to "Nie wylogowuj mnie".
+            // Prefer the real UIA TogglePattern when it exists; otherwise use
+            // the deterministic Tab + Space path because this checkbox is
+            // checked by default on the current EA login screen.
             bool rememberMeChanged = EnsureRememberMeUnchecked(hwnd);
             if (!rememberMeChanged)
-                log("EA: nie potwierdzono stanu „Nie wylogowuj mnie”; kontynuuję logowanie, aby nie blokować testu.");
+            {
+                log("EA: UIA nie udostępnia checkboxa. Używam pewnej ścieżki: Tab + Spacja.");
+                if (NativeKeyboardInput.SendTab(log))
+                {
+                    Thread.Sleep(60);
+                    if (NativeKeyboardInput.Key(0x20, log))
+                    {
+                        Thread.Sleep(180);
+                        log("EA keyboard: przełączono „Nie wylogowuj mnie” przez Tab + Spacja.");
+                    }
+                }
+            }
 
             Thread.Sleep(180);
 
@@ -778,6 +773,93 @@ namespace PlayniteAccountManager.Services
             return null;
         }
 
+        private bool TryInvokePointedMenuItem(IntPtr hwnd, double menuX, double menuY)
+        {
+            RECT rect;
+            if (!GetWindowRect(hwnd, out rect))
+                return false;
+
+            double scale = 1.0;
+            try
+            {
+                // The coordinates from the supplied screenshot are already
+                // physical screen pixels. A DPI scale is not applied.
+                scale = 1.0;
+            }
+            catch { }
+
+            int x = rect.Left + (int)Math.Round(menuX * scale);
+            int y = rect.Top + (int)Math.Round(menuY * scale);
+
+            try
+            {
+                AutomationElement current = AutomationElement.FromPoint(new Point(x, y));
+                for (int i = 0; current != null && i < 8; i++, current = SafeParent(current))
+                {
+                    try
+                    {
+                        if (current.Current.IsOffscreen || !current.Current.IsEnabled)
+                            continue;
+
+                        try
+                        {
+                            var invoke = (InvokePattern)current.GetCurrentPattern(InvokePattern.Pattern);
+                            invoke.Invoke();
+                            return true;
+                        }
+                        catch { }
+
+                        try
+                        {
+                            var legacy = (LegacyIAccessiblePattern)current.GetCurrentPattern(LegacyIAccessiblePattern.Pattern);
+                            legacy.DoDefaultAction();
+                            return true;
+                        }
+                        catch { }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        private bool NativeClickMenuLogoutMessage(IntPtr hwnd, double menuX, double menuY)
+        {
+            RECT rect;
+            if (!GetWindowRect(hwnd, out rect))
+                return false;
+
+            int screenX = rect.Left + (int)Math.Round(menuX);
+            int screenY = rect.Top + (int)Math.Round(menuY);
+
+            try
+            {
+                IntPtr target = WindowFromPoint(new POINT { X = screenX, Y = screenY });
+                if (target == IntPtr.Zero)
+                    target = hwnd;
+
+                POINT client = new POINT { X = screenX, Y = screenY };
+                ScreenToClient(target, ref client);
+
+                IntPtr lParam = new IntPtr((client.Y << 16) | (client.X & 0xFFFF));
+
+                SendMessage(target, WM_MOUSEMOVE, IntPtr.Zero, lParam);
+                SendMessage(target, WM_LBUTTONDOWN, new IntPtr(MK_LBUTTON), lParam);
+                SendMessage(target, WM_LBUTTONUP, IntPtr.Zero, lParam);
+                Thread.Sleep(120);
+
+                log("EA native: wysłano WM_LBUTTON do okna pod pozycją menu.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log("EA native: WM_LBUTTON nie powiódł się: " + ex.Message);
+                return false;
+            }
+        }
+
         private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
         {
             RECT rect;
@@ -814,7 +896,7 @@ namespace PlayniteAccountManager.Services
 
         private bool EnsureRememberMeUnchecked(IntPtr hwnd)
         {
-            // First try a real TogglePattern exposed by UIA.
+            // First choice: EA may expose the checkbox through UIA on some builds.
             try
             {
                 AutomationElement root = AutomationElement.FromHandle(hwnd);
@@ -844,6 +926,7 @@ namespace PlayniteAccountManager.Services
                             {
                                 log("EA UIA: „Nie wylogowuj mnie” było już wyłączone.");
                             }
+
                             return true;
                         }
                         catch { }
@@ -852,126 +935,12 @@ namespace PlayniteAccountManager.Services
             }
             catch { }
 
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return false;
-
-            // The supplied login screenshot is 516x862 and places the center
-            // of the checkbox at roughly (67, 481), i.e. 13.1% x / 55.8% y.
-            // GetWindowRect + SetCursorPos already use screen pixels, therefore
-            // applying DPI scaling here would move the click away from the box.
-            double width = rect.Right - rect.Left;
-            double height = rect.Bottom - rect.Top;
-            int sx = rect.Left + (int)Math.Round(width * 0.131);
-            int sy = rect.Top + (int)Math.Round(height * 0.558);
-
-            // Try point-based UIA around the real checkbox location.
-            try
-            {
-                for (int dy = -8; dy <= 8; dy += 4)
-                for (int dx = -8; dx <= 8; dx += 4)
-                {
-                    AutomationElement current = AutomationElement.FromPoint(new Point(sx + dx, sy + dy));
-                    for (int i = 0; current != null && i < 5; i++, current = SafeParent(current))
-                    {
-                        try
-                        {
-                            var toggle = (TogglePattern)current.GetCurrentPattern(TogglePattern.Pattern);
-                            if (toggle.Current.ToggleState == ToggleState.Off)
-                            {
-                                log("EA UIA: „Nie wylogowuj mnie” było już wyłączone.");
-                                return true;
-                            }
-
-                            if (toggle.Current.ToggleState == ToggleState.On)
-                            {
-                                NativeClickScreen(sx, sy, "checkbox „Nie wylogowuj mnie”");
-                                Thread.Sleep(220);
-
-                                if (!LooksLikeCheckedEABox(sx, sy))
-                                {
-                                    log("EA native: wyłączono „Nie wylogowuj mnie” (UIA + kliknięcie).");
-                                    return true;
-                                }
-                            }
-                        }
-                        catch { }
-                    }
-                }
-            }
-            catch { }
-
-            // When UIA does not expose the checkbox, use the visible blue fill
-            // to distinguish checked from unchecked. Never blindly click it.
-            if (LooksLikeCheckedEABox(sx, sy))
-            {
-                if (NativeClickScreen(sx, sy, "checkbox „Nie wylogowuj mnie”"))
-                {
-                    Thread.Sleep(250);
-
-                    if (!LooksLikeCheckedEABox(sx, sy))
-                    {
-                        log("EA native: wykryto zaznaczony checkbox i wyłączono go.");
-                        return true;
-                    }
-
-                    // Keyboard fallback based on the visible form order:
-                    // focus e-mail -> Tab -> checkbox -> Space.
-                    if (NativeClickRelative(hwnd, 0.50, 0.49, "pole e-mail (fallback checkbox)"))
-                    {
-                        Thread.Sleep(100);
-                        if (NativeKeyboardInput.SendTab(log))
-                        {
-                            Thread.Sleep(80);
-                            NativeKeyboardInput.Key(0x20, log); // VK_SPACE
-                            Thread.Sleep(250);
-
-                            if (!LooksLikeCheckedEABox(sx, sy))
-                            {
-                                log("EA keyboard: wyłączono „Nie wylogowuj mnie” przez Tab + Spacja.");
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            log("EA: nie udało się potwierdzić ani wyłączyć „Nie wylogowuj mnie”.");
+            // Current EA login page does not reliably expose this control in UIA.
+            // The caller keeps focus in the e-mail field and uses Tab + Space as
+            // the deterministic fallback. Returning false deliberately activates
+            // that path instead of making an unverified screen-coordinate click.
+            log("EA: checkbox „Nie wylogowuj mnie” nie jest dostępny przez UIA.");
             return false;
-        }
-
-        private static bool LooksLikeCheckedEABox(int centerX, int centerY)
-        {
-            try
-            {
-                IntPtr dc = GetDC(IntPtr.Zero);
-                if (dc == IntPtr.Zero)
-                    return false;
-
-                const int radius = 10;
-                int blueCount = 0;
-                int samples = 0;
-
-                for (int y = -radius; y <= radius; y += 2)
-                for (int x = -radius; x <= radius; x += 2)
-                {
-                    uint rgb = GetPixel(dc, centerX + x, centerY + y);
-                    byte r = (byte)(rgb & 0xFF);
-                    byte g = (byte)((rgb >> 8) & 0xFF);
-                    byte b = (byte)((rgb >> 16) & 0xFF);
-                    samples++;
-
-                    if (b > 135 && g > 55 && r < 95 && b > r * 1.45 && b > g * 1.15)
-                        blueCount++;
-                }
-
-                ReleaseDC(IntPtr.Zero, dc);
-                return samples > 0 && (blueCount / (double)samples) > 0.10;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private bool NativeClickMenuLogoutAt(IntPtr hwnd, double menuX, double menuY)
@@ -1205,6 +1174,17 @@ namespace PlayniteAccountManager.Services
         }
 
         private const uint INPUT_MOUSE = 0;
+        private const uint WM_MOUSEMOVE = 0x0200;
+        private const uint WM_LBUTTONDOWN = 0x0201;
+        private const uint WM_LBUTTONUP = 0x0202;
+        private const int MK_LBUTTON = 0x0001;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int X;
+            public int Y;
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
@@ -1280,6 +1260,15 @@ namespace PlayniteAccountManager.Services
 
         [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(POINT point);
+
+        [DllImport("user32.dll")]
+        private static extern bool ScreenToClient(IntPtr hWnd, ref POINT lpPoint);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint SendInput(uint nInputs, [In] INPUT[] pInputs, int cbSize);
