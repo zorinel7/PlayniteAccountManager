@@ -425,31 +425,6 @@ namespace PlayniteAccountManager.Services
             return FindMainWindowHandle() != IntPtr.Zero;
         }
 
-        private bool WaitForPasswordSurfaceReady(IntPtr hwnd, int seconds)
-        {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
-
-            while (DateTime.UtcNow < deadline)
-            {
-                hwnd = FindMainWindowHandle();
-
-                if (hwnd != IntPtr.Zero)
-                {
-                    if (IsTextVisible(hwnd, "Hasło") ||
-                        IsTextVisible(hwnd, "Wprowadź hasło") ||
-                        IsTextVisible(hwnd, "Password"))
-                    {
-                        EnsureForeground(hwnd);
-                        return true;
-                    }
-                }
-
-                Thread.Sleep(180);
-            }
-
-            return false;
-        }
-
         private bool WaitAndClickLater2FA(IntPtr hwnd, int seconds)
         {
             DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
@@ -765,6 +740,10 @@ namespace PlayniteAccountManager.Services
 
         [DllImport("user32.dll")]
         private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(
+            IntPtr hwnd, out RECT rect);
 
         [DllImport("user32.dll")]
         private static extern bool IsWindowVisible(IntPtr hwnd);
