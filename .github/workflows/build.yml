@@ -32,6 +32,6 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PlayniteAccountManager-0.9.26
-          path: PlayniteAccountManager_0.9.26.pext
+          name: PlayniteAccountManager-0.9.27
+          path: PlayniteAccountManager_0.9.27.pext
           if-no-files-found: error
