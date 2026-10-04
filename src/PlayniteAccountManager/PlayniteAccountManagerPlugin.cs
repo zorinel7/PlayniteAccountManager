@@ -32,7 +32,7 @@ namespace PlayniteAccountManager
             Store = new AccountManagerStore(this);
             ubisoft = new UbisoftConnectAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             steam = new SteamAdapter(message => logger.Info(message));
-            ea = new EAAppAdapter(message => logger.Info(message));
+            ea = new EAAppAdapter(GetPluginUserDataPath(), message => logger.Info(message));
         }
 
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
