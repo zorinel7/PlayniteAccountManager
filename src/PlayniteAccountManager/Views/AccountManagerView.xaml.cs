@@ -93,6 +93,22 @@ namespace PlayniteAccountManager.Views
                 return;
             }
 
+            // EA needs one elevated helper task because its background
+            // service owns protected ProgramData. Playnite itself remains
+            // non-elevated. The setup is integrated here and happens once.
+            if (model.Launcher == LauncherType.EAApp && !plugin.IsEAHelperReady())
+            {
+                UpdateStatus("Pierwsza konfiguracja EA App — pojawi się jednorazowy monit UAC...");
+                string setupError;
+                if (!plugin.EnsureEAHelper(out setupError))
+                {
+                    UpdateStatus("Nie skonfigurowano pomocnika EA.");
+                    if (!string.IsNullOrWhiteSpace(setupError))
+                        MessageBox.Show(setupError, "EA App", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
             TestLoginButton.IsEnabled = false;
             UpdateStatus("Uruchamiam " + model.Launcher.GetDisplayName() + " i automatycznie wprowadzam dane logowania...");
 
@@ -107,6 +123,24 @@ namespace PlayniteAccountManager.Views
             finally
             {
                 UpdateButtons();
+            }
+        }
+
+        private void EAHelperButton_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateStatus("Konfiguruję jednorazowy pomocnik EA App...");
+            string error;
+
+            if (plugin.EnsureEAHelper(out error))
+            {
+                UpdateStatus("EA App skonfigurowana do pracy bez administratora.");
+                UpdateButtons();
+            }
+            else
+            {
+                UpdateStatus("Nie skonfigurowano pomocnika EA.");
+                if (!string.IsNullOrWhiteSpace(error))
+                    MessageBox.Show(error, "EA App", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -163,6 +197,18 @@ namespace PlayniteAccountManager.Views
             var selectedModel = has ? store.GetAccount(vm.SelectedAccount.Id) : null;
             bool supported = selectedModel != null && (selectedModel.Launcher == LauncherType.UbisoftConnect || selectedModel.Launcher == LauncherType.Steam || selectedModel.Launcher == LauncherType.EAApp);
             TestLoginButton.IsEnabled = supported;
+
+            bool showEASetup = selectedModel != null && selectedModel.Launcher == LauncherType.EAApp;
+            EAHelperButton.Visibility = showEASetup ? Visibility.Visible : Visibility.Collapsed;
+            if (showEASetup)
+            {
+                bool ready = plugin.IsEAHelperReady();
+                EAHelperButton.Content = ready
+                    ? "EA: TRYB BEZ ADMINISTRATORA ✓"
+                    : "EA: KONFIGURUJ BEZ ADMINISTRATORA";
+                EAHelperButton.IsEnabled = !ready;
+            }
+
             EmptyAccountsText.Visibility = vm.Accounts != null && vm.Accounts.Count > 0
                 ? Visibility.Collapsed
                 : Visibility.Visible;
