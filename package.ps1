@@ -3,7 +3,7 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $project = Join-Path $root 'src\PlayniteAccountManager'
 $bin = Join-Path $project 'bin\Release\net462'
 $manifest = Join-Path $project 'extension.yaml'
-$out = Join-Path $root 'PlayniteAccountManager_0.9.7.zip'
+$out = Join-Path $root 'PlayniteAccountManager_0.9.7.pext'
 
 if (!(Test-Path (Join-Path $bin 'PlayniteAccountManager.dll'))) { throw 'Brak PlayniteAccountManager.dll po kompilacji.' }
 if (!(Test-Path $manifest)) { throw 'Brak extension.yaml.' }
