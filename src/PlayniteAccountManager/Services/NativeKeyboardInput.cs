@@ -221,5 +221,18 @@ namespace PlayniteAccountManager.Services
 
         public static bool SendEnter(Action<string> log = null) => Key(VK_RETURN, log);
         public static bool SendTab(Action<string> log = null) => Key(VK_TAB, log);
+
+        public static bool SendShiftTab(Action<string> log = null)
+        {
+            INPUT[] inputs =
+            {
+                CreateVirtualKeyInput(VK_SHIFT, false),
+                CreateVirtualKeyInput(VK_TAB, false),
+                CreateVirtualKeyInput(VK_TAB, true),
+                CreateVirtualKeyInput(VK_SHIFT, true)
+            };
+
+            return SendInputs(inputs, log);
+        }
     }
 }
