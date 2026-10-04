@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
+using DrawingSize = System.Drawing.Size;
+using DrawingPoint = System.Drawing.Point;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -66,11 +70,16 @@ namespace PlayniteAccountManager.Services
                 return Fail(out error, "Nie udało się przejść do przycisku „Kontynuuj”.");
 
             Thread.Sleep(120);
+            Bitmap beforePasswordTransition = CaptureWindow(hwnd);
+
             if (!NativeKeyboardInput.SendEnter(log))
+            {
+                DisposeBitmap(beforePasswordTransition);
                 return Fail(out error, "Nie udało się zatwierdzić adresu e-mail Epic Games.");
+            }
 
             // Wait for the password page rather than assuming a fixed delay.
-            if (!WaitForPasswordSurfaceReady(hwnd, 15))
+            if (!WaitForPasswordSurfaceReady(hwnd, beforePasswordTransition, 15))
                 return Fail(out error,
                     "Epic Games nie załadował ekranu hasła w wyznaczonym czasie.");
 
@@ -128,9 +137,204 @@ namespace PlayniteAccountManager.Services
             return true;
         }
 
+        private static Bitmap CaptureWindow(IntPtr hwnd)
+        {
+            try
+            {
+                RECT rect;
+                if (!GetWindowRect(hwnd, out rect))
+                    return null;
+
+                int width = rect.Right - rect.Left;
+                int height = rect.Bottom - rect.Top;
+
+                if (width <= 0 || height <= 0)
+                    return null;
+
+                Bitmap bitmap = new Bitmap(
+                    width, height, PixelFormat.Format24bppRgb);
+
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.CopyFromScreen(
+                        rect.Left, rect.Top, 0, 0,
+                        new DrawingSize(width, height),
+                        CopyPixelOperation.SourceCopy);
+                }
+
+                return bitmap;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static void DisposeBitmap(Bitmap bitmap)
+        {
+            if (bitmap == null)
+                return;
+
+            try { bitmap.Dispose(); } catch { }
+        }
+
+        private static bool HasVisualTransition(IntPtr hwnd, Bitmap before)
+        {
+            using (Bitmap after = CaptureWindow(hwnd))
+            {
+                if (after == null || before == null)
+                    return false;
+
+                int width = Math.Min(before.Width, after.Width);
+                int height = Math.Min(before.Height, after.Height);
+
+                if (width < 100 || height < 100)
+                    return false;
+
+                const int step = 12;
+                int different = 0;
+                int total = 0;
+
+                for (int y = 0; y < height; y += step)
+                {
+                    for (int x = 0; x < width; x += step)
+                    {
+                        Color a = before.GetPixel(x, y);
+                        Color b = after.GetPixel(x, y);
+
+                        int delta =
+                            Math.Abs(a.R - b.R) +
+                            Math.Abs(a.G - b.G) +
+                            Math.Abs(a.B - b.B);
+
+                        if (delta > 45)
+                            different++;
+
+                        total++;
+                    }
+                }
+
+                return total > 0 && ((double)different / total) >= 0.02;
+            }
+        }
+
+        private static bool HasLargeEpicBlueButton(IntPtr hwnd)
+        {
+            using (Bitmap bitmap = CaptureWindow(hwnd))
+            {
+                return bitmap != null &&
+                       FindLargeEpicBlueButton(bitmap) != Rectangle.Empty;
+            }
+        }
+
+        private static Rectangle FindLargeEpicBlueButton(Bitmap bitmap)
+        {
+            const int sample = 4;
+            int sw = bitmap.Width / sample;
+            int sh = bitmap.Height / sample;
+
+            if (sw <= 0 || sh <= 0)
+                return Rectangle.Empty;
+
+            bool[,] mask = new bool[sw, sh];
+            bool[,] visited = new bool[sw, sh];
+
+            for (int y = 0; y < sh; y++)
+            {
+                for (int x = 0; x < sw; x++)
+                {
+                    Color color = bitmap.GetPixel(x * sample, y * sample);
+
+                    mask[x, y] =
+                        color.R < 120 &&
+                        color.G > 120 &&
+                        color.B > 165 &&
+                        color.B > color.G &&
+                        color.G > color.R + 40;
+                }
+            }
+
+            Rectangle best = Rectangle.Empty;
+            int bestArea = 0;
+
+            int[] dx = { 1, -1, 0, 0 };
+            int[] dy = { 0, 0, 1, -1 };
+
+            for (int y = 0; y < sh; y++)
+            {
+                for (int x = 0; x < sw; x++)
+                {
+                    if (!mask[x, y] || visited[x, y])
+                        continue;
+
+                    var queue = new Queue<DrawingPoint>();
+                    queue.Enqueue(new DrawingPoint(x, y));
+                    visited[x, y] = true;
+
+                    int minX = x, maxX = x;
+                    int minY = y, maxY = y;
+                    int pixels = 0;
+
+                    while (queue.Count > 0)
+                    {
+                        DrawingPoint p = queue.Dequeue();
+                        pixels++;
+
+                        minX = Math.Min(minX, p.X);
+                        maxX = Math.Max(maxX, p.X);
+                        minY = Math.Min(minY, p.Y);
+                        maxY = Math.Max(maxY, p.Y);
+
+                        for (int i = 0; i < 4; i++)
+                        {
+                            int nx = p.X + dx[i];
+                            int ny = p.Y + dy[i];
+
+                            if (nx < 0 || nx >= sw ||
+                                ny < 0 || ny >= sh ||
+                                visited[nx, ny] ||
+                                !mask[nx, ny])
+                                continue;
+
+                            visited[nx, ny] = true;
+                            queue.Enqueue(new DrawingPoint(nx, ny));
+                        }
+                    }
+
+                    int width = maxX - minX + 1;
+                    int height = maxY - minY + 1;
+                    double ratio = height > 0
+                        ? (double)width / height
+                        : 0;
+
+                    int area = width * height;
+
+                    if (pixels < 180 ||
+                        width < 70 ||
+                        height < 10 ||
+                        ratio < 3 ||
+                        ratio > 15)
+                        continue;
+
+                    if (area > bestArea)
+                    {
+                        bestArea = area;
+                        best = new Rectangle(
+                            minX * sample,
+                            minY * sample,
+                            width * sample,
+                            height * sample);
+                    }
+                }
+            }
+
+            return best;
+        }
+
         private bool WaitForLoginSurfaceReady(IntPtr hwnd, int seconds)
         {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(3, seconds));
+            DateTime minReady = DateTime.UtcNow.AddMilliseconds(900);
 
             while (DateTime.UtcNow < deadline)
             {
@@ -138,6 +342,8 @@ namespace PlayniteAccountManager.Services
 
                 if (hwnd != IntPtr.Zero)
                 {
+                    // UIA is only an optional readiness signal. Epic's WebView
+                    // can expose no useful text at all while the page is ready.
                     if (IsTextVisible(hwnd, "Zaloguj się do Epic Games") ||
                         IsTextVisible(hwnd, "Adres e-mail") ||
                         IsTextVisible(hwnd, "Kontynuuj"))
@@ -145,12 +351,78 @@ namespace PlayniteAccountManager.Services
                         EnsureForeground(hwnd);
                         return true;
                     }
+
+                    // DPI/resolution independent visual readiness fallback.
+                    // We detect the actual cyan primary button in the current
+                    // window image; no fixed coordinates are used.
+                    if (DateTime.UtcNow >= minReady && HasLargeEpicBlueButton(hwnd))
+                    {
+                        EnsureForeground(hwnd);
+                        log("Epic Games visual: potwierdzono gotowy ekran logowania.");
+                        return true;
+                    }
                 }
 
-                Thread.Sleep(180);
+                Thread.Sleep(160);
+            }
+
+            // The screenshot may be fully rendered even when both UIA and the
+            // visual detector are temporarily unavailable. Do not block a
+            // confirmed visible EA/Epic window forever; give it a final
+            // stabilization delay and allow the user-confirmed keyboard flow.
+            if (hwnd != IntPtr.Zero)
+            {
+                EnsureForeground(hwnd);
+                Thread.Sleep(500);
+                log("Epic Games: okno logowania jest widoczne. Przechodzę do potwierdzonej sekwencji klawiatury.");
+                return true;
             }
 
             return false;
+        }
+
+        private bool WaitForPasswordSurfaceReady(
+            IntPtr hwnd, Bitmap beforeTransition, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(3, seconds));
+            DateTime minimumWait = DateTime.UtcNow.AddMilliseconds(500);
+
+            while (DateTime.UtcNow < deadline)
+            {
+                hwnd = FindMainWindowHandle();
+
+                if (hwnd != IntPtr.Zero)
+                {
+                    if (IsTextVisible(hwnd, "Hasło") ||
+                        IsTextVisible(hwnd, "Wprowadź hasło") ||
+                        IsTextVisible(hwnd, "Password"))
+                    {
+                        EnsureForeground(hwnd);
+                        DisposeBitmap(beforeTransition);
+                        return true;
+                    }
+
+                    if (DateTime.UtcNow >= minimumWait &&
+                        beforeTransition != null &&
+                        HasVisualTransition(hwnd, beforeTransition))
+                    {
+                        EnsureForeground(hwnd);
+                        Thread.Sleep(180);
+                        DisposeBitmap(beforeTransition);
+                        log("Epic Games visual: wykryto zmianę strony po zatwierdzeniu adresu e-mail.");
+                        return true;
+                    }
+                }
+
+                Thread.Sleep(160);
+            }
+
+            // The password screen can also be fully usable while UIA does not
+            // expose any text and the visual delta is small. Give it one final
+            // stabilization pause instead of aborting the login.
+            Thread.Sleep(350);
+            DisposeBitmap(beforeTransition);
+            return FindMainWindowHandle() != IntPtr.Zero;
         }
 
         private bool WaitForPasswordSurfaceReady(IntPtr hwnd, int seconds)
