@@ -243,7 +243,7 @@ namespace PlayniteAccountManager.Services
             return null;
         }
 
-        private static AutomationElement FindEditableElement(
+        private AutomationElement FindEditableElement(
             IntPtr hwnd, bool password, int maxTabs)
         {
             AutomationElement root = AutomationElement.FromHandle(hwnd);
@@ -498,6 +498,25 @@ namespace PlayniteAccountManager.Services
                 }
             };
         }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hwnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool BringWindowToTop(IntPtr hwnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hwnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hwnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint SendInput(
+            uint nInputs, [In] INPUT[] pInputs, int cbSize);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
