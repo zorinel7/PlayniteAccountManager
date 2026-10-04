@@ -433,9 +433,20 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="1" x:Name="TestLoginButton" Content="TESTUJ AUTOMATYCZNE LOGOWANIE"
-                                Style="{StaticResource DarkButton}" Click="TestLoginButton_Click"/>
+
+                        <Button Grid.Column="1" x:Name="EAHelperButton"
+                                Content="EA: KONFIGURUJ BEZ ADMINISTRATORA"
+                                Style="{StaticResource DarkButton}"
+                                Click="EAHelperButton_Click"
+                                Visibility="Collapsed"/>
+
+                        <Button Grid.Column="3" x:Name="TestLoginButton"
+                                Content="TESTUJ AUTOMATYCZNE LOGOWANIE"
+                                Style="{StaticResource DarkButton}"
+                                Click="TestLoginButton_Click"/>
                     </Grid>
 
                     <Grid Grid.Row="14" Margin="0,18,0,0">
