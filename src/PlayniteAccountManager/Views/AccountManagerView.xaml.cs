@@ -87,7 +87,7 @@ namespace PlayniteAccountManager.Views
             }
 
             var model = store.GetAccount(account.Id);
-            if (model == null || (model.Launcher != LauncherType.UbisoftConnect && model.Launcher != LauncherType.Steam && model.Launcher != LauncherType.EAApp && model.Launcher != LauncherType.EpicGames && model.Launcher != LauncherType.EpicGames))
+            if (model == null || (model.Launcher != LauncherType.UbisoftConnect && model.Launcher != LauncherType.Steam && model.Launcher != LauncherType.EAApp && model.Launcher != LauncherType.EpicGames))
             {
                 MessageBox.Show("Automatyczne logowanie nie jest jeszcze dostępne dla tego launchera.", "Menadżer Kont", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -195,7 +195,7 @@ namespace PlayniteAccountManager.Views
             DeleteButton.IsEnabled = has;
             AssignButton.IsEnabled = has && vm.ContextGames.Any();
             var selectedModel = has ? store.GetAccount(vm.SelectedAccount.Id) : null;
-            bool supported = selectedModel != null && (selectedModel.Launcher == LauncherType.UbisoftConnect || selectedModel.Launcher == LauncherType.Steam || selectedModel.Launcher == LauncherType.EAApp || selectedModel.Launcher == LauncherType.EpicGames || selectedModel.Launcher == LauncherType.EpicGames);
+            bool supported = selectedModel != null && (selectedModel.Launcher == LauncherType.UbisoftConnect || selectedModel.Launcher == LauncherType.Steam || selectedModel.Launcher == LauncherType.EAApp || selectedModel.Launcher == LauncherType.EpicGames);
             TestLoginButton.IsEnabled = supported;
 
             bool showEASetup = selectedModel != null && selectedModel.Launcher == LauncherType.EAApp;
