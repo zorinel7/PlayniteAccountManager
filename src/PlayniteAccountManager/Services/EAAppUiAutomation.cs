@@ -74,7 +74,7 @@ namespace PlayniteAccountManager.Services
             EnsureWindowForeground(hwnd);
 
             bool authenticated;
-            if (!WaitForEAState(hwnd, 12, out authenticated))
+            if (!WaitForEAState(hwnd, 6, out authenticated))
             {
                 // When EA is already logged out, some builds expose too little
                 // accessibility metadata to identify the login page. In that
@@ -114,7 +114,7 @@ namespace PlayniteAccountManager.Services
             if (!PerformLogin(hwnd, username, password, 12, out error))
                 return false;
 
-            if (!WaitForAuthenticated(hwnd, 30))
+            if (!WaitForAuthenticated(hwnd, 15))
             {
                 error = "EA App nie potwierdziła zalogowania po wysłaniu danych.";
                 return false;
@@ -157,16 +157,15 @@ namespace PlayniteAccountManager.Services
                 }
             }
 
-            Thread.Sleep(450);
+            Thread.Sleep(280);
 
-            // In the supplied EA screenshot the "Wyloguj się" row is around
-            // 44-72 px from the left and 255 px from the top of the window.
-            // Try several points inside the same row. The first successful
-            // state transition ends the routine.
+            // The supplied screenshot shows the logout row at roughly
+            // y=255 px. Start with the center of the text row, then try two
+            // nearby points only when the first click did not change state.
             double[,] logoutPoints =
             {
-                { 44.0, 255.0 },
                 { 56.0, 255.0 },
+                { 44.0, 255.0 },
                 { 72.0, 255.0 }
             };
 
@@ -174,23 +173,23 @@ namespace PlayniteAccountManager.Services
             {
                 if (NativeClickMenuLogoutAt(hwnd, logoutPoints[i, 0], logoutPoints[i, 1]))
                 {
-                    log("EA native: kliknięto pozycję „Wyloguj się” (" +
+                    log("EA native: kliknięto „Wyloguj się” (" +
                         logoutPoints[i, 0].ToString("0") + "," +
                         logoutPoints[i, 1].ToString("0") + ").");
 
-                    if (WaitForLoginScreen(hwnd, 5))
+                    if (WaitForLoginScreen(hwnd, 2))
                     {
                         log("EA: wylogowanie potwierdzone ekranem logowania.");
                         return true;
                     }
 
-                    Thread.Sleep(250);
+                    Thread.Sleep(100);
                 }
             }
 
             // UIA fallback: some EA builds expose the menu row only after it
             // has been rendered for a moment.
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(3, timeoutSeconds));
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, timeoutSeconds));
             while (DateTime.UtcNow < deadline)
             {
                 AutomationElement logout = FindVisibleNamedInvokable(hwnd, new[] { "Wyloguj się", "Wyloguj", "Sign out", "Log out" });
@@ -200,12 +199,12 @@ namespace PlayniteAccountManager.Services
                 if (logout != null)
                 {
                     log("EA UIA: znaleziono pozycję wylogowania: „" + SafeName(logout) + "”.");
-                    if (Invoke(logout) && WaitForLoginScreen(hwnd, 5))
+                    if (Invoke(logout) && WaitForLoginScreen(hwnd, 2))
                         return true;
                     break;
                 }
 
-                Thread.Sleep(150);
+                Thread.Sleep(100);
             }
 
             // Last fallback: if the menu captured keyboard focus, navigate to
@@ -213,7 +212,7 @@ namespace PlayniteAccountManager.Services
             if (TryKeyboardMenuLogout())
             {
                 log("EA native: próba wylogowania przez nawigację klawiaturą.");
-                if (WaitForLoginScreen(hwnd, 5))
+                if (WaitForLoginScreen(hwnd, 2))
                     return true;
             }
 
@@ -486,17 +485,31 @@ namespace PlayniteAccountManager.Services
             return null;
         }
 
-        private static bool IsLoginScreen(IntPtr hwnd)
+        private enum EAUiState
+        {
+            Unknown,
+            Login,
+            Authenticated
+        }
+
+        private static EAUiState DetectEAState(IntPtr hwnd)
         {
             try
             {
-                AutomationElement root = AutomationElement.FromHandle(hwnd);
-                if (root == null)
-                    return false;
-
                 string text = GetVisibleText(hwnd);
                 if (string.IsNullOrWhiteSpace(text))
-                    return false;
+                    return EAUiState.Unknown;
+
+                bool hasLibrary = text.IndexOf("Biblioteka", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool hasHome = text.IndexOf("Strona główna", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool hasInstalled = text.IndexOf("Zainstalowane gry", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool hasSearch = text.IndexOf("Szukaj", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                // Authenticated state is a strong positive signal. Check it
+                // before the generic Edit-count fallback because the main EA
+                // screen contains the search Edit control too.
+                if ((hasLibrary && hasHome) || (hasLibrary && hasInstalled) || (hasHome && hasSearch))
+                    return EAUiState.Authenticated;
 
                 bool loginHint =
                     text.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0 ||
@@ -505,73 +518,65 @@ namespace PlayniteAccountManager.Services
                     text.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0;
 
                 if (loginHint)
-                    return true;
+                    return EAUiState.Login;
 
-                // Login UI normally contains at least one editable field.
-                // The main EA screen also contains an Edit ("Szukaj"), so the
-                // authenticated state is checked separately before this test.
-                int edits = CountVisibleEdits(hwnd);
-                return edits >= 1 && !IsAuthenticatedScreen(hwnd);
+                // Only perform the second UIA query when the text itself was
+                // not enough to decide. This avoids scanning the whole tree
+                // twice on every polling cycle.
+                return CountVisibleEdits(hwnd) >= 1
+                    ? EAUiState.Login
+                    : EAUiState.Unknown;
             }
             catch
             {
-                return false;
+                return EAUiState.Unknown;
             }
+        }
+
+        private static bool IsLoginScreen(IntPtr hwnd)
+        {
+            return DetectEAState(hwnd) == EAUiState.Login;
         }
 
         private static bool IsAuthenticatedScreen(IntPtr hwnd)
         {
-            try
-            {
-                string text = GetVisibleText(hwnd);
-                if (string.IsNullOrWhiteSpace(text))
-                    return false;
-
-                bool hasLibrary = text.IndexOf("Biblioteka", StringComparison.OrdinalIgnoreCase) >= 0;
-                bool hasHome = text.IndexOf("Strona główna", StringComparison.OrdinalIgnoreCase) >= 0;
-                bool hasInstalled = text.IndexOf("Zainstalowane gry", StringComparison.OrdinalIgnoreCase) >= 0;
-                bool hasSearch = text.IndexOf("Szukaj", StringComparison.OrdinalIgnoreCase) >= 0;
-
-                return (hasLibrary && hasHome) || (hasLibrary && hasInstalled) || (hasHome && hasSearch);
-            }
-            catch
-            {
-                return false;
-            }
+            return DetectEAState(hwnd) == EAUiState.Authenticated;
         }
 
         private static bool WaitForEAState(IntPtr hwnd, int seconds, out bool authenticated)
         {
             authenticated = false;
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(5, seconds));
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
 
             while (DateTime.UtcNow < deadline)
             {
-                if (IsAuthenticatedScreen(hwnd))
+                EAUiState state = DetectEAState(hwnd);
+                if (state == EAUiState.Authenticated)
                 {
                     authenticated = true;
                     return true;
                 }
 
-                if (IsLoginScreen(hwnd))
+                if (state == EAUiState.Login)
                 {
                     authenticated = false;
                     return true;
                 }
 
-                Thread.Sleep(350);
+                Thread.Sleep(120);
                 hwnd = FindMainWindowHandle();
                 if (hwnd == IntPtr.Zero)
                     continue;
             }
 
-            if (IsAuthenticatedScreen(hwnd))
+            EAUiState finalState = DetectEAState(hwnd);
+            if (finalState == EAUiState.Authenticated)
             {
                 authenticated = true;
                 return true;
             }
 
-            if (IsLoginScreen(hwnd))
+            if (finalState == EAUiState.Login)
                 return true;
 
             return false;
@@ -599,13 +604,13 @@ namespace PlayniteAccountManager.Services
 
         private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
         {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(5, seconds));
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
             while (DateTime.UtcNow < deadline)
             {
                 if (IsLoginScreen(hwnd))
                     return true;
 
-                Thread.Sleep(300);
+                Thread.Sleep(120);
                 hwnd = FindMainWindowHandle();
                 if (hwnd == IntPtr.Zero)
                     continue;
@@ -616,29 +621,20 @@ namespace PlayniteAccountManager.Services
 
         private static bool WaitForAuthenticated(IntPtr hwnd, int seconds)
         {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(10, seconds));
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
             while (DateTime.UtcNow < deadline)
             {
-                if (!IsLoginScreen(hwnd))
-                {
-                    try
-                    {
-                        string text = GetVisibleText(hwnd);
-                        if (text.IndexOf("Biblioteka", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                            text.IndexOf("Strona główna", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                            text.IndexOf("EA Play", StringComparison.OrdinalIgnoreCase) >= 0)
-                            return true;
-                    }
-                    catch { }
-                }
+                EAUiState state = DetectEAState(hwnd);
+                if (state == EAUiState.Authenticated)
+                    return true;
 
-                Thread.Sleep(500);
+                Thread.Sleep(140);
                 hwnd = FindMainWindowHandle();
                 if (hwnd == IntPtr.Zero)
                     continue;
             }
 
-            return false;
+            return DetectEAState(hwnd) == EAUiState.Authenticated;
         }
 
         private static AutomationElement FindClickableAtRelativeRegion(
@@ -1109,14 +1105,14 @@ namespace PlayniteAccountManager.Services
 
         private static IntPtr WaitForMainWindow(int timeoutSeconds)
         {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(5, timeoutSeconds));
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, timeoutSeconds));
             while (DateTime.UtcNow < deadline)
             {
                 IntPtr hwnd = FindMainWindowHandle();
                 if (hwnd != IntPtr.Zero)
                     return hwnd;
 
-                Thread.Sleep(250);
+                Thread.Sleep(120);
             }
 
             return IntPtr.Zero;
