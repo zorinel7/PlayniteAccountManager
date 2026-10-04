@@ -33,5 +33,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PlayniteAccountManager-0.9.7
-          path: PlayniteAccountManager_0.9.7.zip
+          path: PlayniteAccountManager_0.9.7.pext
           if-no-files-found: error
