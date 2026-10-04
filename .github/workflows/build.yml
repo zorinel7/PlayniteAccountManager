@@ -1,0 +1,37 @@
+name: Build Playnite Account Manager
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check repository for accidental secrets
+        shell: pwsh
+        run: ./scripts/Check-Secrets.ps1
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build Release
+        shell: pwsh
+        run: ./build.ps1
+
+      - name: Package plugin
+        shell: pwsh
+        run: ./package.ps1
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PlayniteAccountManager-0.9.7
+          path: PlayniteAccountManager_0.9.7.zip
+          if-no-files-found: error
