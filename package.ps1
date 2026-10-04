@@ -3,7 +3,7 @@ $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $project = Join-Path $root 'src\PlayniteAccountManager'
 $bin = Join-Path $project 'bin\Release\net462'
 $manifest = Join-Path $project 'extension.yaml'
-$out = Join-Path $root 'PlayniteAccountManager_0.9.34.pext'
+$out = Join-Path $root 'PlayniteAccountManager_0.9.35.pext'
 
 if (!(Test-Path (Join-Path $bin 'PlayniteAccountManager.dll'))) { throw 'Brak PlayniteAccountManager.dll po kompilacji.' }
 $helperBin = Join-Path $root 'src\PlayniteAccountManager.EAHelper\bin\Release\net462'
@@ -12,7 +12,7 @@ if (!(Test-Path $helperExe)) { throw 'Brak PlayniteAccountManager.EAHelper.exe p
 if (!(Test-Path $manifest)) { throw 'Brak extension.yaml.' }
 if (Test-Path $out) { Remove-Item $out -Force }
 
-$tmp = Join-Path $env:TEMP ('PlayniteAccountManager_0.9.34_' + [guid]::NewGuid().ToString('N'))
+$tmp = Join-Path $env:TEMP ('PlayniteAccountManager_0.9.35_' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tmp | Out-Null
 Copy-Item (Join-Path $bin 'PlayniteAccountManager.dll') $tmp
 Copy-Item $manifest $tmp
