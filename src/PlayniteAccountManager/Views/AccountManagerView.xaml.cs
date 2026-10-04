@@ -260,7 +260,7 @@ namespace PlayniteAccountManager.Views
             Name = record.Name;
             UserName = record.UserName;
             DisplayText = record.Name + "  •  " + record.Launcher.GetDisplayName();
-            DisplayLauncher = record.Launcher.GetDisplayName() + ((record.Launcher == LauncherType.Steam || record.Launcher == LauncherType.EAApp) && record.IsPrimary ? "  •  GŁÓWNE" : "");
+            DisplayLauncher = record.Launcher.GetDisplayName() + ((record.Launcher == LauncherType.Steam || record.Launcher == LauncherType.EAApp || record.Launcher == LauncherType.EpicGames) && record.IsPrimary ? "  •  GŁÓWNE" : "");
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
         }
