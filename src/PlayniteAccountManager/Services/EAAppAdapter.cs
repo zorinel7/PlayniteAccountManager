@@ -188,9 +188,16 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(150);
             }
 
+            bool emptyAfterRetries = !Directory.EnumerateFileSystemEntries(directory).Any();
+            if (emptyAfterRetries)
+            {
+                log("EA App: wyczyszczono " + label + " po ponowieniach.");
+                return true;
+            }
+
             if (!allOk)
                 log("EA App: " + label + " nie został całkowicie wyczyszczony.");
-            return allOk && !Directory.EnumerateFileSystemEntries(directory).Any();
+            return false;
         }
 
         private static void ClearReadOnlyAttributes(string directory)
@@ -328,7 +335,7 @@ namespace PlayniteAccountManager.Services
         private static IEnumerable<string> FindFromUninstallRegistry()
         {
             var results = new List<string>();
-            const string subKey = @"SOFTWAREMicrosoftWindowsCurrentVersionUninstall";
+            const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
             foreach (var hive in new[] { Microsoft.Win32.RegistryHive.LocalMachine, Microsoft.Win32.RegistryHive.CurrentUser })
             foreach (var view in new[] { Microsoft.Win32.RegistryView.Registry64, Microsoft.Win32.RegistryView.Registry32 })
             {
