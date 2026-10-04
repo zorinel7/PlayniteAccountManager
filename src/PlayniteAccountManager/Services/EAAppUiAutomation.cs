@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Automation;
@@ -148,6 +149,11 @@ namespace PlayniteAccountManager.Services
         {
             error = null;
 
+            // If a previous attempt accidentally opened the offline confirmation,
+            // cancel it before trying logout again.
+            if (CancelOfflineConfirmationIfPresent(hwnd))
+                Thread.Sleep(120);
+
             if (!EnsureWindowForeground(hwnd))
                 log("EA App: nie uzyskano pełnej pewności aktywnego okna, ale kontynuuję.");
 
@@ -161,35 +167,73 @@ namespace PlayniteAccountManager.Services
                 }
             }
 
-            Thread.Sleep(220);
+            // The user's EA menu screenshot shows:
+            // Widok
+            // Ustawienia
+            // Pomoc
+            // Informacje
+            // Tryb offline
+            // Wyloguj się
+            // Wyjdź
+            //
+            // The center of "Wyloguj się" is about (95,590) px relative to
+            // the window. The old (56,255) coordinate was the wrong row and
+            // opened "Tryb offline".
+            Thread.Sleep(160);
 
-            // Most reliable path: start at first menu item and navigate to the
-            // sixth item, "Wyloguj się". This avoids confusing "Tryb offline"
-            // with logout when screen coordinates shift by only a few pixels.
-            if (TryKeyboardMenuLogout() && WaitForLoginScreen(hwnd, 2))
-            {
-                log("EA: wylogowanie potwierdzone przez Home + 5xDown + Enter.");
-                return true;
-            }
+            // Prefer a control whose OWN NAME is logout.
+            AutomationElement logoutElement = FindVisibleNamedInvokable(
+                hwnd, new[] { "Wyloguj się", "Wyloguj", "Sign out", "Log out" });
 
-            // UIA point fallback: invoke only a control whose NAME itself says
-            // logout. Generic invokable parents are deliberately rejected.
-            if (TryInvokePointedMenuItem(hwnd, 56.0, 254.0) &&
-                WaitForLoginScreen(hwnd, 2))
+            if (logoutElement != null)
             {
-                log("EA: wylogowanie potwierdzone przez UIA.");
-                return true;
-            }
-
-            // Native click fallback. Try the center and +/- 4 px vertically.
-            double[] ys = { 254.0, 258.0, 250.0 };
-            foreach (double y in ys)
-            {
-                if (NativeClickMenuLogoutAt(hwnd, 56.0, y) &&
-                    WaitForLoginScreen(hwnd, 2))
+                log("EA UIA: znaleziono właściwą pozycję „" + SafeName(logoutElement) + "”.");
+                if (Invoke(logoutElement))
                 {
-                    log("EA: wylogowanie potwierdzone po kliknięciu (" +
-                        56.0.ToString("0") + "," + y.ToString("0") + ").");
+                    if (WaitForLoginScreen(hwnd, 2))
+                        return true;
+
+                    if (CancelOfflineConfirmationIfPresent(hwnd))
+                    {
+                        log("EA UIA: właściwy element wywołał dialog offline — anuluję.");
+                    }
+                }
+            }
+
+            // Native click at the corrected row. Use several x/y points inside
+            // the same row in case the menu width/font changes slightly.
+            double[,] points =
+            {
+                { 95.0, 590.0 },
+                { 75.0, 590.0 },
+                { 120.0, 590.0 },
+                { 95.0, 575.0 },
+                { 95.0, 605.0 }
+            };
+
+            for (int i = 0; i < points.GetLength(0); i++)
+            {
+                if (!NativeClickMenuLogoutAt(hwnd, points[i, 0], points[i, 1]))
+                    continue;
+
+                log("EA native: kliknięto przewidywany wiersz „Wyloguj się” (" +
+                    points[i, 0].ToString("0") + "," +
+                    points[i, 1].ToString("0") + ").");
+
+                Thread.Sleep(100);
+
+                if (CancelOfflineConfirmationIfPresent(hwnd))
+                {
+                    // This point hit "Tryb offline". Cancel immediately and try
+                    // the next candidate rather than waiting several seconds.
+                    log("EA: kliknięcie trafiło w „Tryb offline” — anuluję i próbuję ponownie.");
+                    Thread.Sleep(100);
+                    continue;
+                }
+
+                if (WaitForLoginScreen(hwnd, 2))
+                {
+                    log("EA: wylogowanie potwierdzone po kliknięciu.");
                     return true;
                 }
             }
@@ -834,47 +878,10 @@ namespace PlayniteAccountManager.Services
 
         private bool TryKeyboardMenuLogout()
         {
-            try
-            {
-                // Start from a known position in the opened menu. This prevents
-                // the previous "five DOWN" routine from depending on where EA
-                // happened to leave keyboard focus.
-                if (!NativeKeyboardInput.Key(VK_HOME, log))
-                    return false;
-
-                Thread.Sleep(70);
-
-                // Menu order shown by the user's EA screenshot:
-                // Widok, Ustawienia, Pomoc, Informacje, Tryb offline,
-                // Wyloguj się, Wyjdź -> five DOWN presses from the first row.
-                for (int i = 0; i < 5; i++)
-                {
-                    if (!NativeKeyboardInput.Key(VK_DOWN, log))
-                        return false;
-                    Thread.Sleep(50);
-                }
-
-                if (!NativeKeyboardInput.SendEnter(log))
-                    return false;
-
-                Thread.Sleep(150);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
-        {
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return false;
-
-            int x = rect.Left + (int)((rect.Right - rect.Left) * xPct);
-            int y = rect.Top + (int)((rect.Bottom - rect.Top) * yPct);
-            return NativeClickScreen(x, y, what);
+            // Disabled as a primary fallback because EA may not give keyboard
+            // focus to the popup. Blind DOWN/ENTER previously selected
+            // "Tryb offline".
+            return false;
         }
 
         private bool ForceRememberMeUnchecked(IntPtr hwnd)
@@ -1047,7 +1054,7 @@ namespace PlayniteAccountManager.Services
                 if (hwnd != IntPtr.Zero)
                     return hwnd;
 
-                Thread.Sleep(120);
+                Thread.Sleep(80);
             }
 
             return IntPtr.Zero;
@@ -1063,7 +1070,7 @@ namespace PlayniteAccountManager.Services
                         continue;
 
                     IntPtr hwnd = p.MainWindowHandle;
-                    if (hwnd != IntPtr.Zero)
+                    if (IsUsefulEAMainWindow(hwnd))
                         return hwnd;
                 }
                 catch { }
@@ -1073,7 +1080,98 @@ namespace PlayniteAccountManager.Services
                 }
             }
 
+            // MainWindowHandle can stay zero during EA's startup. Find the
+            // actual Qt/Cef top-level window as soon as Windows creates it.
+            IntPtr found = FindEADesktopWindowByEnumeration();
+            if (found != IntPtr.Zero)
+                return found;
+
             return FindWindow(null, "EA");
+        }
+
+        private static bool IsUsefulEAMainWindow(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero)
+                return false;
+
+            try
+            {
+                if (!IsWindowVisible(hwnd))
+                    return false;
+
+                StringBuilder title = new StringBuilder(128);
+                GetWindowText(hwnd, title, title.Capacity);
+                string windowTitle = title.ToString();
+
+                string className = GetWindowClassName(hwnd);
+
+                return windowTitle.Equals("EA", StringComparison.OrdinalIgnoreCase) ||
+                       className.Equals("Qt5152QWindowOwnDCIcon", StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static IntPtr FindEADesktopWindowByEnumeration()
+        {
+            IntPtr result = IntPtr.Zero;
+
+            EnumWindows((hwnd, lParam) =>
+            {
+                if (!IsWindowVisible(hwnd))
+                    return true;
+
+                uint pid = 0;
+                GetWindowThreadProcessId(hwnd, out pid);
+
+                try
+                {
+                    using (var p = Process.GetProcessById((int)pid))
+                    {
+                        if (!p.ProcessName.Equals("EADesktop", StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
+                }
+                catch
+                {
+                    return true;
+                }
+
+                string className = GetWindowClassName(hwnd);
+                if (className.Equals("Qt5152QWindowOwnDCIcon", StringComparison.OrdinalIgnoreCase))
+                {
+                    result = hwnd;
+                    return false;
+                }
+
+                StringBuilder title = new StringBuilder(128);
+                GetWindowText(hwnd, title, title.Capacity);
+                if (title.ToString().Equals("EA", StringComparison.OrdinalIgnoreCase))
+                {
+                    result = hwnd;
+                    return false;
+                }
+
+                return true;
+            }, IntPtr.Zero);
+
+            return result;
+        }
+
+        private static string GetWindowClassName(IntPtr hwnd)
+        {
+            var sb = new StringBuilder(256);
+            try
+            {
+                GetClassName(hwnd, sb, sb.Capacity);
+                return sb.ToString();
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         private static IEnumerable<Process> SafeGetProcesses(string name)
@@ -1220,6 +1318,20 @@ namespace PlayniteAccountManager.Services
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
