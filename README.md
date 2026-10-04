@@ -9,6 +9,7 @@ Playnite extension for managing multiple launcher accounts and assigning a selec
 | Steam | Stable |
 | Ubisoft Connect | Stable |
 | EA App | Stable (not perfect) |
+| Epic Games | Experimental / under development |
 | Xbox App | Experimental / paused |
 
 ### Design
