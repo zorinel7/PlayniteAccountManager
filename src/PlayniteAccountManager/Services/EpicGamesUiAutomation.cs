@@ -340,7 +340,7 @@ namespace PlayniteAccountManager.Services
         {
             for (int i = 0; i < maxTabs; i++)
             {
-                if (!NativeKeyboardInput.SendShiftTab(log: null))
+                if (!NativeKeyboardInput.SendShiftTab(log))
                     return false;
 
                 Thread.Sleep(80);
