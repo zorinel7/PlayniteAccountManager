@@ -55,6 +55,11 @@ namespace PlayniteAccountManager.Services
             return elevatedHelper.Run("clear", Guid.Empty, out error);
         }
 
+        public bool StartBackgroundService(out string error)
+        {
+            return elevatedHelper.Run("start-service", Guid.Empty, out error);
+        }
+
         public bool SaveCurrent(Guid accountId, out string error)
         {
             return elevatedHelper.Run("save", accountId, out error);
