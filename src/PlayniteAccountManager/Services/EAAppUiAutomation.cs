@@ -222,6 +222,89 @@ namespace PlayniteAccountManager.Services
             return true;
         }
 
+        private enum EAUiState
+        {
+            Unknown,
+            Login,
+            Authenticated
+        }
+
+        private static EAUiState DetectEAState(IntPtr hwnd)
+        {
+            try
+            {
+                AutomationElement root = AutomationElement.FromHandle(hwnd);
+                if (root == null)
+                    return EAUiState.Unknown;
+
+                bool hasLibrary = false;
+                bool hasHome = false;
+                bool hasInstalled = false;
+                bool hasSearch = false;
+                bool hasLoginHeader = false;
+                bool hasEmailHint = false;
+                bool hasPasswordHint = false;
+
+                var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
+                foreach (AutomationElement e in all)
+                {
+                    try
+                    {
+                        if (e.Current.IsOffscreen || !e.Current.IsEnabled)
+                            continue;
+
+                        string name = (e.Current.Name ?? string.Empty).Trim();
+                        if (string.IsNullOrWhiteSpace(name))
+                            continue;
+
+                        if (name.Equals("Biblioteka", StringComparison.OrdinalIgnoreCase))
+                            hasLibrary = true;
+                        else if (name.Equals("Strona główna", StringComparison.OrdinalIgnoreCase))
+                            hasHome = true;
+                        else if (name.Equals("Zainstalowane gry", StringComparison.OrdinalIgnoreCase))
+                            hasInstalled = true;
+                        else if (name.Equals("Szukaj", StringComparison.OrdinalIgnoreCase))
+                            hasSearch = true;
+
+                        if (name.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0)
+                            hasLoginHeader = true;
+                        else if (name.IndexOf("TWÓJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                 name.IndexOf("TWOJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0)
+                            hasEmailHint = true;
+                        else if (name.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0)
+                            hasPasswordHint = true;
+                    }
+                    catch { }
+                }
+
+                if ((hasLibrary && hasHome) ||
+                    (hasLibrary && hasInstalled) ||
+                    (hasHome && hasSearch))
+                    return EAUiState.Authenticated;
+
+                if (hasLoginHeader || hasEmailHint || hasPasswordHint)
+                    return EAUiState.Login;
+
+                // Do not classify the page as login solely because it contains
+                // an Edit. The authenticated EA home also contains a search Edit.
+                return EAUiState.Unknown;
+            }
+            catch
+            {
+                return EAUiState.Unknown;
+            }
+        }
+
+        private static bool IsLoginScreen(IntPtr hwnd)
+        {
+            return DetectEAState(hwnd) == EAUiState.Login;
+        }
+
+        private static bool IsAuthenticatedScreen(IntPtr hwnd)
+        {
+            return DetectEAState(hwnd) == EAUiState.Authenticated;
+        }
+
         private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
         {
             RECT rect;
@@ -231,6 +314,43 @@ namespace PlayniteAccountManager.Services
             int x = rect.Left + (int)Math.Round((rect.Right - rect.Left) * xPct);
             int y = rect.Top + (int)Math.Round((rect.Bottom - rect.Top) * yPct);
             return NativeClickScreen(x, y, what);
+        }
+
+        private bool NativeClickScreen(int x, int y, string what)
+        {
+            try
+            {
+                if (!SetCursorPos(x, y))
+                {
+                    log("EA native: SetCursorPos nie powiódł się dla " + what + ".");
+                    return false;
+                }
+
+                Thread.Sleep(40);
+
+                INPUT[] inputs =
+                {
+                    CreateMouseInput(MOUSEEVENTF_LEFTDOWN),
+                    CreateMouseInput(MOUSEEVENTF_LEFTUP)
+                };
+
+                uint sent = SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+                if (sent != inputs.Length)
+                {
+                    log("EA native: SendInput myszy zwrócił " + sent + "/" + inputs.Length +
+                        " dla " + what + ", Win32=" + Marshal.GetLastWin32Error() + ".");
+                    return false;
+                }
+
+                Thread.Sleep(120);
+                log("EA native: kliknięto " + what + " w (" + x + "," + y + ").");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log("EA native: błąd kliknięcia " + what + ": " + ex.Message);
+                return false;
+            }
         }
 
         private static AutomationElement FindLoginEdit(IntPtr hwnd, int index)
@@ -352,6 +472,40 @@ namespace PlayniteAccountManager.Services
             }
 
             return DetectEAState(hwnd) == EAUiState.Authenticated;
+        }
+
+        private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
+            while (DateTime.UtcNow < deadline)
+            {
+                if (IsLoginScreen(hwnd))
+                    return true;
+
+                Thread.Sleep(120);
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                    continue;
+            }
+
+            return IsLoginScreen(hwnd);
+        }
+
+        private static bool WaitForAuthenticated(IntPtr hwnd, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
+            while (DateTime.UtcNow < deadline)
+            {
+                if (IsAuthenticatedScreen(hwnd))
+                    return true;
+
+                Thread.Sleep(140);
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                    continue;
+            }
+
+            return IsAuthenticatedScreen(hwnd);
         }
 
         private static AutomationElement SafeParent(AutomationElement element)
@@ -587,14 +741,14 @@ namespace PlayniteAccountManager.Services
                             AttachThreadInput(currentThread, targetThread, true);
                     }
 
-                    for (int i = 0; i < 8; i++)
+                    for (int i = 0; i < 4; i++)
                     {
                         if (GetForegroundWindow() == hwnd)
                             return true;
 
                         BringWindowToTop(hwnd);
                         SetForegroundWindow(hwnd);
-                        Thread.Sleep(100);
+                        Thread.Sleep(50);
                     }
 
                     return GetForegroundWindow() == hwnd;
