@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using PlayniteAccountManager.Models;
 
 namespace PlayniteAccountManager.Services
@@ -45,35 +44,23 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
+            string exe = FindEAExecutable();
+            if (string.IsNullOrWhiteSpace(exe) || !File.Exists(exe))
+            {
+                error = "Nie znaleziono EA App na tym komputerze.";
+                return false;
+            }
+
             try
             {
-                // Do not use EA's GUI logout at all. The EA app is a Qt/Cef
-                // application and its menu coordinates/automation tree vary
-                // between builds. Instead use the same local-session reset
-                // strategy used by account switchers such as TcNo.
-                string exe = FindEAExecutableFast();
-                if (string.IsNullOrWhiteSpace(exe) || !File.Exists(exe))
-                {
-                    error = "Nie znaleziono programu EA App na tym komputerze.";
-                    return false;
-                }
-
-                StopLauncherProcesses();
-                if (!ClearEAAuthenticationState(out error))
-                    return false;
-
-                log("EA App: lokalny stan aktywnej sesji wyczyszczony. Uruchamiam EA App.");
-
-                if (!StartEA(exe))
+                bool started = StartEA(exe);
+                if (!started)
                 {
                     error = "Nie udało się uruchomić EA App.";
                     return false;
                 }
 
-                // The window is discovered by EnumWindows as soon as the Qt
-                // top-level window exists, avoiding the previous long wait for
-                // Process.MainWindowHandle.
-                if (!uiAutomation.PrepareAndLogin(account.UserName, password, 25, out error))
+                if (!uiAutomation.PrepareAndLogin(account.UserName, password, 60, out error))
                     return false;
 
                 log("EA App: konto „" + account.Name + "” jest aktywne. Playnite kontynuuje normalne uruchomienie gry.");
@@ -89,240 +76,25 @@ namespace PlayniteAccountManager.Services
 
         public bool Logout(out string error)
         {
-            error = null;
-
-            try
-            {
-                StopLauncherProcesses();
-                return ClearEAAuthenticationState(out error);
-            }
-            catch (Exception ex)
-            {
-                error = "Błąd czyszczenia sesji EA App: " + ex.Message;
-                log(error);
-                return false;
-            }
-        }
-
-        private bool ClearEAAuthenticationState(out string error)
-        {
-            error = null;
-
-            string localAuth = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "Electronic Arts", "EA Desktop");
-
-            string programDataAuth = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                "EA Desktop");
-
-            bool okLocal = ClearDirectoryContents(localAuth, "LocalAppData\\Electronic Arts\\EA Desktop");
-            bool okProgram = ClearDirectoryContents(programDataAuth, "ProgramData\\EA Desktop");
-
-            if (!okLocal || !okProgram)
-            {
-                error = "Nie udało się całkowicie wyczyścić lokalnego stanu logowania EA App.";
-                return false;
-            }
-
-            log("EA App: wyczyszczono lokalny stan logowania. Przy następnym uruchomieniu wymagane będzie nowe uwierzytelnienie.");
-            return true;
-        }
-
-        private bool ClearDirectoryContents(string directory, string label)
-        {
-            if (!Directory.Exists(directory))
-            {
-                log("EA App: brak " + label + " — nic do czyszczenia.");
-                return true;
-            }
-
-            bool allOk = true;
-
-            for (int attempt = 0; attempt < 3; attempt++)
-            {
-                try
-                {
-                    ClearReadOnlyAttributes(directory);
-
-                    foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly))
-                    {
-                        try
-                        {
-                            File.SetAttributes(file, FileAttributes.Normal);
-                            File.Delete(file);
-                        }
-                        catch (Exception ex)
-                        {
-                            allOk = false;
-                            log("EA App: nie udało się usunąć pliku " + file + ": " + ex.Message);
-                        }
-                    }
-
-                    foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly))
-                    {
-                        try
-                        {
-                            ClearReadOnlyAttributes(child);
-                            Directory.Delete(child, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            allOk = false;
-                            log("EA App: nie udało się usunąć katalogu " + child + ": " + ex.Message);
-                        }
-                    }
-
-                    bool empty = !Directory.EnumerateFileSystemEntries(directory).Any();
-                    if (empty)
-                    {
-                        log("EA App: wyczyszczono " + label + ".");
-                        return true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    allOk = false;
-                    log("EA App: błąd czyszczenia " + label + " (próba " + (attempt + 1) + "): " + ex.Message);
-                }
-
-                Thread.Sleep(150);
-            }
-
-            bool emptyAfterRetries = !Directory.EnumerateFileSystemEntries(directory).Any();
-            if (emptyAfterRetries)
-            {
-                log("EA App: wyczyszczono " + label + " po ponowieniach.");
-                return true;
-            }
-
-            if (!allOk)
-                log("EA App: " + label + " nie został całkowicie wyczyszczony.");
-            return false;
-        }
-
-        private static void ClearReadOnlyAttributes(string directory)
-        {
-            try
-            {
-                foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
-                {
-                    try { File.SetAttributes(file, FileAttributes.Normal); } catch { }
-                }
-
-                foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.AllDirectories))
-                {
-                    try { File.SetAttributes(child, FileAttributes.Normal); } catch { }
-                }
-
-                try { File.SetAttributes(directory, FileAttributes.Normal); } catch { }
-            }
-            catch { }
+            return uiAutomation.Logout(out error);
         }
 
         private static bool StartEA(string exe)
         {
-            try
+            IntPtr hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
+            if (hwnd != IntPtr.Zero)
+                return true;
+
+            using (var p = Process.Start(new ProcessStartInfo
             {
-                using (var p = Process.Start(new ProcessStartInfo
-                {
-                    FileName = exe,
-                    WorkingDirectory = Path.GetDirectoryName(exe),
-                    UseShellExecute = true,
-                    WindowStyle = ProcessWindowStyle.Normal
-                }))
-                {
-                    return p != null;
-                }
+                FileName = exe,
+                WorkingDirectory = Path.GetDirectoryName(exe),
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Normal
+            }))
+            {
+                return p != null;
             }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static string FindEAExecutableFast()
-        {
-            string pf = Environment.GetEnvironmentVariable("ProgramFiles");
-            string pf86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
-            string[] candidates =
-            {
-                Path.Combine(pf ?? string.Empty, "Electronic Arts", "EA Desktop", "EA Desktop", "EADesktop.exe"),
-                Path.Combine(pf ?? string.Empty, "Electronic Arts", "EA Desktop", "EADesktop.exe"),
-                Path.Combine(pf86 ?? string.Empty, "Electronic Arts", "EA Desktop", "EA Desktop", "EADesktop.exe"),
-                Path.Combine(local, "Electronic Arts", "EA Desktop", "EADesktop.exe")
-            };
-
-            foreach (string candidate in candidates)
-            {
-                if (!string.IsNullOrWhiteSpace(candidate) && File.Exists(candidate))
-                    return candidate;
-            }
-
-            // If EA is already open, use its process path before doing any
-            // expensive registry/Start Menu scanning.
-            foreach (Process p in SafeGetProcesses("EADesktop"))
-            {
-                try
-                {
-                    if (p.HasExited)
-                        continue;
-
-                    string path = null;
-                    try { path = p.MainModule.FileName; } catch { }
-                    if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
-                        return path;
-                }
-                catch { }
-                finally
-                {
-                    p.Dispose();
-                }
-            }
-
-            return FindEAExecutable();
-        }
-
-        private void StopLauncherProcesses()
-        {
-            string[] processNames =
-            {
-                "EADesktop",
-                "EABackgroundService",
-                "EALauncher"
-            };
-
-            foreach (string name in processNames)
-            {
-                foreach (Process process in SafeGetProcesses(name))
-                {
-                    try
-                    {
-                        if (process.HasExited)
-                            continue;
-
-                        try { process.CloseMainWindow(); } catch { }
-
-                        if (!process.WaitForExit(1200))
-                        {
-                            try { process.Kill(); } catch { }
-                            try { process.WaitForExit(1200); } catch { }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log("EA App: nie udało się zatrzymać procesu " + name + ": " + ex.Message);
-                    }
-                    finally
-                    {
-                        process.Dispose();
-                    }
-                }
-            }
-
-            Thread.Sleep(250);
         }
 
         private static string FindEAExecutable()
@@ -340,13 +112,9 @@ namespace PlayniteAccountManager.Services
             {
                 try
                 {
-                    if (p.HasExited)
-                        continue;
-
                     string path = null;
                     try { path = p.MainModule.FileName; } catch { }
-                    if (!string.IsNullOrWhiteSpace(path))
-                        candidates.Add(path);
+                    if (!string.IsNullOrWhiteSpace(path)) candidates.Add(path);
                 }
                 catch { }
                 finally { p.Dispose(); }
@@ -360,10 +128,9 @@ namespace PlayniteAccountManager.Services
                 try
                 {
                     string full = Path.GetFullPath(Environment.ExpandEnvironmentVariables(candidate));
-                    string file = Path.GetFileName(full);
                     if (File.Exists(full) &&
-                        (file.Equals("EADesktop.exe", StringComparison.OrdinalIgnoreCase) ||
-                         file.Equals("EALauncher.exe", StringComparison.OrdinalIgnoreCase)))
+                        (Path.GetFileName(full).Equals("EADesktop.exe", StringComparison.OrdinalIgnoreCase) ||
+                         Path.GetFileName(full).Equals("EALauncher.exe", StringComparison.OrdinalIgnoreCase)))
                         return full;
                 }
                 catch { }
@@ -374,10 +141,9 @@ namespace PlayniteAccountManager.Services
 
         private static void AddCandidates(List<string> results, string basePath)
         {
-            if (string.IsNullOrWhiteSpace(basePath))
-                return;
-
-            results.Add(Path.Combine(basePath, "Electronic Arts", "EA Desktop", "EA Desktop", "EADesktop.exe"));
+            if (string.IsNullOrWhiteSpace(basePath)) return;
+            results.Add(Path.Combine(basePath, "Electronic Arts", "EA Desktop", "EADesktop.exe"));
+            results.Add(Path.Combine(basePath, "Electronic Arts", "EA Desktop", "EALauncher.exe"));
             results.Add(Path.Combine(basePath, "Electronic Arts", "EA Desktop", "EADesktop.exe"));
         }
 
@@ -392,7 +158,7 @@ namespace PlayniteAccountManager.Services
         private static IEnumerable<string> FindFromUninstallRegistry()
         {
             var results = new List<string>();
-            const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            const string subKey = @"SOFTWAREMicrosoftWindowsCurrentVersionUninstall";
             foreach (var hive in new[] { Microsoft.Win32.RegistryHive.LocalMachine, Microsoft.Win32.RegistryHive.CurrentUser })
             foreach (var view in new[] { Microsoft.Win32.RegistryView.Registry64, Microsoft.Win32.RegistryView.Registry32 })
             {
