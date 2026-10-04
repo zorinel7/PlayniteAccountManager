@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -47,25 +49,37 @@ namespace PlayniteAccountManager.Services
 
             if (email == null)
             {
-                log("Epic Games UIA: pole e-mail nie jest bezpośrednio dostępne. Używam semantycznego przycisku „Kontynuuj” jako punktu odniesienia i klikam jego aktualny BoundingRectangle.");
+                log("Epic Games UIA: pole e-mail nie jest dostępne. Używam dynamicznego wykrycia niebieskiego przycisku.");
 
                 AutomationElement continueButton = FindNamedElement(
                     hwnd, new[] { "Kontynuuj", "Continue" });
 
-                if (continueButton == null ||
-                    !ClickElementCenter(continueButton, "przycisk „Kontynuuj”"))
+                bool clicked = continueButton != null &&
+                               ClickElementCenter(continueButton, "przycisk „Kontynuuj”");
+
+                if (!clicked)
+                    clicked = TryClickVisualBlueButton(hwnd, "przycisk „Kontynuuj”");
+
+                if (!clicked)
                 {
-                    error = "Nie znaleziono pola e-mail Epic Games ani przycisku „Kontynuuj”.";
+                    error = "Nie udało się odnaleźć przycisku „Kontynuuj” Epic Games.";
                     return false;
                 }
 
+                // The clicked button is the actual current UI element, so
+                // Shift+Tab moves to the form input regardless of DPI/resolution.
                 if (!FocusPreviousEditable(hwnd, false, 8))
                 {
                     error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
                     return false;
                 }
 
-                email = AutomationElement.FocusedElement;
+                email = GetFocusedElement();
+                if (email == null)
+                {
+                    error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
+                    return false;
+                }
             }
             else if (!TryFocusTarget(email))
             {
@@ -98,25 +112,37 @@ namespace PlayniteAccountManager.Services
 
             if (passwordEdit == null)
             {
-                log("Epic Games UIA: pole hasła nie jest bezpośrednio dostępne. Używam semantycznego przycisku „Zaloguj się” jako punktu odniesienia.");
+                log("Epic Games UIA: pole hasła nie jest dostępne. Używam dynamicznego wykrycia niebieskiego przycisku.");
 
                 AutomationElement loginButtonAnchor = FindNamedElement(
                     hwnd, new[] { "Zaloguj się", "Zaloguj", "Log in", "Sign in" });
 
-                if (loginButtonAnchor == null ||
-                    !ClickElementCenter(loginButtonAnchor, "przycisk „Zaloguj się”"))
+                bool clicked = loginButtonAnchor != null &&
+                               ClickElementCenter(loginButtonAnchor, "przycisk „Zaloguj się”");
+
+                if (!clicked)
+                    clicked = TryClickVisualBlueButton(hwnd, "przycisk „Zaloguj się”");
+
+                if (!clicked)
                 {
-                    error = "Nie znaleziono pola hasła Epic Games ani przycisku logowania.";
+                    error = "Nie udało się odnaleźć przycisku „Zaloguj się” Epic Games.";
                     return false;
                 }
 
+                // Password form order: password -> recovery link -> remember-me
+                // checkbox -> login button. Three reverse-tab steps return to it.
                 if (!FocusPreviousEditable(hwnd, true, 8))
                 {
                     error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
                     return false;
                 }
 
-                passwordEdit = AutomationElement.FocusedElement;
+                passwordEdit = GetFocusedElement();
+                if (passwordEdit == null)
+                {
+                    error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
+                    return false;
+                }
             }
             else if (!TryFocusTarget(passwordEdit))
             {
@@ -262,6 +288,207 @@ namespace PlayniteAccountManager.Services
             }
 
             return null;
+        }
+
+        private bool TryClickVisualBlueButton(IntPtr hwnd, string description)
+        {
+            try
+            {
+                RECT windowRect;
+                if (!GetWindowRect(hwnd, out windowRect))
+                    return false;
+
+                int width = windowRect.Right - windowRect.Left;
+                int height = windowRect.Bottom - windowRect.Top;
+
+                if (width < 300 || height < 300)
+                    return false;
+
+                using (var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                {
+                    using (Graphics graphics = Graphics.FromImage(bitmap))
+                    {
+                        graphics.CopyFromScreen(
+                            windowRect.Left,
+                            windowRect.Top,
+                            0,
+                            0,
+                            new Size(width, height),
+                            CopyPixelOperation.SourceCopy);
+                    }
+
+                    Rectangle candidate = FindLargeEpicBlueButton(bitmap);
+                    if (candidate == Rectangle.Empty)
+                        return false;
+
+                    int x = windowRect.Left + candidate.Left + candidate.Width / 2;
+                    int y = windowRect.Top + candidate.Top + candidate.Height / 2;
+
+                    if (!NativeClickScreen(x, y, description))
+                        return false;
+
+                    log("Epic Games hybrid visual click: " + description +
+                        " @ dynamic rect (" + candidate.Left + "," +
+                        candidate.Top + "," + candidate.Width + "," +
+                        candidate.Height + ").");
+
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log("Epic Games visual fallback: " + ex.Message);
+                return false;
+            }
+        }
+
+        private static Rectangle FindLargeEpicBlueButton(Bitmap bitmap)
+        {
+            const int sample = 3;
+
+            int sw = bitmap.Width / sample;
+            int sh = bitmap.Height / sample;
+
+            if (sw <= 0 || sh <= 0)
+                return Rectangle.Empty;
+
+            var mask = new bool[sw, sh];
+            var visited = new bool[sw, sh];
+
+            for (int y = 0; y < sh; y++)
+            {
+                for (int x = 0; x < sw; x++)
+                {
+                    Color color = bitmap.GetPixel(x * sample, y * sample);
+
+                    // Epic's primary action buttons are bright cyan/blue.
+                    mask[x, y] =
+                        color.R < 120 &&
+                        color.G > 120 &&
+                        color.B > 165 &&
+                        color.B > color.G + 10 &&
+                        color.G > color.R + 45;
+                }
+            }
+
+            Rectangle best = Rectangle.Empty;
+            int bestArea = 0;
+
+            int[] dx = { 1, -1, 0, 0 };
+            int[] dy = { 0, 0, 1, -1 };
+
+            for (int y = 0; y < sh; y++)
+            {
+                for (int x = 0; x < sw; x++)
+                {
+                    if (!mask[x, y] || visited[x, y])
+                        continue;
+
+                    var queue = new Queue<Point>();
+                    queue.Enqueue(new Point(x, y));
+                    visited[x, y] = true;
+
+                    int minX = x;
+                    int maxX = x;
+                    int minY = y;
+                    int maxY = y;
+                    int pixels = 0;
+
+                    while (queue.Count > 0)
+                    {
+                        Point p = queue.Dequeue();
+                        pixels++;
+
+                        minX = Math.Min(minX, p.X);
+                        maxX = Math.Max(maxX, p.X);
+                        minY = Math.Min(minY, p.Y);
+                        maxY = Math.Max(maxY, p.Y);
+
+                        for (int i = 0; i < 4; i++)
+                        {
+                            int nx = p.X + dx[i];
+                            int ny = p.Y + dy[i];
+
+                            if (nx < 0 || nx >= sw ||
+                                ny < 0 || ny >= sh ||
+                                visited[nx, ny] ||
+                                !mask[nx, ny])
+                                continue;
+
+                            visited[nx, ny] = true;
+                            queue.Enqueue(new Point(nx, ny));
+                        }
+                    }
+
+                    int rw = maxX - minX + 1;
+                    int rh = maxY - minY + 1;
+                    double ratio = rh > 0 ? (double)rw / rh : 0;
+                    int area = rw * rh;
+
+                    if (pixels < 350 ||
+                        rw < 70 ||
+                        rh < 10 ||
+                        ratio < 2.5 ||
+                        ratio > 15.0)
+                        continue;
+
+                    if (area > bestArea)
+                    {
+                        bestArea = area;
+                        best = new Rectangle(
+                            minX * sample,
+                            minY * sample,
+                            rw * sample,
+                            rh * sample);
+                    }
+                }
+            }
+
+            return best;
+        }
+
+        private bool NativeClickScreen(int x, int y, string description)
+        {
+            try
+            {
+                if (!SetCursorPos(x, y))
+                    return false;
+
+                Thread.Sleep(35);
+
+                INPUT[] inputs =
+                {
+                    CreateMouseInput(0x0002),
+                    CreateMouseInput(0x0004)
+                };
+
+                uint sent = SendInput(
+                    (uint)inputs.Length,
+                    inputs,
+                    Marshal.SizeOf(typeof(INPUT)));
+
+                if (sent != inputs.Length)
+                    return false;
+
+                Thread.Sleep(120);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static AutomationElement GetFocusedElement()
+        {
+            try
+            {
+                return AutomationElement.FocusedElement;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private bool ClickElementCenter(
@@ -874,11 +1101,26 @@ namespace PlayniteAccountManager.Services
         [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int x, int y);
 
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetCursorPos(int x, int y);
+
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint SendInput(
             uint nInputs, [In] INPUT[] pInputs, int cbSize);
 
         [StructLayout(LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
         private struct INPUT
         {
             public uint type;
