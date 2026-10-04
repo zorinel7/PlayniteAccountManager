@@ -222,6 +222,17 @@ namespace PlayniteAccountManager.Services
             return true;
         }
 
+        private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
+        {
+            RECT rect;
+            if (!GetWindowRect(hwnd, out rect))
+                return false;
+
+            int x = rect.Left + (int)Math.Round((rect.Right - rect.Left) * xPct);
+            int y = rect.Top + (int)Math.Round((rect.Bottom - rect.Top) * yPct);
+            return NativeClickScreen(x, y, what);
+        }
+
         private static AutomationElement FindLoginEdit(IntPtr hwnd, int index)
         {
             AutomationElement root = AutomationElement.FromHandle(hwnd);
@@ -306,6 +317,41 @@ namespace PlayniteAccountManager.Services
             }
 
             return null;
+        }
+
+        private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
+            while (DateTime.UtcNow < deadline)
+            {
+                if (IsLoginScreen(hwnd))
+                    return true;
+
+                Thread.Sleep(120);
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                    continue;
+            }
+
+            return IsLoginScreen(hwnd);
+        }
+
+        private static bool WaitForAuthenticated(IntPtr hwnd, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
+            while (DateTime.UtcNow < deadline)
+            {
+                EAUiState state = DetectEAState(hwnd);
+                if (state == EAUiState.Authenticated)
+                    return true;
+
+                Thread.Sleep(140);
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                    continue;
+            }
+
+            return DetectEAState(hwnd) == EAUiState.Authenticated;
         }
 
         private static AutomationElement SafeParent(AutomationElement element)
