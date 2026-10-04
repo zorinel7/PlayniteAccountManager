@@ -105,7 +105,7 @@ namespace PlayniteAccountManager.Services
 
                 if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
                 {
-                    error = "Brak loginu lub hasła zapisanego dla konta "" + account.Name + "".";
+                    error = "Brak loginu lub hasła zapisanego dla konta \"" + account.Name + "\".";
                     return false;
                 }
 
@@ -126,7 +126,7 @@ namespace PlayniteAccountManager.Services
                 if (!sessionStore.SaveCurrent(account.Id, out saveError))
                     log("Epic Games: ostrzeżenie — nie udało się zapisać snapshotu: " + saveError);
 
-                log("Epic Games: automatyczne logowanie zakończone pomyślnie dla konta "" + account.Name + "".");
+                log("Epic Games: automatyczne logowanie zakończone pomyślnie dla konta \"" + account.Name + "\".");
                 return true;
             }
             catch (Exception ex)
@@ -196,7 +196,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(150);
             }
 
-            error = "Epic Games nie udostępnił AccountId po logowaniu "" + username + "".";
+            error = "Epic Games nie udostępnił AccountId po logowaniu \"" + username + "\".";
             return false;
         }
 
