@@ -17,18 +17,18 @@ A launcher can have a **main account** plus alternative accounts assigned to ind
 
 Example:
 
-\`\`\`text
+```text
 Steam main account
 ├── Game A → main
 ├── Game B → main
 └── Game C → alternative account
-\`\`\`
+```
 
 The goal is for Playnite to handle the account switch only when the selected game requires a different account.
 
 ## Repository layout
 
-\`\`\`text
+```text
 PlayniteAccountManager/
 ├── src/PlayniteAccountManager/   # plugin source
 ├── scripts/                      # CI/security helper scripts
@@ -38,7 +38,7 @@ PlayniteAccountManager/
 ├── package.ps1                   # plugin ZIP packaging
 ├── BUILD_PLAYNITE_ACCOUNT_MANAGER_0.9.7.bat
 └── CHANGELOG.md
-\`\`\`
+```
 
 ## Build locally
 
@@ -51,24 +51,24 @@ Requirements:
 
 Run:
 
-\`\`\`powershell
+```powershell
 ./build.ps1
 ./package.ps1
-\`\`\`
+```
 
 The plugin package is created as:
 
-\`\`\`text
+```text
 PlayniteAccountManager_0.9.7.zip
-\`\`\`
+```
 
 You can also run the supplied BAT file.
 
 ## GitHub Actions
 
-Every push and pull request to \`main\` runs:
+Every push and pull request to `main` runs:
 
-\`\`\`text
+```text
 secret scan
    ↓
 MSBuild Release
@@ -76,14 +76,14 @@ MSBuild Release
 plugin package
    ↓
 GitHub Actions artifact
-\`\`\`
+```
 
 ## Credentials and privacy
 
 No credentials should ever be committed to this repository. Runtime credential storage is local to the user's Windows profile.
 
-See \`SECURITY.md\` for security notes.
+See `SECURITY.md` for security notes.
 
 ## License
 
-No license has been selected yet. Until a license is added, normal copyright applies to the repository contents.
+This repository includes the **GNU General Public License v3.0 (GPL-3.0)**. See `LICENSE`.
