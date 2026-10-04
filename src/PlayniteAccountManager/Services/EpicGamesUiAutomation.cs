@@ -1104,14 +1104,10 @@ namespace PlayniteAccountManager.Services
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
 
-        [DllImport("user32.dll")]
-        private static extern bool SetCursorPos(int x, int y);
-
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint SendInput(
             uint nInputs, [In] INPUT[] pInputs, int cbSize);
 
-        [StructLayout(LayoutKind.Sequential)]
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT
         {
