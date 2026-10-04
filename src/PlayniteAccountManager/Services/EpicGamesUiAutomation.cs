@@ -418,7 +418,7 @@ namespace PlayniteAccountManager.Services
                                 continue;
 
                             visited[nx, ny] = true;
-                            queue.Enqueue(new Point(nx, ny));
+                            queue.Enqueue(new DrawingPoint(nx, ny));
                         }
                     }
 
