@@ -194,14 +194,15 @@ namespace PlayniteAccountManager.Services
             {
                 IntPtr existing = EAAppUiAutomation.FindMainWindowHandlePublic();
                 if (existing != IntPtr.Zero)
-                {
                     return true;
-                }
 
-                log("EA App: uruchamiam usługę EABackgroundService.");
-                TryStartBackgroundService();
+                // Service control is the only elevated operation and is executed
+                // by the per-user scheduled helper. EADesktop itself is started
+                // normally, under the user's non-elevated token.
+                if (!sessionStore.StartBackgroundService(out error))
+                    return false;
 
-                log("EA App: uruchamiam EADesktop.exe: " + exe);
+                log("EA App: uruchamiam EADesktop.exe jako zwykły proces użytkownika.");
 
                 using (var p = Process.Start(new ProcessStartInfo
                 {
@@ -218,83 +219,27 @@ namespace PlayniteAccountManager.Services
                     }
                 }
 
-                // EADesktop.exe is a launcher/bootstrapper. Give it a short
-                // head start, then let UIAutomation discover the actual Qt
-                // window. This avoids the previous long blind delay.
-                Thread.Sleep(450);
-
-                IntPtr hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
-                if (hwnd != IntPtr.Zero)
-                {
-                    log("EA App: okno główne zostało wykryte.");
-                    return true;
-                }
-
-                // If the first process is still bootstrapping, give it a few
-                // quick checks rather than sleeping for tens of seconds.
                 DateTime deadline = DateTime.UtcNow.AddSeconds(12);
+
                 while (DateTime.UtcNow < deadline)
                 {
-                    Thread.Sleep(250);
-                    hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
+                    Thread.Sleep(180);
+
+                    IntPtr hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
                     if (hwnd != IntPtr.Zero)
                     {
-                        log("EA App: okno główne wykryte po uruchomieniu.");
+                        log("EA App: wykryto okno główne.");
                         return true;
                     }
                 }
 
-                error = "EADesktop.exe został uruchomiony, ale EA App nie utworzyła okna w ciągu 12 sekund.";
-                log("EA App: " + error);
+                error = "EA App została uruchomiona, ale okno główne nie pojawiło się w ciągu 12 sekund.";
                 return false;
             }
             catch (Exception ex)
             {
                 error = "Nie udało się uruchomić EA App: " + ex.Message;
-                log(error);
                 return false;
-            }
-        }
-
-        private void TryStartBackgroundService()
-        {
-            try
-            {
-                using (var p = Process.Start(new ProcessStartInfo
-                {
-                    FileName = "sc.exe",
-                    Arguments = "start EABackgroundService",
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                }))
-                {
-                    if (p == null)
-                        return;
-
-                    string stdout = p.StandardOutput.ReadToEnd();
-                    string stderr = p.StandardError.ReadToEnd();
-                    p.WaitForExit(4000);
-
-                    if (p.ExitCode == 0)
-                    {
-                        log("EA App: usługa EABackgroundService została uruchomiona.");
-                    }
-                    else if (stdout.IndexOf("already been started", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                             stderr.IndexOf("already been started", StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        log("EA App: EABackgroundService już działa.");
-                    }
-                    else
-                    {
-                        log("EA App: start EABackgroundService zwrócił kod " + p.ExitCode + ".");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log("EA App: nie udało się uruchomić EABackgroundService: " + ex.Message);
             }
         }
 
