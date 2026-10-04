@@ -435,7 +435,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="1" x:Name="TestLoginButton" Content="TESTUJ AUTOMATYCZNE LOGOWANIE"
-                                Style="{StaticResource DarkButton}" Click="TestLoginButton_Click" IsEnabled="False"/>
+                                Style="{StaticResource DarkButton}" Click="TestLoginButton_Click"/>
                     </Grid>
 
                     <Grid Grid.Row="14" Margin="0,18,0,0">
