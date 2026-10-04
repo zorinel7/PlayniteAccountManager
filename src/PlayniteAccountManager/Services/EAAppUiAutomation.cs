@@ -1,4 +1,30 @@
 
+        public bool WaitUntilAuthenticated(int timeoutSeconds, out string error)
+        {
+            error = null;
+
+            IntPtr hwnd = WaitForMainWindow(timeoutSeconds);
+            if (hwnd == IntPtr.Zero)
+            {
+                error = "Nie znaleziono okna EA App.";
+                return false;
+            }
+
+            EnsureWindowForeground(hwnd);
+
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, timeoutSeconds));
+            while (DateTime.UtcNow < deadline)
+            {
+                if (IsAuthenticatedScreen(hwnd))
+                    return true;
+
+                Thread.Sleep(140);
+            }
+
+            error = "EA App nie potwierdziła zalogowania.";
+            return false;
+        }
+
         private bool PerformLogin(IntPtr hwnd, string username, string password, int timeoutSeconds, out string error)
         {
             error = null;
