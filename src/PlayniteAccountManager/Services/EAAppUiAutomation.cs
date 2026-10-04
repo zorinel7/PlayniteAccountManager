@@ -74,10 +74,20 @@ namespace PlayniteAccountManager.Services
             EnsureWindowForeground(hwnd);
 
             bool authenticated;
-            if (!WaitForEAState(hwnd, 15, out authenticated))
+            if (!WaitForEAState(hwnd, 12, out authenticated))
             {
-                error = "Nie udało się rozpoznać stanu EA App (zalogowana sesja / ekran logowania).";
-                return false;
+                // When EA is already logged out, some builds expose too little
+                // accessibility metadata to identify the login page. In that
+                // case we deliberately treat a non-authenticated window as the
+                // login surface and let the native login fallback take over.
+                authenticated = IsAuthenticatedScreen(hwnd);
+                if (authenticated)
+                {
+                    error = "EA App pozostaje zalogowana, ale jej stan UI nie może zostać jednoznacznie rozpoznany.";
+                    return false;
+                }
+
+                log("EA App: stan UI nie został jednoznacznie rozpoznany, ale brak oznak aktywnej sesji. Kontynuuję jako ekran logowania.");
             }
 
             if (authenticated)
@@ -98,13 +108,10 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            if (!WaitForLoginScreen(hwnd, 25))
-            {
-                error = "EA App nie pokazała ekranu logowania po wylogowaniu.";
-                return false;
-            }
+            if (!WaitForLoginScreen(hwnd, 10))
+                log("EA App: ekran logowania nie został jednoznacznie wykryty przez UIA. Kontynuuję z natywnym fallbackiem.");
 
-            if (!PerformLogin(hwnd, username, password, 35, out error))
+            if (!PerformLogin(hwnd, username, password, 12, out error))
                 return false;
 
             if (!WaitForAuthenticated(hwnd, 30))
@@ -207,14 +214,17 @@ namespace PlayniteAccountManager.Services
         private bool PerformLogin(IntPtr hwnd, string username, string password, int timeoutSeconds, out string error)
         {
             error = null;
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(10, timeoutSeconds));
+            // UIA is given only a short window. Current EA builds can expose
+            // the login page as Qt/Cef content without stable edit metadata, so
+            // waiting tens of seconds here only makes the automation look dead.
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Min(4, Math.Max(2, timeoutSeconds)));
 
             AutomationElement emailEdit = null;
             while (DateTime.UtcNow < deadline && emailEdit == null)
             {
                 emailEdit = FindLoginEdit(hwnd, 0);
                 if (emailEdit == null)
-                    Thread.Sleep(250);
+                    Thread.Sleep(200);
             }
 
             if (emailEdit != null)
@@ -263,7 +273,7 @@ namespace PlayniteAccountManager.Services
             Thread.Sleep(500);
 
             AutomationElement passwordEdit = null;
-            DateTime passDeadline = DateTime.UtcNow.AddSeconds(15);
+            DateTime passDeadline = DateTime.UtcNow.AddSeconds(4);
             while (DateTime.UtcNow < passDeadline && passwordEdit == null)
             {
                 passwordEdit = FindPasswordEdit(hwnd);
