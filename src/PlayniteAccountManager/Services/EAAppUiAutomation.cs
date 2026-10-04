@@ -237,10 +237,6 @@ namespace PlayniteAccountManager.Services
                     Thread.Sleep(200);
             }
 
-            // EA displays this checkbox checked by default on the login
-            // page. Force it OFF so the session is not kept automatically.
-            EnsureRememberMeUnchecked(hwnd);
-
             if (emailEdit != null)
             {
                 log("EA UIA: znaleziono pole e-mail.");
@@ -257,6 +253,10 @@ namespace PlayniteAccountManager.Services
                     return false;
                 }
             }
+            else
+            {
+                log("EA UIA: ustawiam fokus na pole e-mail przez SetFocus().");
+            }
 
             if (!NativeKeyboardInput.TypeText(username, hwnd, log))
             {
@@ -264,7 +264,16 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            Thread.Sleep(300);
+            Thread.Sleep(250);
+
+            // IMPORTANT: do this after the e-mail has been entered. On some
+            // EA Qt/Cef builds clicking the checkbox before the first edit can
+            // steal focus and make the subsequent keyboard input unreliable.
+            bool rememberMeChanged = EnsureRememberMeUnchecked(hwnd);
+            if (!rememberMeChanged)
+                log("EA: nie potwierdzono stanu „Nie wylogowuj mnie”; kontynuuję logowanie, aby nie blokować testu.");
+
+            Thread.Sleep(180);
 
             AutomationElement next = FindButtonByNames(hwnd, "Dalej", "Continue", "Next");
             if (next != null && Invoke(next))
