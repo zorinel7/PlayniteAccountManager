@@ -250,29 +250,17 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            Thread.Sleep(250);
-
-            // EA's current login form keeps focus in the e-mail edit after
-            // TypeText(). The first Tab moves to "Nie wylogowuj mnie".
-            // Prefer the real UIA TogglePattern when it exists; otherwise use
-            // the deterministic Tab + Space path because this checkbox is
-            // checked by default on the current EA login screen.
-            bool rememberMeChanged = EnsureRememberMeUnchecked(hwnd);
-            if (!rememberMeChanged)
-            {
-                log("EA: UIA nie udostępnia checkboxa. Używam pewnej ścieżki: Tab + Spacja.");
-                if (NativeKeyboardInput.SendTab(log))
-                {
-                    Thread.Sleep(60);
-                    if (NativeKeyboardInput.Key(0x20, log))
-                    {
-                        Thread.Sleep(180);
-                        log("EA keyboard: przełączono „Nie wylogowuj mnie” przez Tab + Spacja.");
-                    }
-                }
-            }
-
             Thread.Sleep(180);
+
+            // UIA can report a false ToggleState on EA's Qt/Cef login page.
+            // We therefore do not trust the checkbox state. The current form
+            // order is: e-mail -> "Nie wylogowuj mnie". Focus the e-mail again,
+            // press Tab once and Space once to explicitly switch the checkbox
+            // off before pressing "Dalej".
+            if (!ForceRememberMeUnchecked(hwnd))
+                log("EA: nie udało się wymusić stanu „Nie wylogowuj mnie”.");
+
+            Thread.Sleep(120);
 
             AutomationElement next = FindButtonByNames(hwnd, "Dalej", "Continue", "Next");
             if (next != null && Invoke(next))
@@ -917,53 +905,36 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private bool EnsureRememberMeUnchecked(IntPtr hwnd)
+        private bool ForceRememberMeUnchecked(IntPtr hwnd)
         {
-            // First choice: EA may expose the checkbox through UIA on some builds.
             try
             {
-                AutomationElement root = AutomationElement.FromHandle(hwnd);
-                if (root != null)
-                {
-                    var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
-                    foreach (AutomationElement e in all)
-                    {
-                        try
-                        {
-                            string name = e.Current.Name ?? string.Empty;
-                            if (e.Current.IsOffscreen || !e.Current.IsEnabled)
-                                continue;
+                // Put focus on the actual e-mail edit using the same stable
+                // native click already used for login.
+                if (!NativeClickRelative(hwnd, 0.50, 0.49, "pole e-mail przed odznaczeniem"))
+                    return false;
 
-                            if (name.IndexOf("Nie wylogowuj mnie", StringComparison.OrdinalIgnoreCase) < 0 &&
-                                name.IndexOf("Keep me signed in", StringComparison.OrdinalIgnoreCase) < 0 &&
-                                name.IndexOf("Stay signed in", StringComparison.OrdinalIgnoreCase) < 0)
-                                continue;
+                Thread.Sleep(70);
 
-                            var toggle = (TogglePattern)e.GetCurrentPattern(TogglePattern.Pattern);
-                            if (toggle.Current.ToggleState == ToggleState.On)
-                            {
-                                toggle.Toggle();
-                                log("EA UIA: wyłączono „Nie wylogowuj mnie”.");
-                            }
-                            else
-                            {
-                                log("EA UIA: „Nie wylogowuj mnie” było już wyłączone.");
-                            }
+                // On the current EA login page the next focusable control is
+                // "Nie wylogowuj mnie".
+                if (!NativeKeyboardInput.SendTab(log))
+                    return false;
 
-                            return true;
-                        }
-                        catch { }
-                    }
-                }
+                Thread.Sleep(70);
+
+                if (!NativeKeyboardInput.Key(0x20, log)) // VK_SPACE
+                    return false;
+
+                Thread.Sleep(180);
+                log("EA keyboard: przełączono „Nie wylogowuj mnie” przez E-mail -> Tab -> Spacja.");
+                return true;
             }
-            catch { }
-
-            // Current EA login page does not reliably expose this control in UIA.
-            // The caller keeps focus in the e-mail field and uses Tab + Space as
-            // the deterministic fallback. Returning false deliberately activates
-            // that path instead of making an unverified screen-coordinate click.
-            log("EA: checkbox „Nie wylogowuj mnie” nie jest dostępny przez UIA.");
-            return false;
+            catch (Exception ex)
+            {
+                log("EA keyboard: błąd przełączania „Nie wylogowuj mnie”: " + ex.Message);
+                return false;
+            }
         }
 
         private bool NativeClickMenuLogoutAt(IntPtr hwnd, double menuX, double menuY)
