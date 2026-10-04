@@ -46,6 +46,43 @@ namespace PlayniteAccountManager.Services
             return settings.Accounts.FirstOrDefault(x => x.Launcher == LauncherType.EAApp && x.IsPrimary);
         }
 
+        public AccountRecord GetPrimaryEpicAccount()
+        {
+            return settings.Accounts.FirstOrDefault(x => x.Launcher == LauncherType.EpicGames && x.IsPrimary);
+        }
+
+        public AccountRecord EnsurePrimaryEpicAccount()
+        {
+            var primary = GetPrimaryEpicAccount();
+            if (primary != null)
+                return primary;
+
+            var firstEpic = settings.Accounts.FirstOrDefault(x => x.Launcher == LauncherType.EpicGames);
+            if (firstEpic != null)
+            {
+                firstEpic.IsPrimary = true;
+                Save();
+                return firstEpic;
+            }
+
+            return null;
+        }
+
+        public void SetPrimaryEpicAccount(Guid accountId)
+        {
+            foreach (var account in settings.Accounts.Where(x => x.Launcher == LauncherType.EpicGames))
+                account.IsPrimary = account.Id == accountId;
+            Save();
+        }
+
+        public void ClearPrimaryEpicAccount(Guid accountId)
+        {
+            var account = GetAccount(accountId);
+            if (account != null && account.Launcher == LauncherType.EpicGames)
+                account.IsPrimary = false;
+            Save();
+        }
+
         public AccountRecord EnsurePrimaryEAAccount()
         {
             var primary = GetPrimaryEAAccount();
