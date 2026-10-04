@@ -65,28 +65,15 @@ namespace PlayniteAccountManager.Services
 
             if (email == null)
             {
-                log("Epic Games UIA: pole e-mail nie jest dostępne. Używam dynamicznego wykrycia niebieskiego przycisku.");
+                // Some Epic WebView builds expose neither the input nor its
+                // button through UIA. Detect the actual input rectangle from
+                // the current window image and click its center. This is
+                // dynamic: no fixed X/Y, DPI, or resolution is assumed.
+                log("Epic Games UIA: pole e-mail nie jest dostępne. Używam dynamicznego wykrycia pola formularza.");
 
-                AutomationElement continueButton = FindNamedElement(
-                    hwnd, new[] { "Kontynuuj", "Continue" });
-
-                bool clicked = continueButton != null &&
-                               ClickElementCenter(continueButton, "przycisk „Kontynuuj”");
-
-                if (!clicked)
-                    clicked = TryClickVisualBlueButton(hwnd, "przycisk „Kontynuuj”");
-
-                if (!clicked)
+                if (!TryClickVisualInputField(hwnd, false, "pole e-mail"))
                 {
-                    error = "Nie udało się odnaleźć przycisku „Kontynuuj” Epic Games.";
-                    return false;
-                }
-
-                // The clicked button is the actual current UI element, so
-                // Shift+Tab moves to the form input regardless of DPI/resolution.
-                if (!FocusPreviousEditable(hwnd, false, 8))
-                {
-                    error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
+                    error = "Nie udało się znaleźć pola e-mail Epic Games.";
                     return false;
                 }
 
@@ -96,8 +83,9 @@ namespace PlayniteAccountManager.Services
                     error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
                     return false;
                 }
-            }
-            else if (!TryFocusTarget(email))
+
+                log("Epic Games visual: fokus ustawiony na wykrytym polu e-mail.");
+            }            else if (!TryFocusTarget(email))
             {
                 error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
                 return false;
@@ -137,28 +125,11 @@ namespace PlayniteAccountManager.Services
 
             if (passwordEdit == null)
             {
-                log("Epic Games UIA: pole hasła nie jest dostępne. Używam dynamicznego wykrycia niebieskiego przycisku.");
+                log("Epic Games UIA: pole hasła nie jest dostępne. Używam dynamicznego wykrycia pola formularza.");
 
-                AutomationElement loginButtonAnchor = FindNamedElement(
-                    hwnd, new[] { "Zaloguj się", "Zaloguj", "Log in", "Sign in" });
-
-                bool clicked = loginButtonAnchor != null &&
-                               ClickElementCenter(loginButtonAnchor, "przycisk „Zaloguj się”");
-
-                if (!clicked)
-                    clicked = TryClickVisualBlueButton(hwnd, "przycisk „Zaloguj się”");
-
-                if (!clicked)
+                if (!TryClickVisualInputField(hwnd, true, "pole hasła"))
                 {
-                    error = "Nie udało się odnaleźć przycisku „Zaloguj się” Epic Games.";
-                    return false;
-                }
-
-                // Password form order: password -> recovery link -> remember-me
-                // checkbox -> login button. Three reverse-tab steps return to it.
-                if (!FocusPreviousEditable(hwnd, true, 8))
-                {
-                    error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
+                    error = "Nie udało się znaleźć pola hasła Epic Games.";
                     return false;
                 }
 
@@ -168,8 +139,9 @@ namespace PlayniteAccountManager.Services
                     error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
                     return false;
                 }
-            }
-            else if (!TryFocusTarget(passwordEdit))
+
+                log("Epic Games visual: fokus ustawiony na wykrytym polu hasła.");
+            }            else if (!TryFocusTarget(passwordEdit))
             {
                 error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
                 return false;
@@ -448,6 +420,192 @@ namespace PlayniteAccountManager.Services
             }
 
             return null;
+        }
+
+        private bool TryClickVisualInputField(
+            IntPtr hwnd, bool password, string description)
+        {
+            try
+            {
+                RECT windowRect;
+                if (!GetWindowRect(hwnd, out windowRect))
+                    return false;
+
+                int width = windowRect.Right - windowRect.Left;
+                int height = windowRect.Bottom - windowRect.Top;
+
+                if (width < 300 || height < 300)
+                    return false;
+
+                using (var bitmap = new Bitmap(
+                    width, height, PixelFormat.Format24bppRgb))
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.CopyFromScreen(
+                        windowRect.Left,
+                        windowRect.Top,
+                        0,
+                        0,
+                        new DrawingSize(width, height),
+                        CopyPixelOperation.SourceCopy);
+
+                    Rectangle candidate = FindLargeEpicInputField(bitmap, password);
+
+                    if (candidate == Rectangle.Empty)
+                    {
+                        log("Epic Games visual: nie znaleziono prostokąta pola " +
+                            (password ? "hasła" : "e-mail") + ".");
+                        return false;
+                    }
+
+                    int x = windowRect.Left +
+                            candidate.Left + candidate.Width / 2;
+                    int y = windowRect.Top +
+                            candidate.Top + candidate.Height / 2;
+
+                    if (!NativeClickScreen(x, y, description))
+                        return false;
+
+                    Thread.Sleep(100);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log("Epic Games visual input fallback: " + ex.Message);
+                return false;
+            }
+        }
+
+        private static Rectangle FindLargeEpicInputField(
+            Bitmap bitmap, bool password)
+        {
+            const int sample = 3;
+
+            int sw = bitmap.Width / sample;
+            int sh = bitmap.Height / sample;
+
+            if (sw <= 0 || sh <= 0)
+                return Rectangle.Empty;
+
+            // Epic's input surface is a large dark rounded rectangle whose
+            // interior is visually distinct from the card background. We find
+            // that shape from the current screenshot instead of assuming a
+            // location or resolution.
+            var mask = new bool[sw, sh];
+            var visited = new bool[sw, sh];
+
+            for (int y = 0; y < sh; y++)
+            {
+                for (int x = 0; x < sw; x++)
+                {
+                    Color color = bitmap.GetPixel(x * sample, y * sample);
+
+                    // Current Epic login field interior is approximately
+                    // #242428. Allow a range so theme/anti-aliasing changes
+                    // do not break detection.
+                    mask[x, y] =
+                        color.R >= 28 && color.R <= 55 &&
+                        Math.Abs(color.R - color.G) <= 3 &&
+                        Math.Abs(color.G - color.B) <= 6;
+                }
+            }
+
+            Rectangle best = Rectangle.Empty;
+            double bestScore = double.MinValue;
+
+            int[] dx = { 1, -1, 0, 0 };
+            int[] dy = { 0, 0, 1, -1 };
+
+            for (int y = 0; y < sh; y++)
+            {
+                for (int x = 0; x < sw; x++)
+                {
+                    if (!mask[x, y] || visited[x, y])
+                        continue;
+
+                    var queue = new Queue<DrawingPoint>();
+                    queue.Enqueue(new DrawingPoint(x, y));
+                    visited[x, y] = true;
+
+                    int minX = x, maxX = x;
+                    int minY = y, maxY = y;
+                    int pixels = 0;
+
+                    while (queue.Count > 0)
+                    {
+                        DrawingPoint p = queue.Dequeue();
+                        pixels++;
+
+                        if (p.X < minX) minX = p.X;
+                        if (p.X > maxX) maxX = p.X;
+                        if (p.Y < minY) minY = p.Y;
+                        if (p.Y > maxY) maxY = p.Y;
+
+                        for (int i = 0; i < 4; i++)
+                        {
+                            int nx = p.X + dx[i];
+                            int ny = p.Y + dy[i];
+
+                            if (nx < 0 || nx >= sw ||
+                                ny < 0 || ny >= sh ||
+                                visited[nx, ny] ||
+                                !mask[nx, ny])
+                                continue;
+
+                            visited[nx, ny] = true;
+                            queue.Enqueue(new DrawingPoint(nx, ny));
+                        }
+                    }
+
+                    int rw = maxX - minX + 1;
+                    int rh = maxY - minY + 1;
+
+                    if (rw < 180 || rh < 20 || rh > 100)
+                        continue;
+
+                    double ratio = (double)rw / rh;
+                    if (ratio < 5.0 || ratio > 15.0)
+                        continue;
+
+                    double centerX = (minX + maxX) / 2.0;
+                    double centerY = (minY + maxY) / 2.0;
+
+                    // Prefer horizontal input-shaped regions near the vertical
+                    // center of the login card. Password and email inputs have
+                    // the same geometry, so this remains launcher-layout driven
+                    // rather than screen-coordinate driven.
+                    double centerBias =
+                        Math.Abs(centerX - sw / 2.0) / Math.Max(1.0, sw / 2.0);
+
+                    double heightScore =
+                        1.0 - Math.Abs(rh - 15.0) / 20.0;
+
+                    double score =
+                        pixels * 0.002 +
+                        ratio * 2.0 -
+                        centerBias * 25.0 +
+                        heightScore * 10.0;
+
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        best = new Rectangle(
+                            minX * sample,
+                            minY * sample,
+                            rw * sample,
+                            rh * sample);
+                    }
+                }
+            }
+
+            if (best == Rectangle.Empty)
+                return best;
+
+            // For the password step, ignore a candidate that is suspiciously
+            // low/high relative to the button if another input-like region
+            // can be found. The current screenshot has exactly one such field.
+            return best;
         }
 
         private bool TryClickVisualBlueButton(IntPtr hwnd, string description)
