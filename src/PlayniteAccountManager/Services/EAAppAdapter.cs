@@ -26,6 +26,16 @@ namespace PlayniteAccountManager.Services
             sessionStore = new EAAppSessionStore(pluginUserDataPath, this.log);
         }
 
+        public bool IsNonAdminReady()
+        {
+            return sessionStore.IsReady();
+        }
+
+        public bool EnsureNonAdminReady(out string error)
+        {
+            return sessionStore.EnsureReady(out error);
+        }
+
         public bool PrepareAndLogin(AccountRecord account, string password, out string error)
         {
             error = null;
