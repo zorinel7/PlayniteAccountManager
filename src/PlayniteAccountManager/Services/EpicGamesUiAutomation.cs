@@ -183,7 +183,7 @@ namespace PlayniteAccountManager.Services
 
             // One final semantic UIA scan after the tab traversal.
             element = FindNamedInvokable(hwnd, names);
-            if (element != null && Invoke(element))
+            if (element != null && TryInvoke(element))
             {
                 log("Epic Games UIA: wykonano " + description + " po ponownym skanowaniu.");
                 return true;
