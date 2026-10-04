@@ -1,32 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using DrawingSize = System.Drawing.Size;
-using DrawingPoint = System.Drawing.Point;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Windows;
 using System.Windows.Automation;
 using AutomationCondition = System.Windows.Automation.Condition;
 
 namespace PlayniteAccountManager.Services
 {
     /// <summary>
-    /// Epic login automation. The login page is a Chromium/WebView surface,
-    /// so semantic UIA controls are preferred and keyboard focus navigation
-    /// is used as the fallback. No screen coordinates are used.
+    /// Epic Games login automation.
+    ///
+    /// Epic's WebView does not expose a reliable HTML/UIA control tree on all
+    /// launcher builds. The confirmed working manual keyboard sequence is
+    /// therefore reproduced directly. No screen coordinates or blind UIA
+    /// focus traversal are used for the login form.
     /// </summary>
     internal sealed class EpicGamesUiAutomation
     {
         private readonly Action<string> log;
-
         private const int SW_RESTORE = 9;
-        private const ushort VK_CONTROL = 0x0011;
-        private const ushort VK_A = 0x0041;
 
         public EpicGamesUiAutomation(Action<string> log)
         {
@@ -39,104 +33,98 @@ namespace PlayniteAccountManager.Services
 
             IntPtr hwnd = WaitForMainWindow(timeoutSeconds);
             if (hwnd == IntPtr.Zero)
-            {
-                error = "Nie znaleziono okna Epic Games Launcher.";
-                return false;
-            }
+                return Fail(out error, "Nie znaleziono okna Epic Games Launcher.");
 
             EnsureForeground(hwnd);
 
-            // The exact keyboard sequence was verified manually on the current
-            // Epic login UI. We reproduce that sequence directly instead of
-            // relying on UIA focus order, which Epic's WebView does not expose
-            // reliably.
+            // Wait for the login WebView to actually finish loading. We do not
+            // send the first TAB while the launcher is still rendering.
             if (!WaitForLoginSurfaceReady(hwnd, 20))
-            {
-                error = "Epic Games Launcher został uruchomiony, ale ekran logowania nie był gotowy w ciągu 20 sekund.";
-                log("Epic Games: ekran logowania nie osiągnął stanu gotowego.");
-                return false;
-            }
+                return Fail(out error,
+                    "Epic Games Launcher został uruchomiony, ale ekran logowania nie był gotowy w ciągu 20 sekund.");
 
-            log("Epic Games: ekran logowania gotowy. Używam potwierdzonej sekwencji klawiatury.");
+            log("Epic Games: ekran logowania gotowy.");
+            log("Epic Games keyboard: używam potwierdzonej sekwencji użytkownika.");
 
-            // [Tab] -> e-mail
-            if (!PressTab("fokus e-mail"))
-                return Fail(out error, "Nie udało się ustawić fokusu pola e-mail.");
+            // Confirmed sequence:
+            // [TAB]
+            // type email
+            // [TAB] [TAB] [ENTER]
+            // wait for password page
+            // [TAB] [TAB]
+            // type password
+            // [TAB] [TAB] [TAB] [TAB] [ENTER]
 
-            Thread.Sleep(120);
+            if (!SendTab("fokus pola e-mail"))
+                return Fail(out error, "Nie udało się wysłać pierwszego TAB do pola e-mail.");
 
             if (!NativeKeyboardInput.TypeText(username, hwnd, log))
                 return Fail(out error, "Nie udało się wpisać e-maila Epic Games.");
 
-            // [Tab] [Tab] [Enter] -> continue
-            if (!PressTabs(2, "przejście do hasła"))
-                return Fail(out error, "Nie udało się przejść do następnego etapu logowania Epic Games.");
+            if (!SendTabs(2, "przejście do „Kontynuuj”"))
+                return Fail(out error, "Nie udało się przejść do przycisku „Kontynuuj”.");
 
-            Thread.Sleep(100);
+            Thread.Sleep(120);
             if (!NativeKeyboardInput.SendEnter(log))
                 return Fail(out error, "Nie udało się zatwierdzić adresu e-mail Epic Games.");
 
-            // Do not assume a fixed load time; wait for the password surface.
+            // Wait for the password page rather than assuming a fixed delay.
             if (!WaitForPasswordSurfaceReady(hwnd, 15))
-            {
-                error = "Epic Games nie załadował ekranu hasła w wyznaczonym czasie.";
-                return false;
-            }
+                return Fail(out error,
+                    "Epic Games nie załadował ekranu hasła w wyznaczonym czasie.");
 
             log("Epic Games: ekran hasła gotowy.");
 
-            // [Tab] [Tab] -> password
-            if (!PressTabs(2, "fokus hasła"))
-                return Fail(out error, "Nie udało się ustawić fokusu pola hasła Epic Games.");
-
-            Thread.Sleep(100);
+            if (!SendTabs(2, "fokus pola hasła"))
+                return Fail(out error, "Nie udało się ustawić fokusu pola hasła.");
 
             if (!NativeKeyboardInput.TypeText(password, hwnd, log))
                 return Fail(out error, "Nie udało się wpisać hasła Epic Games.");
 
-            // [Tab] [Tab] [Tab] [Tab] [Enter] -> login
-            if (!PressTabs(4, "przejście do przycisku logowania"))
-                return Fail(out error, "Nie udało się przejść do przycisku logowania Epic Games.");
+            if (!SendTabs(4, "przejście do „Zaloguj się”"))
+                return Fail(out error, "Nie udało się przejść do przycisku „Zaloguj się”.");
 
-            Thread.Sleep(100);
+            Thread.Sleep(120);
             if (!NativeKeyboardInput.SendEnter(log))
                 return Fail(out error, "Nie udało się zatwierdzić logowania Epic Games.");
 
-            // Epic may display 2FA setup after successful authentication.
-            // Always choose "Ustaw później" semantically if it appears.
-            WaitAndInvokeLater2FA(hwnd, 15);
+            // Give the post-login WebView a moment to transition.
+            Thread.Sleep(300);
+
+            // If Epic displays the 2FA setup screen, always choose the
+            // semantically named "Ustaw później" button. No fixed coordinates.
+            WaitAndClickLater2FA(hwnd, 15);
 
             return true;
         }
 
-        private bool PressTab(string description)
+        public static IntPtr FindMainWindowHandlePublic()
+        {
+            return FindMainWindowHandle();
+        }
+
+        private bool SendTab(string purpose)
         {
             if (!NativeKeyboardInput.SendTab(log))
                 return false;
 
-            log("Epic Games keyboard: [TAB] -> " + description + ".");
-            Thread.Sleep(100);
+            log("Epic Games keyboard: [TAB] -> " + purpose + ".");
+            Thread.Sleep(110);
             return true;
         }
 
-        private bool PressTabs(int count, string description)
+        private bool SendTabs(int count, string purpose)
         {
             for (int i = 0; i < count; i++)
             {
                 if (!NativeKeyboardInput.SendTab(log))
                     return false;
 
-                Thread.Sleep(90);
+                Thread.Sleep(100);
             }
 
-            log("Epic Games keyboard: wysłano " + count + "x [TAB] -> " + description + ".");
+            log("Epic Games keyboard: wysłano " + count + "x [TAB] -> " + purpose + ".");
             return true;
-        }
-
-        private static bool Fail(out string error, string message)
-        {
-            error = message;
-            return false;
         }
 
         private bool WaitForLoginSurfaceReady(IntPtr hwnd, int seconds)
@@ -147,17 +135,17 @@ namespace PlayniteAccountManager.Services
             {
                 hwnd = FindMainWindowHandle();
 
-                if (hwnd != IntPtr.Zero &&
-                    (IsTextVisible(hwnd, "Zaloguj się do Epic Games") ||
-                     IsTextVisible(hwnd, "Adres e-mail") ||
-                     IsTextVisible(hwnd, "Kontynuuj")))
+                if (hwnd != IntPtr.Zero)
                 {
-                    EnsureForeground(hwnd);
-                    return true;
+                    if (IsTextVisible(hwnd, "Zaloguj się do Epic Games") ||
+                        IsTextVisible(hwnd, "Adres e-mail") ||
+                        IsTextVisible(hwnd, "Kontynuuj"))
+                    {
+                        EnsureForeground(hwnd);
+                        return true;
+                    }
                 }
 
-                // The WebView may temporarily expose no text to UIA. Keep
-                // polling the window instead of sending Tab prematurely.
                 Thread.Sleep(180);
             }
 
@@ -172,13 +160,15 @@ namespace PlayniteAccountManager.Services
             {
                 hwnd = FindMainWindowHandle();
 
-                if (hwnd != IntPtr.Zero &&
-                    (IsTextVisible(hwnd, "Hasło") ||
-                     IsTextVisible(hwnd, "Wprowadź hasło") ||
-                     IsTextVisible(hwnd, "Password")))
+                if (hwnd != IntPtr.Zero)
                 {
-                    EnsureForeground(hwnd);
-                    return true;
+                    if (IsTextVisible(hwnd, "Hasło") ||
+                        IsTextVisible(hwnd, "Wprowadź hasło") ||
+                        IsTextVisible(hwnd, "Password"))
+                    {
+                        EnsureForeground(hwnd);
+                        return true;
+                    }
                 }
 
                 Thread.Sleep(180);
@@ -187,430 +177,91 @@ namespace PlayniteAccountManager.Services
             return false;
         }
 
-        private bool WaitAndInvokeLater2FA(IntPtr hwnd, int seconds)
+        private bool WaitAndClickLater2FA(IntPtr hwnd, int seconds)
         {
             DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
 
             while (DateTime.UtcNow < deadline)
             {
-                if (IsTextVisible(hwnd, "Chroń swoje konto") ||
-                    IsTextVisible(hwnd, "Skonfiguruj 2EL") ||
-                    FindNamedInvokable(hwnd, new[] { "Ustaw później", "Set up later", "Do this later" }) != null)
+                hwnd = FindMainWindowHandle();
+
+                if (hwnd == IntPtr.Zero)
                 {
-                    if (InvokeNamedOrTab(hwnd,
-                        new[] { "Ustaw później", "Set up later", "Do this later" }, 20,
-                        "przycisk „Ustaw później” 2EL"))
+                    Thread.Sleep(150);
+                    continue;
+                }
+
+                AutomationElement button = FindNamedElement(
+                    hwnd,
+                    new[] { "Ustaw później", "Set up later", "Do this later" });
+
+                if (button != null)
+                {
+                    if (TryInvoke(button))
                     {
-                        log("Epic Games UIA/keyboard: wybrano „Ustaw później” dla 2EL.");
+                        log("Epic Games UIA: kliknięto „Ustaw później” dla 2EL.");
                         return true;
                     }
 
-                    // Keep polling the semantic UI instead of clicking a guessed
-                    // position. This also handles a delayed WebView accessibility
-                    // tree after successful authentication.
+                    if (ClickElementCenter(button, "„Ustaw później” 2EL"))
+                    {
+                        log("Epic Games hybrid: kliknięto „Ustaw później” dla 2EL.");
+                        return true;
+                    }
                 }
 
-                Thread.Sleep(120);
+                Thread.Sleep(150);
             }
 
-            return false;
-        }
-
-        private bool InvokeNamedOrTab(
-            IntPtr hwnd, string[] names, int maxTabs, string description)
-        {
-            AutomationElement element = FindNamedElement(hwnd, names);
-
-            if (element != null)
-            {
-                if (TryInvoke(element))
-                {
-                    log("Epic Games UIA: wykonano " + description + ".");
-                    return true;
-                }
-
-                if (ClickElementCenter(element, description))
-                    return true;
-            }
-
-            // No Tab traversal. The WebView's focus order is not reliable.
-            // If UIA cannot expose the button, find the current button visually.
-            if (TryClickVisualBlueButton(hwnd, description))
-                return true;
-
+            log("Epic Games: ekran „Ustaw później” 2EL nie wystąpił.");
             return false;
         }
 
         private static AutomationElement FindNamedElement(
             IntPtr hwnd, string[] names)
         {
-            AutomationElement root = AutomationElement.FromHandle(hwnd);
-            if (root == null)
-                return null;
-
-            foreach (AutomationElement e in root.FindAll(
-                TreeScope.Descendants, AutomationCondition.TrueCondition))
+            try
             {
-                try
-                {
-                    if (e.Current.IsOffscreen || !e.Current.IsEnabled)
-                        continue;
+                AutomationElement root = AutomationElement.FromHandle(hwnd);
+                if (root == null)
+                    return null;
 
-                    if (ElementNameMatches(e, names))
-                        return e;
+                foreach (AutomationElement e in root.FindAll(
+                    TreeScope.Descendants,
+                    AutomationCondition.TrueCondition))
+                {
+                    try
+                    {
+                        if (e.Current.IsOffscreen || !e.Current.IsEnabled)
+                            continue;
+
+                        string name = e.Current.Name ?? string.Empty;
+
+                        if (names.Any(n =>
+                            name.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0))
+                            return e;
+                    }
+                    catch { }
                 }
-                catch { }
             }
+            catch { }
 
             return null;
         }
 
-        private bool TryClickVisualInputField(
-            IntPtr hwnd, bool password, string description)
+        private bool ClickElementCenter(
+            AutomationElement element, string description)
         {
             try
             {
-                RECT windowRect;
-                if (!GetWindowRect(hwnd, out windowRect))
+                Rect rect = element.Current.BoundingRectangle;
+
+                if (rect.Width <= 0 || rect.Height <= 0)
                     return false;
 
-                int width = windowRect.Right - windowRect.Left;
-                int height = windowRect.Bottom - windowRect.Top;
+                int x = (int)Math.Round(rect.Left + rect.Width / 2.0);
+                int y = (int)Math.Round(rect.Top + rect.Height / 2.0);
 
-                if (width < 300 || height < 300)
-                    return false;
-
-                using (var bitmap = new Bitmap(
-                    width, height, PixelFormat.Format24bppRgb))
-                using (Graphics graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.CopyFromScreen(
-                        windowRect.Left,
-                        windowRect.Top,
-                        0,
-                        0,
-                        new DrawingSize(width, height),
-                        CopyPixelOperation.SourceCopy);
-
-                    Rectangle candidate = FindLargeEpicInputField(bitmap, password);
-
-                    if (candidate == Rectangle.Empty)
-                    {
-                        log("Epic Games visual: nie znaleziono prostokąta pola " +
-                            (password ? "hasła" : "e-mail") + ".");
-                        return false;
-                    }
-
-                    int x = windowRect.Left +
-                            candidate.Left + candidate.Width / 2;
-                    int y = windowRect.Top +
-                            candidate.Top + candidate.Height / 2;
-
-                    if (!NativeClickScreen(x, y, description))
-                        return false;
-
-                    Thread.Sleep(100);
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                log("Epic Games visual input fallback: " + ex.Message);
-                return false;
-            }
-        }
-
-        private static Rectangle FindLargeEpicInputField(
-            Bitmap bitmap, bool password)
-        {
-            const int sample = 3;
-
-            int sw = bitmap.Width / sample;
-            int sh = bitmap.Height / sample;
-
-            if (sw <= 0 || sh <= 0)
-                return Rectangle.Empty;
-
-            // Epic's input surface is a large dark rounded rectangle whose
-            // interior is visually distinct from the card background. We find
-            // that shape from the current screenshot instead of assuming a
-            // location or resolution.
-            var mask = new bool[sw, sh];
-            var visited = new bool[sw, sh];
-
-            for (int y = 0; y < sh; y++)
-            {
-                for (int x = 0; x < sw; x++)
-                {
-                    Color color = bitmap.GetPixel(x * sample, y * sample);
-
-                    // Current Epic login field interior is approximately
-                    // #242428. Allow a range so theme/anti-aliasing changes
-                    // do not break detection.
-                    mask[x, y] =
-                        color.R >= 28 && color.R <= 55 &&
-                        Math.Abs(color.R - color.G) <= 3 &&
-                        Math.Abs(color.G - color.B) <= 6;
-                }
-            }
-
-            Rectangle best = Rectangle.Empty;
-            double bestScore = double.MinValue;
-
-            int[] dx = { 1, -1, 0, 0 };
-            int[] dy = { 0, 0, 1, -1 };
-
-            for (int y = 0; y < sh; y++)
-            {
-                for (int x = 0; x < sw; x++)
-                {
-                    if (!mask[x, y] || visited[x, y])
-                        continue;
-
-                    var queue = new Queue<DrawingPoint>();
-                    queue.Enqueue(new DrawingPoint(x, y));
-                    visited[x, y] = true;
-
-                    int minX = x, maxX = x;
-                    int minY = y, maxY = y;
-                    int pixels = 0;
-
-                    while (queue.Count > 0)
-                    {
-                        DrawingPoint p = queue.Dequeue();
-                        pixels++;
-
-                        if (p.X < minX) minX = p.X;
-                        if (p.X > maxX) maxX = p.X;
-                        if (p.Y < minY) minY = p.Y;
-                        if (p.Y > maxY) maxY = p.Y;
-
-                        for (int i = 0; i < 4; i++)
-                        {
-                            int nx = p.X + dx[i];
-                            int ny = p.Y + dy[i];
-
-                            if (nx < 0 || nx >= sw ||
-                                ny < 0 || ny >= sh ||
-                                visited[nx, ny] ||
-                                !mask[nx, ny])
-                                continue;
-
-                            visited[nx, ny] = true;
-                            queue.Enqueue(new DrawingPoint(nx, ny));
-                        }
-                    }
-
-                    int rw = maxX - minX + 1;
-                    int rh = maxY - minY + 1;
-
-                    if (rw < 180 || rh < 20 || rh > 100)
-                        continue;
-
-                    double ratio = (double)rw / rh;
-                    if (ratio < 5.0 || ratio > 15.0)
-                        continue;
-
-                    double centerX = (minX + maxX) / 2.0;
-                    double centerY = (minY + maxY) / 2.0;
-
-                    // Prefer horizontal input-shaped regions near the vertical
-                    // center of the login card. Password and email inputs have
-                    // the same geometry, so this remains launcher-layout driven
-                    // rather than screen-coordinate driven.
-                    double centerBias =
-                        Math.Abs(centerX - sw / 2.0) / Math.Max(1.0, sw / 2.0);
-
-                    double heightScore =
-                        1.0 - Math.Abs(rh - 15.0) / 20.0;
-
-                    double score =
-                        pixels * 0.002 +
-                        ratio * 2.0 -
-                        centerBias * 25.0 +
-                        heightScore * 10.0;
-
-                    if (score > bestScore)
-                    {
-                        bestScore = score;
-                        best = new Rectangle(
-                            minX * sample,
-                            minY * sample,
-                            rw * sample,
-                            rh * sample);
-                    }
-                }
-            }
-
-            if (best == Rectangle.Empty)
-                return best;
-
-            // For the password step, ignore a candidate that is suspiciously
-            // low/high relative to the button if another input-like region
-            // can be found. The current screenshot has exactly one such field.
-            return best;
-        }
-
-        private bool TryClickVisualBlueButton(IntPtr hwnd, string description)
-        {
-            try
-            {
-                RECT windowRect;
-                if (!GetWindowRect(hwnd, out windowRect))
-                    return false;
-
-                int width = windowRect.Right - windowRect.Left;
-                int height = windowRect.Bottom - windowRect.Top;
-
-                if (width < 300 || height < 300)
-                    return false;
-
-                using (var bitmap = new Bitmap(
-                    width, height, PixelFormat.Format24bppRgb))
-                using (Graphics graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.CopyFromScreen(
-                        windowRect.Left,
-                        windowRect.Top,
-                        0,
-                        0,
-                        new DrawingSize(width, height),
-                        CopyPixelOperation.SourceCopy);
-
-                    Rectangle candidate = FindLargeEpicBlueButton(bitmap);
-                    if (candidate == Rectangle.Empty)
-                        return false;
-
-                    int x = windowRect.Left +
-                            candidate.Left + candidate.Width / 2;
-                    int y = windowRect.Top +
-                            candidate.Top + candidate.Height / 2;
-
-                    if (!NativeClickScreen(x, y, description))
-                        return false;
-
-                    log("Epic Games visual: dynamicznie znaleziono " + description +
-                        " @ (" + candidate.Left + "," + candidate.Top + "," +
-                        candidate.Width + "," + candidate.Height + ").");
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                log("Epic Games visual fallback: " + ex.Message);
-                return false;
-            }
-        }
-
-        private static Rectangle FindLargeEpicBlueButton(Bitmap bitmap)
-        {
-            const int sample = 3;
-
-            int sw = bitmap.Width / sample;
-            int sh = bitmap.Height / sample;
-
-            if (sw <= 0 || sh <= 0)
-                return Rectangle.Empty;
-
-            var mask = new bool[sw, sh];
-            var visited = new bool[sw, sh];
-
-            for (int y = 0; y < sh; y++)
-            {
-                for (int x = 0; x < sw; x++)
-                {
-                    Color color = bitmap.GetPixel(x * sample, y * sample);
-
-                    // Epic's primary action buttons are bright cyan/blue.
-                    mask[x, y] =
-                        color.R < 120 &&
-                        color.G > 120 &&
-                        color.B > 165 &&
-                        color.B > color.G + 10 &&
-                        color.G > color.R + 45;
-                }
-            }
-
-            Rectangle best = Rectangle.Empty;
-            int bestArea = 0;
-
-            int[] dx = { 1, -1, 0, 0 };
-            int[] dy = { 0, 0, 1, -1 };
-
-            for (int y = 0; y < sh; y++)
-            {
-                for (int x = 0; x < sw; x++)
-                {
-                    if (!mask[x, y] || visited[x, y])
-                        continue;
-
-                    var queue = new Queue<DrawingPoint>();
-                    queue.Enqueue(new DrawingPoint(x, y));
-                    visited[x, y] = true;
-
-                    int minX = x;
-                    int maxX = x;
-                    int minY = y;
-                    int maxY = y;
-                    int pixels = 0;
-
-                    while (queue.Count > 0)
-                    {
-                        DrawingPoint p = queue.Dequeue();
-                        pixels++;
-
-                        minX = Math.Min(minX, p.X);
-                        maxX = Math.Max(maxX, p.X);
-                        minY = Math.Min(minY, p.Y);
-                        maxY = Math.Max(maxY, p.Y);
-
-                        for (int i = 0; i < 4; i++)
-                        {
-                            int nx = p.X + dx[i];
-                            int ny = p.Y + dy[i];
-
-                            if (nx < 0 || nx >= sw ||
-                                ny < 0 || ny >= sh ||
-                                visited[nx, ny] ||
-                                !mask[nx, ny])
-                                continue;
-
-                            visited[nx, ny] = true;
-                            queue.Enqueue(new DrawingPoint(nx, ny));
-                        }
-                    }
-
-                    int rw = maxX - minX + 1;
-                    int rh = maxY - minY + 1;
-                    double ratio = rh > 0 ? (double)rw / rh : 0;
-                    int area = rw * rh;
-
-                    if (pixels < 350 ||
-                        rw < 70 ||
-                        rh < 10 ||
-                        ratio < 2.5 ||
-                        ratio > 15.0)
-                        continue;
-
-                    if (area > bestArea)
-                    {
-                        bestArea = area;
-                        best = new Rectangle(
-                            minX * sample,
-                            minY * sample,
-                            rw * sample,
-                            rh * sample);
-                    }
-                }
-            }
-
-            return best;
-        }
-
-        private bool NativeClickScreen(int x, int y, string description)
-        {
-            try
-            {
                 if (!SetCursorPos(x, y))
                     return false;
 
@@ -630,7 +281,8 @@ namespace PlayniteAccountManager.Services
                 if (sent != inputs.Length)
                     return false;
 
-                Thread.Sleep(120);
+                Thread.Sleep(100);
+                log("Epic Games hybrid click: " + description + ".");
                 return true;
             }
             catch
@@ -639,127 +291,15 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private static AutomationElement GetFocusedElement()
+        private static bool TryInvoke(AutomationElement element)
         {
             try
             {
-                return AutomationElement.FocusedElement;
-            }
-            catch
-            {
-                return null;
-            }
-        }
+                var invoke = (InvokePattern)element.GetCurrentPattern(
+                    InvokePattern.Pattern);
 
-        private bool ClickElementCenter(
-            AutomationElement element, string description)
-        {
-            try
-            {
-                Rect rect = element.Current.BoundingRectangle;
-
-                if (rect.Width <= 0 || rect.Height <= 0)
-                {
-                    // The named element can be a text node with no geometry;
-                    // walk up to the nearest visible ancestor with a real rect.
-                    AutomationElement current = SafeParent(element);
-
-                    for (int i = 0; current != null && i < 8; i++)
-                    {
-                        try
-                        {
-                            rect = current.Current.BoundingRectangle;
-                            if (rect.Width > 0 && rect.Height > 0 &&
-                                !current.Current.IsOffscreen &&
-                                current.Current.IsEnabled)
-                            {
-                                element = current;
-                                break;
-                            }
-                        }
-                        catch { }
-
-                        current = SafeParent(current);
-                    }
-                }
-
-                if (rect.Width <= 0 || rect.Height <= 0)
-                    return false;
-
-                int x = (int)Math.Round(rect.Left + rect.Width / 2.0);
-                int y = (int)Math.Round(rect.Top + rect.Height / 2.0);
-
-                if (SetCursorPos(x, y) == false)
-                    return false;
-
-                Thread.Sleep(35);
-
-                INPUT[] inputs =
-                {
-                    CreateMouseInput(0x0002),
-                    CreateMouseInput(0x0004)
-                };
-
-                uint sent = SendInput(
-                    (uint)inputs.Length,
-                    inputs,
-                    Marshal.SizeOf(typeof(INPUT)));
-
-                if (sent != inputs.Length)
-                    return false;
-
-                Thread.Sleep(120);
-                log("Epic Games hybrid click: " + description +
-                    " @ UIA rect (" + Math.Round(rect.Left) + "," +
-                    Math.Round(rect.Top) + "," +
-                    Math.Round(rect.Width) + "," +
-                    Math.Round(rect.Height) + ").");
+                invoke.Invoke();
                 return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private bool FocusPreviousEditable(
-            IntPtr hwnd, bool password, int maxTabs)
-        {
-            for (int i = 0; i < maxTabs; i++)
-            {
-                if (!NativeKeyboardInput.SendShiftTab(log))
-                    return false;
-
-                Thread.Sleep(80);
-
-                AutomationElement focused = null;
-                try { focused = AutomationElement.FocusedElement; } catch { }
-
-                if (focused != null && IsLikelyEditable(focused, password))
-                {
-                    try
-                    {
-                        focused.SetFocus();
-                    }
-                    catch { }
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static bool ElementNameMatches(AutomationElement element, string[] names)
-        {
-            try
-            {
-                if (element == null || element.Current.IsOffscreen || !element.Current.IsEnabled)
-                    return false;
-
-                string name = element.Current.Name ?? string.Empty;
-                return names.Any(n =>
-                    name.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0);
             }
             catch
             {
@@ -769,25 +309,30 @@ namespace PlayniteAccountManager.Services
 
         private static bool IsTextVisible(IntPtr hwnd, string text)
         {
-            AutomationElement root = AutomationElement.FromHandle(hwnd);
-            if (root == null)
-                return false;
-
-            foreach (AutomationElement e in root.FindAll(
-                TreeScope.Descendants, AutomationCondition.TrueCondition))
+            try
             {
-                try
+                AutomationElement root = AutomationElement.FromHandle(hwnd);
+                if (root == null)
+                    return false;
+
+                foreach (AutomationElement e in root.FindAll(
+                    TreeScope.Descendants,
+                    AutomationCondition.TrueCondition))
                 {
-                    if (e.Current.IsOffscreen)
-                        continue;
+                    try
+                    {
+                        if (e.Current.IsOffscreen)
+                            continue;
 
-                    string name = e.Current.Name ?? string.Empty;
+                        string name = e.Current.Name ?? string.Empty;
 
-                    if (name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0)
-                        return true;
+                        if (name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0)
+                            return true;
+                    }
+                    catch { }
                 }
-                catch { }
             }
+            catch { }
 
             return false;
         }
@@ -804,15 +349,10 @@ namespace PlayniteAccountManager.Services
                 if (hwnd != IntPtr.Zero)
                     return hwnd;
 
-                Thread.Sleep(80);
+                Thread.Sleep(100);
             }
 
             return IntPtr.Zero;
-        }
-
-        public static IntPtr FindMainWindowHandlePublic()
-        {
-            return FindMainWindowHandle();
         }
 
         private static IntPtr FindMainWindowHandle()
@@ -854,18 +394,21 @@ namespace PlayniteAccountManager.Services
 
         private static bool EnsureForeground(IntPtr hwnd)
         {
+            if (hwnd == IntPtr.Zero)
+                return false;
+
             try
             {
                 ShowWindow(hwnd, SW_RESTORE);
 
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     if (GetForegroundWindow() == hwnd)
                         return true;
 
                     BringWindowToTop(hwnd);
                     SetForegroundWindow(hwnd);
-                    Thread.Sleep(50);
+                    Thread.Sleep(60);
                 }
 
                 return GetForegroundWindow() == hwnd;
@@ -891,21 +434,51 @@ namespace PlayniteAccountManager.Services
             };
         }
 
-        private static INPUT CreateKeyboardInput(ushort virtualKey, bool keyUp)
+        [StructLayout(LayoutKind.Sequential)]
+        private struct INPUT
         {
-            return new INPUT
-            {
-                type = 1,
-                u = new InputUnion
-                {
-                    ki = new KEYBDINPUT
-                    {
-                        wVk = virtualKey,
-                        wScan = 0,
-                        dwFlags = keyUp ? 0x0002u : 0u
-                    }
-                }
-            };
+            public uint type;
+            public InputUnion u;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct InputUnion
+        {
+            [FieldOffset(0)]
+            public KEYBDINPUT ki;
+
+            [FieldOffset(0)]
+            public MOUSEINPUT mi;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KEYBDINPUT
+        {
+            public ushort wVk;
+            public ushort wScan;
+            public uint dwFlags;
+            public uint time;
+            public UIntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MOUSEINPUT
+        {
+            public int dx;
+            public int dy;
+            public uint mouseData;
+            public uint dwFlags;
+            public uint time;
+            public UIntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
         }
 
         [DllImport("user32.dll")]
@@ -926,57 +499,14 @@ namespace PlayniteAccountManager.Services
         [DllImport("user32.dll")]
         private static extern bool SetCursorPos(int x, int y);
 
-        [DllImport("user32.dll")]
-        private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
-
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint SendInput(
             uint nInputs, [In] INPUT[] pInputs, int cbSize);
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
+        private static bool Fail(out string error, string message)
         {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-
-        private struct INPUT
-        {
-            public uint type;
-            public InputUnion u;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        private struct InputUnion
-        {
-            [FieldOffset(0)]
-            public KEYBDINPUT ki;
-
-            [FieldOffset(0)]
-            public MOUSEINPUT mi;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct MOUSEINPUT
-        {
-            public int dx;
-            public int dy;
-            public uint mouseData;
-            public uint dwFlags;
-            public uint time;
-            public UIntPtr dwExtraInfo;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct KEYBDINPUT
-        {
-            public ushort wVk;
-            public ushort wScan;
-            public uint dwFlags;
-            public uint time;
-            public UIntPtr dwExtraInfo;
+            error = message;
+            return false;
         }
     }
 }
