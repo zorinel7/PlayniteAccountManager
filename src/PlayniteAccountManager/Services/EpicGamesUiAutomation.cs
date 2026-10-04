@@ -46,6 +46,20 @@ namespace PlayniteAccountManager.Services
 
             EnsureForeground(hwnd);
 
+            // EADesktop.exe can exist several seconds before its Chromium/WebView
+            // login page is actually ready. Do not start UI automation merely
+            // because the process/window exists. Wait for the login surface
+            // itself, using semantic UIA signals or the dynamically detected
+            // primary button.
+            if (!WaitForLoginSurfaceReady(hwnd, 20))
+            {
+                error = "Epic Games Launcher został uruchomiony, ale ekran logowania nie był gotowy w ciągu 20 sekund.";
+                log("Epic Games: ekran logowania nie osiągnął stanu gotowego w wyznaczonym czasie.");
+                return false;
+            }
+
+            log("Epic Games: ekran logowania jest gotowy. Rozpoczynam automatyczne logowanie.");
+
             // First page: locate the actual editable control through UIA.
             AutomationElement email = FindEditableElement(hwnd, false, 8);
 
@@ -108,7 +122,16 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            Thread.Sleep(450);
+            // Wait for the password page instead of assuming a fixed 450 ms
+            // load time. Slow machines simply take longer; fast machines move
+            // on immediately.
+            if (!WaitForPasswordSurfaceReady(hwnd, 12))
+            {
+                error = "Epic Games nie załadował ekranu hasła w wyznaczonym czasie.";
+                return false;
+            }
+
+            log("Epic Games: ekran hasła jest gotowy.");
 
             AutomationElement passwordEdit = FindEditableElement(hwnd, true, 12);
 
@@ -171,10 +194,145 @@ namespace PlayniteAccountManager.Services
             // Epic may immediately ask to configure 2FA. When that screen is
             // shown, always choose "Ustaw później" by semantic name/focus,
             // never by screen coordinates.
-            if (!WaitAndInvokeLater2FA(hwnd, 15))
-                log("Epic Games: ekran konfiguracji 2EL nie został wykryty. Kontynuuję.");
+            // Wait briefly for the post-login transition. The 2FA setup page,
+            // when enabled for the account, gets priority and "Ustaw później"
+            // is selected semantically.
+            if (WaitAndInvokeLater2FA(hwnd, 12))
+                return true;
 
             return true;
+        }
+
+        private bool WaitForLoginSurfaceReady(IntPtr hwnd, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
+            int visualChecks = 0;
+
+            while (DateTime.UtcNow < deadline)
+            {
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                {
+                    Thread.Sleep(120);
+                    continue;
+                }
+
+                // Strong semantic signals from the actual login page.
+                if (IsTextVisible(hwnd, "Zaloguj się do Epic Games") ||
+                    IsTextVisible(hwnd, "Adres e-mail") ||
+                    FindNamedElement(hwnd, new[] { "Kontynuuj", "Continue" }) != null)
+                {
+                    log("Epic Games UIA: wykryto gotowy ekran logowania.");
+                    return true;
+                }
+
+                // WebView accessibility can lag behind rendering. Use the
+                // already implemented DPI-independent visual detector only as
+                // a readiness signal, not as a hardcoded click target.
+                if ((visualChecks++ % 4) == 0 &&
+                    TryDetectVisualBlueButton(hwnd))
+                {
+                    log("Epic Games visual: wykryto gotowy główny przycisk logowania.");
+                    return true;
+                }
+
+                Thread.Sleep(150);
+            }
+
+            return false;
+        }
+
+        private bool WaitForPasswordSurfaceReady(IntPtr hwnd, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
+
+            while (DateTime.UtcNow < deadline)
+            {
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                {
+                    Thread.Sleep(120);
+                    continue;
+                }
+
+                if (IsTextVisible(hwnd, "Hasło") ||
+                    IsTextVisible(hwnd, "Wprowadź hasło") ||
+                    IsTextVisible(hwnd, "Password"))
+                {
+                    return true;
+                }
+
+                AutomationElement password = FindPasswordElementWithoutFocus(hwnd);
+                if (password != null)
+                    return true;
+
+                Thread.Sleep(150);
+            }
+
+            return false;
+        }
+
+        private static AutomationElement FindPasswordElementWithoutFocus(IntPtr hwnd)
+        {
+            AutomationElement root = AutomationElement.FromHandle(hwnd);
+            if (root == null)
+                return null;
+
+            foreach (AutomationElement e in root.FindAll(
+                TreeScope.Descendants, AutomationCondition.TrueCondition))
+            {
+                try
+                {
+                    if (e.Current.IsOffscreen ||
+                        !e.Current.IsEnabled)
+                        continue;
+
+                    if (e.Current.ControlType == ControlType.Edit &&
+                        e.Current.IsPassword)
+                        return e;
+
+                    string name = e.Current.Name ?? string.Empty;
+                    if (name.IndexOf("Hasło", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        name.IndexOf("Password", StringComparison.OrdinalIgnoreCase) >= 0)
+                        return e;
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        private bool TryDetectVisualBlueButton(IntPtr hwnd)
+        {
+            try
+            {
+                RECT windowRect;
+                if (!GetWindowRect(hwnd, out windowRect))
+                    return false;
+
+                int width = windowRect.Right - windowRect.Left;
+                int height = windowRect.Bottom - windowRect.Top;
+                if (width < 300 || height < 300)
+                    return false;
+
+                using (var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.CopyFromScreen(
+                        windowRect.Left,
+                        windowRect.Top,
+                        0,
+                        0,
+                        new DrawingSize(width, height),
+                        CopyPixelOperation.SourceCopy);
+
+                    return FindLargeEpicBlueButton(bitmap) != Rectangle.Empty;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private bool WaitAndInvokeLater2FA(IntPtr hwnd, int seconds)
