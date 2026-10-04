@@ -174,7 +174,7 @@ namespace PlayniteAccountManager.Services
 
         private static string QuoteForCmd(string value)
         {
-            return """ + value.Replace(""", """") + """;
+            return "\"" + value + "\"";
         }
 
         private static void ClearReadOnlyAttributes(string directory)
