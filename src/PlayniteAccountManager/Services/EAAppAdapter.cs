@@ -198,10 +198,10 @@ namespace PlayniteAccountManager.Services
                     return true;
                 }
 
-                Log("EA App: uruchamiam usługę EABackgroundService.");
+                log("EA App: uruchamiam usługę EABackgroundService.");
                 TryStartBackgroundService();
 
-                logStatic("EA App: uruchamiam EADesktop.exe: " + exe);
+                log("EA App: uruchamiam EADesktop.exe: " + exe);
 
                 using (var p = Process.Start(new ProcessStartInfo
                 {
@@ -226,7 +226,7 @@ namespace PlayniteAccountManager.Services
                 IntPtr hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
                 if (hwnd != IntPtr.Zero)
                 {
-                    logStatic("EA App: okno główne zostało wykryte.");
+                    log("EA App: okno główne zostało wykryte.");
                     return true;
                 }
 
@@ -239,19 +239,19 @@ namespace PlayniteAccountManager.Services
                     hwnd = EAAppUiAutomation.FindMainWindowHandlePublic();
                     if (hwnd != IntPtr.Zero)
                     {
-                        logStatic("EA App: okno główne wykryte po uruchomieniu.");
+                        log("EA App: okno główne wykryte po uruchomieniu.");
                         return true;
                     }
                 }
 
                 error = "EADesktop.exe został uruchomiony, ale EA App nie utworzyła okna w ciągu 12 sekund.";
-                logStatic("EA App: " + error);
+                log("EA App: " + error);
                 return false;
             }
             catch (Exception ex)
             {
                 error = "Nie udało się uruchomić EA App: " + ex.Message;
-                logStatic(error);
+                log(error);
                 return false;
             }
         }
