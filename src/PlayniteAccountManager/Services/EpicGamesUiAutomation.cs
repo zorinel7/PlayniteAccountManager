@@ -77,14 +77,8 @@ namespace PlayniteAccountManager.Services
                     return false;
                 }
 
-                email = GetFocusedElement();
-                if (email == null)
-                {
-                    error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
-                    return false;
-                }
-
-                log("Epic Games visual: fokus ustawiony na wykrytym polu e-mail.");
+                email = null;
+                log("Epic Games visual: kliknięto wykryte pole e-mail. Kontynuuję bez wymagania, aby WebView raportował fokus przez UIA.");
             }            else if (!TryFocusTarget(email))
             {
                 error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
@@ -133,14 +127,8 @@ namespace PlayniteAccountManager.Services
                     return false;
                 }
 
-                passwordEdit = GetFocusedElement();
-                if (passwordEdit == null)
-                {
-                    error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
-                    return false;
-                }
-
-                log("Epic Games visual: fokus ustawiony na wykrytym polu hasła.");
+                passwordEdit = null;
+                log("Epic Games visual: kliknięto wykryte pole hasła. Kontynuuję bez wymagania, aby WebView raportował fokus przez UIA.");
             }            else if (!TryFocusTarget(passwordEdit))
             {
                 error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
@@ -349,53 +337,16 @@ namespace PlayniteAccountManager.Services
                     return true;
                 }
 
-                // UIA found the exact semantic element but its WebView does not
-                // expose InvokePattern. Use the element's CURRENT bounding
-                // rectangle. This is dynamic screen geometry, not a hardcoded
-                // coordinate, so DPI/resolution/window position do not matter.
                 if (ClickElementCenter(element, description))
                     return true;
             }
 
-            for (int i = 0; i < maxTabs; i++)
-            {
-                if (GetForegroundWindow() != hwnd)
-                    EnsureForeground(hwnd);
-
-                AutomationElement focused = null;
-                try { focused = AutomationElement.FocusedElement; } catch { }
-
-                if (focused != null && ElementNameMatches(focused, names))
-                {
-                    if (TryInvoke(focused))
-                    {
-                        log("Epic Games UIA/keyboard: wykonano " + description +
-                            " po nawigacji Tab (" + (i + 1) + ").");
-                        return true;
-                    }
-
-                    if (NativeKeyboardInput.SendEnter(log))
-                    {
-                        log("Epic Games keyboard: wykonano " + description +
-                            " przez Enter.");
-                        return true;
-                    }
-                }
-
-                if (!NativeKeyboardInput.SendTab(log))
-                    return false;
-
-                Thread.Sleep(80);
-            }
-
-            element = FindNamedElement(hwnd, names);
-            if (element != null && TryInvoke(element))
-            {
-                log("Epic Games UIA: wykonano " + description + " po ponownym skanowaniu.");
+            // No Tab traversal. The WebView's focus order is not reliable.
+            // If UIA cannot expose the button, find the current button visually.
+            if (TryClickVisualBlueButton(hwnd, description))
                 return true;
-            }
 
-            return element != null && ClickElementCenter(element, description);
+            return false;
         }
 
         private static AutomationElement FindNamedElement(
@@ -622,34 +573,33 @@ namespace PlayniteAccountManager.Services
                 if (width < 300 || height < 300)
                     return false;
 
-                using (var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
+                using (var bitmap = new Bitmap(
+                    width, height, PixelFormat.Format24bppRgb))
+                using (Graphics graphics = Graphics.FromImage(bitmap))
                 {
-                    using (Graphics graphics = Graphics.FromImage(bitmap))
-                    {
-                        graphics.CopyFromScreen(
-                            windowRect.Left,
-                            windowRect.Top,
-                            0,
-                            0,
-                            new DrawingSize(width, height),
-                            CopyPixelOperation.SourceCopy);
-                    }
+                    graphics.CopyFromScreen(
+                        windowRect.Left,
+                        windowRect.Top,
+                        0,
+                        0,
+                        new DrawingSize(width, height),
+                        CopyPixelOperation.SourceCopy);
 
                     Rectangle candidate = FindLargeEpicBlueButton(bitmap);
                     if (candidate == Rectangle.Empty)
                         return false;
 
-                    int x = windowRect.Left + candidate.Left + candidate.Width / 2;
-                    int y = windowRect.Top + candidate.Top + candidate.Height / 2;
+                    int x = windowRect.Left +
+                            candidate.Left + candidate.Width / 2;
+                    int y = windowRect.Top +
+                            candidate.Top + candidate.Height / 2;
 
                     if (!NativeClickScreen(x, y, description))
                         return false;
 
-                    log("Epic Games hybrid visual click: " + description +
-                        " @ dynamic rect (" + candidate.Left + "," +
-                        candidate.Top + "," + candidate.Width + "," +
-                        candidate.Height + ").");
-
+                    log("Epic Games visual: dynamicznie znaleziono " + description +
+                        " @ (" + candidate.Left + "," + candidate.Top + "," +
+                        candidate.Width + "," + candidate.Height + ").");
                     return true;
                 }
             }
@@ -998,9 +948,11 @@ namespace PlayniteAccountManager.Services
                 ? new[] { "Hasło", "Password", "Wprowadź hasło", "Enter password" }
                 : new[] { "Adres e-mail", "E-mail", "Email", "Email address" };
 
-            // First search by the visible semantic label, regardless of the
-            // Chromium control type. This is important because Epic has used
-            // Custom controls instead of ControlType.Edit in different builds.
+            // Only inspect semantic UIA elements. Do not send Tab here.
+            // Epic's Chromium login page can expose focusable provider controls
+            // without exposing the HTML input itself. Tab traversal therefore
+            // caused the exact behavior seen in testing: e-mail -> Continue ->
+            // Create account -> PlayStation -> Xbox -> Nintendo.
             foreach (AutomationElement e in root.FindAll(
                 TreeScope.Descendants, AutomationCondition.TrueCondition))
             {
@@ -1026,8 +978,8 @@ namespace PlayniteAccountManager.Services
                 catch { }
             }
 
-            // Second pass: look for an actual editable/value-capable control
-            // without assuming a specific ControlType.
+            // Second semantic pass: accept real editable/value controls even
+            // when Chromium does not expose a useful localized label.
             foreach (AutomationElement e in root.FindAll(
                 TreeScope.Descendants, AutomationCondition.TrueCondition))
             {
@@ -1042,38 +994,11 @@ namespace PlayniteAccountManager.Services
                     if (TryFocusTarget(e))
                     {
                         log("Epic Games UIA: znaleziono edytowalny element pola " +
-                            (password ? "hasła" : "e-mail") +
-                            " bez polegania na ControlType.Edit.");
+                            (password ? "hasła" : "e-mail") + ".");
                         return e;
                     }
                 }
                 catch { }
-            }
-
-            // Final fallback: navigate focus semantically. No screen
-            // coordinates are used. The focused WebView element is accepted
-            // only if it is a likely editable/password control.
-            for (int i = 0; i < maxTabs; i++)
-            {
-                AutomationElement focused = null;
-                try { focused = AutomationElement.FocusedElement; } catch { }
-
-                try
-                {
-                    if (focused != null && IsLikelyEditable(focused, password))
-                    {
-                        log("Epic Games UIA: pole " +
-                            (password ? "hasła" : "e-mail") +
-                            " znaleziono przez fokus klawiatury.");
-                        return focused;
-                    }
-                }
-                catch { }
-
-                if (!NativeKeyboardInput.SendTab(log))
-                    break;
-
-                Thread.Sleep(80);
             }
 
             return null;
@@ -1132,7 +1057,9 @@ namespace PlayniteAccountManager.Services
         {
             try
             {
-                if (!element.Current.IsEnabled || element.Current.IsOffscreen)
+                if (element == null ||
+                    !element.Current.IsEnabled ||
+                    element.Current.IsOffscreen)
                     return false;
 
                 try
@@ -1143,12 +1070,8 @@ namespace PlayniteAccountManager.Services
                 catch { }
 
                 element.SetFocus();
-                Thread.Sleep(70);
-
-                AutomationElement focused = null;
-                try { focused = AutomationElement.FocusedElement; } catch { }
-
-                return focused != null && SameElement(focused, element);
+                Thread.Sleep(60);
+                return true;
             }
             catch
             {
