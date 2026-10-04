@@ -461,41 +461,6 @@ namespace PlayniteAccountManager.Services
             DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
             while (DateTime.UtcNow < deadline)
             {
-                EAUiState state = DetectEAState(hwnd);
-                if (state == EAUiState.Authenticated)
-                    return true;
-
-                Thread.Sleep(140);
-                hwnd = FindMainWindowHandle();
-                if (hwnd == IntPtr.Zero)
-                    continue;
-            }
-
-            return DetectEAState(hwnd) == EAUiState.Authenticated;
-        }
-
-        private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
-        {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
-            while (DateTime.UtcNow < deadline)
-            {
-                if (IsLoginScreen(hwnd))
-                    return true;
-
-                Thread.Sleep(120);
-                hwnd = FindMainWindowHandle();
-                if (hwnd == IntPtr.Zero)
-                    continue;
-            }
-
-            return IsLoginScreen(hwnd);
-        }
-
-        private static bool WaitForAuthenticated(IntPtr hwnd, int seconds)
-        {
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
-            while (DateTime.UtcNow < deadline)
-            {
                 if (IsAuthenticatedScreen(hwnd))
                     return true;
 
