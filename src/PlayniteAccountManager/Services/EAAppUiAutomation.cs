@@ -136,7 +136,7 @@ namespace PlayniteAccountManager.Services
             else
             {
                 log("EA UIA: hamburger nie jest dostępny jako użyteczna kontrolka UIA. Używam natywnego kliknięcia.");
-                if (!NativeClickRelative(hwnd, 0.033, 0.014, "hamburger menu"))
+                if (!NativeClickRelative(hwnd, 0.010, 0.017, "hamburger menu"))
                 {
                     error = "Nie udało się otworzyć menu EA App.";
                     return false;
@@ -195,16 +195,21 @@ namespace PlayniteAccountManager.Services
                     Thread.Sleep(250);
             }
 
-            if (emailEdit == null)
+            if (emailEdit != null)
             {
-                error = "Nie znaleziono pola e-mail / EA ID.";
-                return false;
+                log("EA UIA: znaleziono pole e-mail.");
+                if (!FocusElement(emailEdit))
+                    emailEdit = null;
             }
 
-            if (!FocusElement(emailEdit))
+            if (emailEdit == null)
             {
-                error = "Nie udało się ustawić fokusu na polu e-mail / EA ID.";
-                return false;
+                log("EA UIA: pole e-mail nie jest dostępne przez UIA. Używam natywnego kliknięcia.");
+                if (!NativeClickRelative(hwnd, 0.50, 0.49, "pole e-mail / EA ID"))
+                {
+                    error = "Nie udało się ustawić pola e-mail / EA ID.";
+                    return false;
+                }
             }
 
             if (!NativeKeyboardInput.TypeText(username, hwnd, log))
@@ -213,21 +218,24 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            Thread.Sleep(250);
+            Thread.Sleep(300);
 
             AutomationElement next = FindButtonByNames(hwnd, "Dalej", "Continue", "Next");
-            if (next != null)
+            if (next != null && Invoke(next))
             {
-                if (!Invoke(next))
-                {
-                    error = "Nie udało się nacisnąć „Dalej” w EA App.";
-                    return false;
-                }
+                log("EA UIA: wykonano przycisk „Dalej”.");
             }
-            else if (!NativeKeyboardInput.SendEnter(log))
+            else
             {
-                error = "Nie udało się przejść do pola hasła w EA App.";
-                return false;
+                log("EA UIA: przycisk „Dalej” nie jest dostępny. Używam natywnego kliknięcia / Enter.");
+                if (!NativeClickRelative(hwnd, 0.50, 0.685, "przycisk „DALEJ”"))
+                {
+                    if (!NativeKeyboardInput.SendEnter(log))
+                    {
+                        error = "Nie udało się przejść do pola hasła w EA App.";
+                        return false;
+                    }
+                }
             }
 
             Thread.Sleep(500);
@@ -241,16 +249,21 @@ namespace PlayniteAccountManager.Services
                     Thread.Sleep(250);
             }
 
-            if (passwordEdit == null)
+            if (passwordEdit != null)
             {
-                error = "Nie znaleziono pola hasła w EA App.";
-                return false;
+                log("EA UIA: znaleziono pole hasła.");
+                if (!FocusElement(passwordEdit))
+                    passwordEdit = null;
             }
 
-            if (!FocusElement(passwordEdit))
+            if (passwordEdit == null)
             {
-                error = "Nie udało się ustawić fokusu na polu hasła EA App.";
-                return false;
+                log("EA UIA: pole hasła nie jest dostępne przez UIA. Używam natywnego kliknięcia.");
+                if (!NativeClickRelative(hwnd, 0.50, 0.47, "pole hasła"))
+                {
+                    error = "Nie udało się ustawić pola hasła EA App.";
+                    return false;
+                }
             }
 
             if (!NativeKeyboardInput.TypeText(password, hwnd, log))
@@ -259,21 +272,24 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            Thread.Sleep(250);
+            Thread.Sleep(300);
 
             AutomationElement loginButton = FindButtonByNames(hwnd, "Zaloguj", "Zaloguj się", "Log in", "Sign in");
-            if (loginButton != null)
+            if (loginButton != null && Invoke(loginButton))
             {
-                if (!Invoke(loginButton))
-                {
-                    error = "Nie udało się nacisnąć przycisku logowania EA App.";
-                    return false;
-                }
+                log("EA UIA: wykonano przycisk logowania.");
             }
-            else if (!NativeKeyboardInput.SendEnter(log))
+            else
             {
-                error = "Nie udało się zatwierdzić logowania EA App.";
-                return false;
+                log("EA UIA: przycisk logowania nie jest dostępny. Używam natywnego kliknięcia / Enter.");
+                if (!NativeClickRelative(hwnd, 0.50, 0.56, "przycisk „ZALOGUJ”"))
+                {
+                    if (!NativeKeyboardInput.SendEnter(log))
+                    {
+                        error = "Nie udało się zatwierdzić logowania EA App.";
+                        return false;
+                    }
+                }
             }
 
             return true;
@@ -841,17 +857,43 @@ namespace PlayniteAccountManager.Services
             {
                 ShowWindow(hwnd, SW_RESTORE);
 
-                for (int i = 0; i < 6; i++)
+                IntPtr foreground = GetForegroundWindow();
+                uint currentThread = GetCurrentThreadId();
+                uint foregroundThread = foreground == IntPtr.Zero ? 0 : GetWindowThreadProcessId(foreground, IntPtr.Zero);
+                uint targetThread = GetWindowThreadProcessId(hwnd, IntPtr.Zero);
+
+                bool attached = false;
+                try
                 {
-                    if (GetForegroundWindow() == hwnd)
-                        return true;
+                    if (foregroundThread != 0 && targetThread != 0 && foregroundThread != targetThread)
+                    {
+                        attached = AttachThreadInput(foregroundThread, currentThread, true);
+                        if (attached)
+                            AttachThreadInput(currentThread, targetThread, true);
+                    }
 
-                    BringWindowToTop(hwnd);
-                    SetForegroundWindow(hwnd);
-                    Thread.Sleep(120);
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (GetForegroundWindow() == hwnd)
+                            return true;
+
+                        BringWindowToTop(hwnd);
+                        SetForegroundWindow(hwnd);
+                        Thread.Sleep(100);
+                    }
+
+                    return GetForegroundWindow() == hwnd;
                 }
-
-                return GetForegroundWindow() == hwnd;
+                finally
+                {
+                    if (attached)
+                    {
+                        if (targetThread != 0)
+                            AttachThreadInput(currentThread, targetThread, false);
+                        if (foregroundThread != 0)
+                            AttachThreadInput(foregroundThread, currentThread, false);
+                    }
+                }
             }
             catch
             {
@@ -894,5 +936,11 @@ namespace PlayniteAccountManager.Services
 
         [DllImport("user32.dll")]
         private static extern uint GetDpiForWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
     }
 }
