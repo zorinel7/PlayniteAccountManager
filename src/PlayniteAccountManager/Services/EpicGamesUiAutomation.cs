@@ -50,7 +50,7 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            if (!Focus(email))
+            if (!TryFocusTarget(email))
             {
                 error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
                 return false;
@@ -78,7 +78,7 @@ namespace PlayniteAccountManager.Services
             Thread.Sleep(450);
 
             AutomationElement passwordEdit = FindEditableElement(hwnd, true, 12);
-            if (passwordEdit == null || !Focus(passwordEdit))
+            if (passwordEdit == null || !TryFocusTarget(passwordEdit))
             {
                 error = "Nie znaleziono pola hasła Epic Games.";
                 return false;
