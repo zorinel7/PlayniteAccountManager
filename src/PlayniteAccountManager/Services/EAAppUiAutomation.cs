@@ -1,3 +1,4 @@
+using AutomationCondition = System.Windows.Automation.Condition;
 using System.Runtime.InteropServices;
 using System;
 using System.Collections.Generic;
@@ -258,7 +259,7 @@ namespace PlayniteAccountManager.Services
         {
             AutomationElement root = AutomationElement.FromHandle(hwnd);
             if (root == null) return null;
-            var all = root.FindAll(TreeScope.Descendants, Condition.TrueCondition);
+            var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
             foreach (AutomationElement e in all)
             {
                 try
@@ -280,7 +281,7 @@ namespace PlayniteAccountManager.Services
             {
                 AutomationElement root = AutomationElement.FromHandle(hwnd);
                 if (root == null) return false;
-                var names = root.FindAll(TreeScope.Descendants, Condition.TrueCondition)
+                var names = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition)
                     .Cast<AutomationElement>()
                     .Select(SafeName)
                     .Where(x => !string.IsNullOrWhiteSpace(x));
@@ -447,7 +448,7 @@ namespace PlayniteAccountManager.Services
                 AutomationElement root = AutomationElement.FromHandle(hwnd);
                 if (root == null) return string.Empty;
                 var names = new List<string>();
-                foreach (AutomationElement e in root.FindAll(TreeScope.Descendants, Condition.TrueCondition))
+                foreach (AutomationElement e in root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition))
                 {
                     try { if (!e.Current.IsOffscreen && !string.IsNullOrWhiteSpace(e.Current.Name)) names.Add(e.Current.Name); } catch { }
                 }
