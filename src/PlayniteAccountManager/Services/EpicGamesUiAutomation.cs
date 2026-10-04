@@ -510,9 +510,6 @@ namespace PlayniteAccountManager.Services
         private struct InputUnion
         {
             [FieldOffset(0)]
-            public MOUSEINPUT mi;
-
-            [FieldOffset(0)]
             public KEYBDINPUT ki;
         }
 
@@ -526,15 +523,7 @@ namespace PlayniteAccountManager.Services
             public UIntPtr dwExtraInfo;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
+
         }
-
-
-
+    }
 }
