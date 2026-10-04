@@ -809,13 +809,6 @@ namespace PlayniteAccountManager.Services
                         }
                         catch { }
 
-                        try
-                        {
-                            var legacy = (LegacyIAccessiblePattern)current.GetCurrentPattern(LegacyIAccessiblePattern.Pattern);
-                            legacy.DoDefaultAction();
-                            return true;
-                        }
-                        catch { }
                     }
                     catch { }
                 }
