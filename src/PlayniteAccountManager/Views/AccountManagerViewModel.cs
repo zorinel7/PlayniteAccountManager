@@ -53,7 +53,7 @@ namespace PlayniteAccountManager.Views
         public bool EditLogoutAfterGame { get => editLogoutAfterGame; set => SetValue(ref editLogoutAfterGame, value); }
         public bool EditIsPrimary { get => editIsPrimary; set => SetValue(ref editIsPrimary, value); }
         public bool IsSteamLauncher => EditLauncher == LauncherType.Steam;
-        public bool IsPrimaryEligibleLauncher => EditLauncher == LauncherType.Steam || EditLauncher == LauncherType.EAApp;
+        public bool IsPrimaryEligibleLauncher => EditLauncher == LauncherType.Steam || EditLauncher == LauncherType.EAApp || EditLauncher == LauncherType.EpicGames;
 
         internal AccountManagerViewModel(AccountManagerStore store)
         {
@@ -146,10 +146,14 @@ namespace PlayniteAccountManager.Views
                 store.SetPrimarySteamAccount(record.Id);
             else if (record.Launcher == LauncherType.EAApp && record.IsPrimary)
                 store.SetPrimaryEAAccount(record.Id);
+            else if (record.Launcher == LauncherType.EpicGames && record.IsPrimary)
+                store.SetPrimaryEpicAccount(record.Id);
             else if (wasPrimary && record.Launcher == LauncherType.Steam && !record.IsPrimary)
                 store.ClearPrimarySteamAccount(record.Id);
             else if (wasPrimary && record.Launcher == LauncherType.EAApp && !record.IsPrimary)
                 store.ClearPrimaryEAAccount(record.Id);
+            else if (wasPrimary && record.Launcher == LauncherType.EpicGames && !record.IsPrimary)
+                store.ClearPrimaryEpicAccount(record.Id);
 
             if (!string.IsNullOrEmpty(EditPassword))
                 store.Credentials.Set(record.Id, EditPassword);
