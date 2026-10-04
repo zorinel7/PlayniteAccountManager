@@ -23,6 +23,8 @@ namespace PlayniteAccountManager.Services
         private const int SW_RESTORE = 9;
         private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
         private const uint MOUSEEVENTF_LEFTUP = 0x0004;
+        private const ushort VK_CONTROL = 0x0011;
+        private const ushort VK_A = 0x0041;
 
         public EpicGamesUiAutomation(Action<string> log)
         {
@@ -52,7 +54,7 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            if (!NativeKeyboardInput.TypeText(username, hwnd, log))
+            if (!SelectAllAndType(username, hwnd))
             {
                 error = "Nie udało się wpisać e-maila Epic Games.";
                 return false;
@@ -240,6 +242,35 @@ namespace PlayniteAccountManager.Services
             }
 
             return FindEdit(hwnd);
+        }
+
+        private bool SelectAllAndType(string text, IntPtr hwnd)
+        {
+            try
+            {
+                INPUT[] chord =
+                {
+                    CreateKeyboardInput(VK_CONTROL, false),
+                    CreateKeyboardInput(VK_A, false),
+                    CreateKeyboardInput(VK_A, true),
+                    CreateKeyboardInput(VK_CONTROL, true)
+                };
+
+                uint sent = SendInput(
+                    (uint)chord.Length,
+                    chord,
+                    Marshal.SizeOf(typeof(INPUT)));
+
+                if (sent != chord.Length)
+                    return false;
+
+                Thread.Sleep(60);
+                return NativeKeyboardInput.TypeText(text, hwnd, log);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private bool ClickNamedOrRelative(
@@ -440,6 +471,23 @@ namespace PlayniteAccountManager.Services
             }
         }
 
+        private static INPUT CreateKeyboardInput(ushort virtualKey, bool keyUp)
+        {
+            return new INPUT
+            {
+                type = 1,
+                u = new InputUnion
+                {
+                    ki = new KEYBDINPUT
+                    {
+                        wVk = virtualKey,
+                        wScan = 0,
+                        dwFlags = keyUp ? 0x0002u : 0u
+                    }
+                }
+            };
+        }
+
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
         {
@@ -452,6 +500,19 @@ namespace PlayniteAccountManager.Services
         {
             [FieldOffset(0)]
             public MOUSEINPUT mi;
+
+            [FieldOffset(0)]
+            public KEYBDINPUT ki;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KEYBDINPUT
+        {
+            public ushort wVk;
+            public ushort wScan;
+            public uint dwFlags;
+            public uint time;
+            public UIntPtr dwExtraInfo;
         }
 
         [StructLayout(LayoutKind.Sequential)]
