@@ -1,227 +1,21 @@
-using AutomationCondition = System.Windows.Automation.Condition;
-using System.Runtime.InteropServices;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Windows;
-using System.Windows.Automation;
-using PlayniteAccountManager.Services;
-
-namespace PlayniteAccountManager.Services
-{
-    /// <summary>
-    /// EA App automation based on its current Qt/Cef accessibility tree.
-    /// The hamburger button is not exposed as a named UIA control in the
-    /// supplied diagnostic, so the automation uses UIA when available and
-    /// falls back to a native click at the stable, window-relative hamburger
-    /// location. The logout command is then located through UIA, with a
-    /// DPI-aware native fallback matching the visible EA menu.
-    /// </summary>
-    internal sealed class EAAppUiAutomation
-    {
-        private readonly Action<string> log;
-        private const int SW_RESTORE = 9;
-
-        private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
-        private const uint MOUSEEVENTF_LEFTUP = 0x0004;
-        private const ushort VK_DOWN = 0x0028;
-        private const ushort VK_HOME = 0x0024;
-        private const ushort VK_ESCAPE = 0x001B;
-
-        public EAAppUiAutomation(Action<string> log)
-        {
-            this.log = log ?? (_ => { });
-        }
-
-        public static IntPtr FindMainWindowHandlePublic() => FindMainWindowHandle();
-
-        public bool PrepareAndLogin(string username, string password, int timeoutSeconds, out string error)
-        {
-            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.STA)
-                return PrepareAndLoginCore(username, password, timeoutSeconds, out error);
-
-            bool result = false; string workerError = null; Exception workerException = null;
-            var thread = new Thread(() =>
-            {
-                try { result = PrepareAndLoginCore(username, password, timeoutSeconds, out workerError); }
-                catch (Exception ex) { workerException = ex; }
-            });
-            thread.IsBackground = true;
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            thread.Join();
-            if (workerException != null) { error = "Błąd wątku automatyzacji EA App: " + workerException.Message; return false; }
-            error = workerError;
-            return result;
-        }
-
-        private bool PrepareAndLoginCore(string username, string password, int timeoutSeconds, out string error)
-        {
-            error = null;
-            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
-            {
-                error = "Brak loginu lub hasła zapisanych dla konta EA App.";
-                return false;
-            }
-
-            IntPtr hwnd = WaitForMainWindow(timeoutSeconds);
-            if (hwnd == IntPtr.Zero)
-            {
-                error = "Nie znaleziono okna EA App w czasie oczekiwania.";
-                return false;
-            }
-
-            EnsureWindowForeground(hwnd);
-
-            // Give EA's WebView a short settling period only when its state is
-            // genuinely unknown. Do not wait when the authenticated navigation
-            // or login surface is already positively visible.
-            Thread.Sleep(120);
-
-            bool authenticated;
-            if (!WaitForEAState(hwnd, 6, out authenticated))
-            {
-                // When EA is already logged out, some builds expose too little
-                // accessibility metadata to identify the login page. In that
-                // case we deliberately treat a non-authenticated window as the
-                // login surface and let the native login fallback take over.
-                authenticated = IsAuthenticatedScreen(hwnd);
-                if (authenticated)
-                {
-                    error = "EA App pozostaje zalogowana, ale jej stan UI nie może zostać jednoznacznie rozpoznany.";
-                    return false;
-                }
-
-                log("EA App: stan UI nie został jednoznacznie rozpoznany, ale brak oznak aktywnej sesji. Kontynuuję jako ekran logowania.");
-            }
-
-            if (authenticated)
-            {
-                log("EA App: wykryto aktywną sesję. Rozpoczynam pełne wylogowanie obecnego konta.");
-                if (!OpenHamburgerAndLogout(hwnd, 15, out error))
-                    return false;
-            }
-            else
-            {
-                log("EA App: wykryto ekran logowania. Pomijam wylogowanie i przechodzę do logowania.");
-            }
-
-            hwnd = WaitForMainWindow(20);
-            if (hwnd == IntPtr.Zero)
-            {
-                error = "Nie znaleziono okna logowania EA App.";
-                return false;
-            }
-
-            if (!WaitForLoginScreen(hwnd, 10))
-                log("EA App: ekran logowania nie został jednoznacznie wykryty przez UIA. Kontynuuję z natywnym fallbackiem.");
-
-            if (!PerformLogin(hwnd, username, password, 12, out error))
-                return false;
-
-            if (!WaitForAuthenticated(hwnd, 15))
-            {
-                error = "EA App nie potwierdziła zalogowania po wysłaniu danych.";
-                return false;
-            }
-
-            return true;
-        }
-
-        public bool Logout(out string error)
-        {
-            error = null;
-            IntPtr hwnd = FindMainWindowHandle();
-            if (hwnd == IntPtr.Zero)
-            {
-                error = "Nie znaleziono okna EA App.";
-                return false;
-            }
-
-            EnsureWindowForeground(hwnd);
-            return OpenHamburgerAndLogout(hwnd, 12, out error);
-        }
-
-        private bool OpenHamburgerAndLogout(IntPtr hwnd, int timeoutSeconds, out string error)
-        {
-            error = null;
-
-            if (!EnsureWindowForeground(hwnd))
-                log("EA App: nie uzyskano pełnej pewności aktywnego okna, ale kontynuuję.");
-
-            if (!NativeClickRelative(hwnd, 0.010, 0.017, "hamburger menu"))
-            {
-                AutomationElement button = FindClickableAtRelativeRegion(hwnd, 0.0, 0.0, 0.055, 0.055, true);
-                if (button == null || !Invoke(button))
-                {
-                    error = "Nie udało się otworzyć menu EA App.";
-                    return false;
-                }
-            }
-
-            Thread.Sleep(220);
-
-            // Most reliable path: start at first menu item and navigate to the
-            // sixth item, "Wyloguj się". This avoids confusing "Tryb offline"
-            // with logout when screen coordinates shift by only a few pixels.
-            if (TryKeyboardMenuLogout() && WaitForLoginScreen(hwnd, 2))
-            {
-                log("EA: wylogowanie potwierdzone przez Home + 5xDown + Enter.");
-                return true;
-            }
-
-            // UIA point fallback: invoke only a control whose NAME itself says
-            // logout. Generic invokable parents are deliberately rejected.
-            if (TryInvokePointedMenuItem(hwnd, 56.0, 254.0) &&
-                WaitForLoginScreen(hwnd, 2))
-            {
-                log("EA: wylogowanie potwierdzone przez UIA.");
-                return true;
-            }
-
-            // Native click fallback. Try the center and +/- 4 px vertically.
-            double[] ys = { 254.0, 258.0, 250.0 };
-            foreach (double y in ys)
-            {
-                if (NativeClickMenuLogoutAt(hwnd, 56.0, y) &&
-                    WaitForLoginScreen(hwnd, 2))
-                {
-                    log("EA: wylogowanie potwierdzone po kliknięciu (" +
-                        56.0.ToString("0") + "," + y.ToString("0") + ").");
-                    return true;
-                }
-            }
-
-            error = "EA App nie wykonała polecenia „Wyloguj się”.";
-            return false;
-        }
 
         private bool PerformLogin(IntPtr hwnd, string username, string password, int timeoutSeconds, out string error)
         {
             error = null;
-            // UIA is given only a short window. Current EA builds can expose
-            // the login page as Qt/Cef content without stable edit metadata, so
-            // waiting tens of seconds here only makes the automation look dead.
-            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Min(4, Math.Max(2, timeoutSeconds)));
 
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Min(4, Math.Max(2, timeoutSeconds)));
             AutomationElement emailEdit = null;
+
             while (DateTime.UtcNow < deadline && emailEdit == null)
             {
                 emailEdit = FindLoginEdit(hwnd, 0);
                 if (emailEdit == null)
-                    Thread.Sleep(200);
+                    Thread.Sleep(150);
             }
 
-            if (emailEdit != null)
-            {
-                log("EA UIA: znaleziono pole e-mail.");
-                if (!FocusElement(emailEdit))
-                    emailEdit = null;
-            }
-
-            if (emailEdit == null)
+            if (emailEdit != null && FocusElement(emailEdit))
+                log("EA UIA: znaleziono i ustawiono fokus pola e-mail.");
+            else
             {
                 log("EA UIA: pole e-mail nie jest dostępne przez UIA. Używam natywnego kliknięcia.");
                 if (!NativeClickRelative(hwnd, 0.50, 0.49, "pole e-mail / EA ID"))
@@ -230,10 +24,6 @@ namespace PlayniteAccountManager.Services
                     return false;
                 }
             }
-            else
-            {
-                log("EA UIA: ustawiam fokus na pole e-mail przez SetFocus().");
-            }
 
             if (!NativeKeyboardInput.TypeText(username, hwnd, log))
             {
@@ -241,37 +31,24 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            Thread.Sleep(180);
-
-            // UIA can report a false ToggleState on EA's Qt/Cef login page.
-            // We therefore do not trust the checkbox state. The current form
-            // order is: e-mail -> "Nie wylogowuj mnie". Focus the e-mail again,
-            // press Tab once and Space once to explicitly switch the checkbox
-            // off before pressing "Dalej".
-            if (!ForceRememberMeUnchecked(hwnd))
-                log("EA: nie udało się wymusić stanu „Nie wylogowuj mnie”.");
-
-            Thread.Sleep(120);
+            // Important: do NOT toggle "Nie wylogowuj mnie". The account
+            // snapshot contains the login state that belongs to this account.
+            Thread.Sleep(100);
 
             AutomationElement next = FindButtonByNames(hwnd, "Dalej", "Continue", "Next");
             if (next != null && Invoke(next))
-            {
                 log("EA UIA: wykonano przycisk „Dalej”.");
-            }
             else
             {
-                log("EA UIA: przycisk „Dalej” nie jest dostępny. Używam natywnego kliknięcia / Enter.");
-                if (!NativeClickRelative(hwnd, 0.50, 0.685, "przycisk „DALEJ”"))
+                if (!NativeClickRelative(hwnd, 0.50, 0.685, "przycisk „DALEJ”") &&
+                    !NativeKeyboardInput.SendEnter(log))
                 {
-                    if (!NativeKeyboardInput.SendEnter(log))
-                    {
-                        error = "Nie udało się przejść do pola hasła w EA App.";
-                        return false;
-                    }
+                    error = "Nie udało się przejść do pola hasła w EA App.";
+                    return false;
                 }
             }
 
-            Thread.Sleep(500);
+            Thread.Sleep(400);
 
             AutomationElement passwordEdit = null;
             DateTime passDeadline = DateTime.UtcNow.AddSeconds(4);
@@ -279,17 +56,12 @@ namespace PlayniteAccountManager.Services
             {
                 passwordEdit = FindPasswordEdit(hwnd);
                 if (passwordEdit == null)
-                    Thread.Sleep(250);
+                    Thread.Sleep(150);
             }
 
-            if (passwordEdit != null)
-            {
-                log("EA UIA: znaleziono pole hasła.");
-                if (!FocusElement(passwordEdit))
-                    passwordEdit = null;
-            }
-
-            if (passwordEdit == null)
+            if (passwordEdit != null && FocusElement(passwordEdit))
+                log("EA UIA: znaleziono i ustawiono fokus pola hasła.");
+            else
             {
                 log("EA UIA: pole hasła nie jest dostępne przez UIA. Używam natywnego kliknięcia.");
                 if (!NativeClickRelative(hwnd, 0.50, 0.47, "pole hasła"))
@@ -305,23 +77,18 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            Thread.Sleep(300);
+            Thread.Sleep(220);
 
             AutomationElement loginButton = FindButtonByNames(hwnd, "Zaloguj", "Zaloguj się", "Log in", "Sign in");
             if (loginButton != null && Invoke(loginButton))
-            {
                 log("EA UIA: wykonano przycisk logowania.");
-            }
             else
             {
-                log("EA UIA: przycisk logowania nie jest dostępny. Używam natywnego kliknięcia / Enter.");
-                if (!NativeClickRelative(hwnd, 0.50, 0.56, "przycisk „ZALOGUJ”"))
+                if (!NativeClickRelative(hwnd, 0.50, 0.56, "przycisk „ZALOGUJ”") &&
+                    !NativeKeyboardInput.SendEnter(log))
                 {
-                    if (!NativeKeyboardInput.SendEnter(log))
-                    {
-                        error = "Nie udało się zatwierdzić logowania EA App.";
-                        return false;
-                    }
+                    error = "Nie udało się zatwierdzić logowania EA App.";
+                    return false;
                 }
             }
 
@@ -412,149 +179,6 @@ namespace PlayniteAccountManager.Services
             }
 
             return null;
-        }
-
-        private static AutomationElement FindVisibleNamedInvokable(IntPtr hwnd, string[] needles)
-        {
-            try
-            {
-                AutomationElement root = AutomationElement.FromHandle(hwnd);
-                if (root == null)
-                    return null;
-
-                var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
-                foreach (AutomationElement e in all)
-                {
-                    try
-                    {
-                        if (e.Current.IsOffscreen || !e.Current.IsEnabled)
-                            continue;
-
-                        string name = e.Current.Name ?? string.Empty;
-                        if (string.IsNullOrWhiteSpace(name) ||
-                            !needles.Any(n => name.IndexOf(n, StringComparison.OrdinalIgnoreCase) >= 0))
-                            continue;
-
-                        try
-                        {
-                            e.GetCurrentPattern(InvokePattern.Pattern);
-                            return e;
-                        }
-                        catch
-                        {
-                            AutomationElement parent = SafeParent(e);
-                            for (int i = 0; parent != null && i < 6; i++, parent = SafeParent(parent))
-                            {
-                                try
-                                {
-                                    if (parent.Current.IsOffscreen || !parent.Current.IsEnabled)
-                                        continue;
-                                    parent.GetCurrentPattern(InvokePattern.Pattern);
-                                    return parent;
-                                }
-                                catch { }
-                            }
-                        }
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-
-            return null;
-        }
-
-        private enum EAUiState
-        {
-            Unknown,
-            Login,
-            Authenticated
-        }
-
-        private static EAUiState DetectEAState(IntPtr hwnd)
-        {
-            try
-            {
-                AutomationElement root = AutomationElement.FromHandle(hwnd);
-                if (root == null)
-                    return EAUiState.Unknown;
-
-                bool hasLibrary = false;
-                bool hasHome = false;
-                bool hasInstalled = false;
-                bool hasSearch = false;
-                bool hasLoginHeader = false;
-                bool hasEmailHint = false;
-                bool hasPasswordHint = false;
-                int visibleEdits = 0;
-
-                // Read the accessibility tree once and classify it from the
-                // actual visible element names. The previous implementation
-                // joined every visible name into one huge string, which can
-                // contain stale WebView/login text and falsely classify an
-                // already-authenticated EA window as the login screen.
-                var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
-                foreach (AutomationElement e in all)
-                {
-                    try
-                    {
-                        if (e.Current.IsOffscreen || !e.Current.IsEnabled)
-                            continue;
-
-                        string name = (e.Current.Name ?? string.Empty).Trim();
-                        if (!string.IsNullOrWhiteSpace(name))
-                        {
-                            if (name.Equals("Biblioteka", StringComparison.OrdinalIgnoreCase))
-                                hasLibrary = true;
-                            else if (name.Equals("Strona główna", StringComparison.OrdinalIgnoreCase))
-                                hasHome = true;
-                            else if (name.Equals("Zainstalowane gry", StringComparison.OrdinalIgnoreCase))
-                                hasInstalled = true;
-                            else if (name.Equals("Szukaj", StringComparison.OrdinalIgnoreCase))
-                                hasSearch = true;
-
-                            if (name.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0)
-                                hasLoginHeader = true;
-                            if (name.IndexOf("TWÓJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                name.IndexOf("TWOJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0)
-                                hasEmailHint = true;
-                            if (name.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0)
-                                hasPasswordHint = true;
-                        }
-
-                        if (e.Current.ControlType == ControlType.Edit)
-                            visibleEdits++;
-                    }
-                    catch { }
-                }
-
-                // Strong authenticated signals from the EA diagnostic:
-                // visible "Strona główna", "Biblioteka" and "Zainstalowane gry".
-                // These must win over any generic edit/login hints.
-                if ((hasLibrary && hasHome) ||
-                    (hasLibrary && hasInstalled) ||
-                    (hasHome && hasSearch))
-                {
-                    return EAUiState.Authenticated;
-                }
-
-                // The login header/field hints are positive login signals only
-                // when the authenticated navigation is not present.
-                if (hasLoginHeader || hasEmailHint || hasPasswordHint)
-                    return EAUiState.Login;
-
-                // A login page normally exposes an Edit, while the authenticated
-                // screen's search field is already handled by the strong auth
-                // checks above.
-                if (visibleEdits >= 1)
-                    return EAUiState.Login;
-
-                return EAUiState.Unknown;
-            }
-            catch
-            {
-                return EAUiState.Unknown;
-            }
         }
 
         private static bool IsLoginScreen(IntPtr hwnd)
@@ -866,6 +490,78 @@ namespace PlayniteAccountManager.Services
             }
         }
 
+        private enum EAUiState
+        {
+            Unknown,
+            Login,
+            Authenticated
+        }
+
+        private static EAUiState DetectEAState(IntPtr hwnd)
+        {
+            try
+            {
+                AutomationElement root = AutomationElement.FromHandle(hwnd);
+                if (root == null)
+                    return EAUiState.Unknown;
+
+                bool hasLibrary = false;
+                bool hasHome = false;
+                bool hasInstalled = false;
+                bool loginHeader = false;
+                bool loginEmail = false;
+                bool loginPassword = false;
+
+                foreach (AutomationElement e in root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition))
+                {
+                    try
+                    {
+                        if (e.Current.IsOffscreen || !e.Current.IsEnabled)
+                            continue;
+
+                        string name = (e.Current.Name ?? string.Empty).Trim();
+                        if (name.Equals("Biblioteka", StringComparison.OrdinalIgnoreCase))
+                            hasLibrary = true;
+                        if (name.Equals("Strona główna", StringComparison.OrdinalIgnoreCase))
+                            hasHome = true;
+                        if (name.Equals("Zainstalowane gry", StringComparison.OrdinalIgnoreCase))
+                            hasInstalled = true;
+
+                        if (name.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0)
+                            loginHeader = true;
+                        if (name.IndexOf("TWÓJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            name.IndexOf("TWOJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0)
+                            loginEmail = true;
+                        if (name.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0)
+                            loginPassword = true;
+                    }
+                    catch { }
+                }
+
+                if ((hasLibrary && hasHome) || (hasLibrary && hasInstalled))
+                    return EAUiState.Authenticated;
+
+                if (loginHeader || loginEmail || loginPassword)
+                    return EAUiState.Login;
+
+                return EAUiState.Unknown;
+            }
+            catch
+            {
+                return EAUiState.Unknown;
+            }
+        }
+
+        private static bool IsLoginScreen(IntPtr hwnd)
+        {
+            return DetectEAState(hwnd) == EAUiState.Login;
+        }
+
+        private static bool IsAuthenticatedScreen(IntPtr hwnd)
+        {
+            return DetectEAState(hwnd) == EAUiState.Authenticated;
+        }
+
         private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
         {
             RECT rect;
@@ -968,6 +664,42 @@ namespace PlayniteAccountManager.Services
             }
         }
 
+        private static bool WaitForLoginScreen(IntPtr hwnd, int seconds)
+        {
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(1, seconds));
+
+            while (DateTime.UtcNow < deadline)
+            {
+                if (IsLoginScreen(hwnd))
+                    return true;
+
+                Thread.Sleep(120);
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                    continue;
+            }
+
+            return IsLoginScreen(hwnd);
+        }
+
+        private static bool WaitForAuthenticated(int seconds, out string error)
+        {
+            error = null;
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
+
+            while (DateTime.UtcNow < deadline)
+            {
+                IntPtr hwnd = FindMainWindowHandle();
+                if (hwnd != IntPtr.Zero && IsAuthenticatedScreen(hwnd))
+                    return true;
+
+                Thread.Sleep(140);
+            }
+
+            error = "EA App nie potwierdziła zalogowania.";
+            return false;
+        }
+
         private static AutomationElement SafeParent(AutomationElement element)
         {
             try { return element == null ? null : TreeWalker.RawViewWalker.GetParent(element); }
@@ -1063,17 +795,84 @@ namespace PlayniteAccountManager.Services
                         continue;
 
                     IntPtr hwnd = p.MainWindowHandle;
-                    if (hwnd != IntPtr.Zero)
+                    if (IsUsefulEAMainWindow(hwnd))
                         return hwnd;
                 }
                 catch { }
-                finally
-                {
-                    p.Dispose();
-                }
+                finally { p.Dispose(); }
             }
 
+            IntPtr found = FindEADesktopWindowByEnumeration();
+            if (found != IntPtr.Zero)
+                return found;
+
             return FindWindow(null, "EA");
+        }
+
+        private static bool IsUsefulEAMainWindow(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero)
+                return false;
+
+            try
+            {
+                if (!IsWindowVisible(hwnd))
+                    return false;
+
+                StringBuilder title = new StringBuilder(64);
+                GetWindowText(hwnd, title, title.Capacity);
+                return title.ToString().Equals("EA", StringComparison.OrdinalIgnoreCase) ||
+                       GetWindowClassName(hwnd).Equals("Qt5152QWindowOwnDCIcon", StringComparison.OrdinalIgnoreCase);
+            }
+            catch { return false; }
+        }
+
+        private static IntPtr FindEADesktopWindowByEnumeration()
+        {
+            IntPtr result = IntPtr.Zero;
+            EnumWindows((hwnd, lParam) =>
+            {
+                if (!IsWindowVisible(hwnd))
+                    return true;
+
+                uint pid;
+                GetWindowThreadProcessId(hwnd, out pid);
+
+                try
+                {
+                    using (var p = Process.GetProcessById((int)pid))
+                    {
+                        if (!p.ProcessName.Equals("EADesktop", StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
+                }
+                catch { return true; }
+
+                string className = GetWindowClassName(hwnd);
+                StringBuilder title = new StringBuilder(64);
+                GetWindowText(hwnd, title, title.Capacity);
+
+                if (className.Equals("Qt5152QWindowOwnDCIcon", StringComparison.OrdinalIgnoreCase) ||
+                    title.ToString().Equals("EA", StringComparison.OrdinalIgnoreCase))
+                {
+                    result = hwnd;
+                    return false;
+                }
+
+                return true;
+            }, IntPtr.Zero);
+            return result;
+        }
+
+        private static string GetWindowClassName(IntPtr hwnd)
+        {
+            StringBuilder sb = new StringBuilder(128);
+            try
+            {
+                GetClassName(hwnd, sb, sb.Capacity);
+                return sb.ToString();
+            }
+            catch { return string.Empty; }
         }
 
         private static IEnumerable<Process> SafeGetProcesses(string name)
@@ -1220,6 +1019,20 @@ namespace PlayniteAccountManager.Services
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
