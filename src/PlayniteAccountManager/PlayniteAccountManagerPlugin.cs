@@ -43,6 +43,13 @@ namespace PlayniteAccountManager
                 Description = "Menadżer Kont",
                 Action = _ => OpenManager(PlayniteApi.MainView.SelectedGames)
             };
+
+            yield return new MainMenuItem
+            {
+                MenuSection = "@",
+                Description = "EA App — konfiguracja bez administratora",
+                Action = _ => SetupEAWithoutAdministrator()
+            };
         }
 
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
@@ -79,6 +86,38 @@ namespace PlayniteAccountManager
                         }
                     };
                 }
+            }
+        }
+
+        private void SetupEAWithoutAdministrator()
+        {
+            try
+            {
+                string error;
+                bool ok = EAAppPermissionSetup.RunInteractive(
+                    message => logger.Info(message),
+                    out error);
+
+                if (ok)
+                {
+                    PlayniteApi.Notifications.Add(new NotificationMessage(
+                        "PlayniteAccountManager",
+                        "EA App skonfigurowana. Playnite może teraz działać bez administratora.",
+                        NotificationType.Info));
+                }
+                else if (!string.IsNullOrWhiteSpace(error))
+                {
+                    PlayniteApi.Dialogs.ShowErrorMessage(
+                        error,
+                        "Menadżer Kont — EA App");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Nie udało się uruchomić konfiguratora EA App.");
+                PlayniteApi.Dialogs.ShowErrorMessage(
+                    "Nie udało się skonfigurować EA App.\n\n" + ex.Message,
+                    "Menadżer Kont — EA App");
             }
         }
 
