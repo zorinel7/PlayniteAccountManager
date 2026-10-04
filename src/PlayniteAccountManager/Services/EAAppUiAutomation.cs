@@ -27,6 +27,8 @@ namespace PlayniteAccountManager.Services
         private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
         private const uint MOUSEEVENTF_LEFTUP = 0x0004;
         private const ushort VK_DOWN = 0x0028;
+        private const ushort VK_HOME = 0x0024;
+        private const ushort VK_ESCAPE = 0x001B;
 
         public EAAppUiAutomation(Action<string> log)
         {
@@ -149,8 +151,6 @@ namespace PlayniteAccountManager.Services
             if (!EnsureWindowForeground(hwnd))
                 log("EA App: nie uzyskano pełnej pewności aktywnego okna, ale kontynuuję.");
 
-            // The hamburger is stable in the supplied 1664x900 screenshot.
-            // Use the real click first so Qt/Cef receives normal mouse input.
             if (!NativeClickRelative(hwnd, 0.010, 0.017, "hamburger menu"))
             {
                 AutomationElement button = FindClickableAtRelativeRegion(hwnd, 0.0, 0.0, 0.055, 0.055, true);
@@ -163,45 +163,36 @@ namespace PlayniteAccountManager.Services
 
             Thread.Sleep(220);
 
-            // First try the exact logout item via UIA hit-testing. This is much
-            // cheaper and more reliable than scanning an 8 px grid of the popup.
-            if (TryInvokePointedMenuItem(hwnd, 56.0, 254.0))
-            {
-                log("EA UIA: wykonano „Wyloguj się” przez punkt menu.");
-                if (WaitForLoginScreen(hwnd, 2))
-                    return true;
-            }
-
-            // Real click: screenshot shows the center of the logout row at
-            // about x=56, y=254 px from the top-left of the EA window.
-            if (NativeClickMenuLogoutAt(hwnd, 56.0, 254.0) &&
-                WaitForLoginScreen(hwnd, 2))
-            {
-                log("EA: wylogowanie potwierdzone po natywnym kliknięciu.");
-                return true;
-            }
-
-            // Some Qt/Cef builds ignore SendInput at the top-level window but
-            // react to WM_LBUTTON messages sent to the child under the cursor.
-            if (NativeClickMenuLogoutMessage(hwnd, 56.0, 254.0) &&
-                WaitForLoginScreen(hwnd, 2))
-            {
-                log("EA: wylogowanie potwierdzone po WM_LBUTTON.");
-                return true;
-            }
-
-            // Keyboard fallback: the menu has 7 rows in the supplied screenshot,
-            // with logout as item #6 -> five DOWN presses from the first row.
+            // Most reliable path: start at first menu item and navigate to the
+            // sixth item, "Wyloguj się". This avoids confusing "Tryb offline"
+            // with logout when screen coordinates shift by only a few pixels.
             if (TryKeyboardMenuLogout() && WaitForLoginScreen(hwnd, 2))
             {
-                log("EA: wylogowanie potwierdzone przez klawiaturę.");
+                log("EA: wylogowanie potwierdzone przez Home + 5xDown + Enter.");
                 return true;
             }
 
-            // Final UIA text fallback for builds with a delayed accessibility tree.
-            AutomationElement logout = FindVisibleNamedInvokable(hwnd, new[] { "Wyloguj się", "Wyloguj", "Sign out", "Log out" });
-            if (logout != null && Invoke(logout) && WaitForLoginScreen(hwnd, 2))
+            // UIA point fallback: invoke only a control whose NAME itself says
+            // logout. Generic invokable parents are deliberately rejected.
+            if (TryInvokePointedMenuItem(hwnd, 56.0, 254.0) &&
+                WaitForLoginScreen(hwnd, 2))
+            {
+                log("EA: wylogowanie potwierdzone przez UIA.");
                 return true;
+            }
+
+            // Native click fallback. Try the center and +/- 4 px vertically.
+            double[] ys = { 254.0, 258.0, 250.0 };
+            foreach (double y in ys)
+            {
+                if (NativeClickMenuLogoutAt(hwnd, 56.0, y) &&
+                    WaitForLoginScreen(hwnd, 2))
+                {
+                    log("EA: wylogowanie potwierdzone po kliknięciu (" +
+                        56.0.ToString("0") + "," + y.ToString("0") + ").");
+                    return true;
+                }
+            }
 
             error = "EA App nie wykonała polecenia „Wyloguj się”.";
             return false;
@@ -797,17 +788,8 @@ namespace PlayniteAccountManager.Services
             if (!GetWindowRect(hwnd, out rect))
                 return false;
 
-            double scale = 1.0;
-            try
-            {
-                // The coordinates from the supplied screenshot are already
-                // physical screen pixels. A DPI scale is not applied.
-                scale = 1.0;
-            }
-            catch { }
-
-            int x = rect.Left + (int)Math.Round(menuX * scale);
-            int y = rect.Top + (int)Math.Round(menuY * scale);
+            int x = rect.Left + (int)Math.Round(menuX);
+            int y = rect.Top + (int)Math.Round(menuY);
 
             try
             {
@@ -819,6 +801,21 @@ namespace PlayniteAccountManager.Services
                         if (current.Current.IsOffscreen || !current.Current.IsEnabled)
                             continue;
 
+                        string name = current.Current.Name ?? string.Empty;
+                        log("EA UIA: punkt menu (" + menuX.ToString("0") + "," + menuY.ToString("0") +
+                            ") -> „" + name + "” / " + current.Current.ControlType.ProgrammaticName + ".");
+
+                        // Never invoke a generic Custom ancestor just because it
+                        // happens to expose InvokePattern. It may represent
+                        // another menu row ("Tryb offline") and cause the wrong
+                        // action.
+                        if (name.IndexOf("Wyloguj", StringComparison.OrdinalIgnoreCase) < 0 &&
+                            name.IndexOf("Sign out", StringComparison.OrdinalIgnoreCase) < 0 &&
+                            name.IndexOf("Log out", StringComparison.OrdinalIgnoreCase) < 0)
+                        {
+                            continue;
+                        }
+
                         try
                         {
                             var invoke = (InvokePattern)current.GetCurrentPattern(InvokePattern.Pattern);
@@ -826,7 +823,6 @@ namespace PlayniteAccountManager.Services
                             return true;
                         }
                         catch { }
-
                     }
                     catch { }
                 }
@@ -836,37 +832,36 @@ namespace PlayniteAccountManager.Services
             return false;
         }
 
-        private bool NativeClickMenuLogoutMessage(IntPtr hwnd, double menuX, double menuY)
+        private bool TryKeyboardMenuLogout()
         {
-            RECT rect;
-            if (!GetWindowRect(hwnd, out rect))
-                return false;
-
-            int screenX = rect.Left + (int)Math.Round(menuX);
-            int screenY = rect.Top + (int)Math.Round(menuY);
-
             try
             {
-                IntPtr target = WindowFromPoint(new POINT { X = screenX, Y = screenY });
-                if (target == IntPtr.Zero)
-                    target = hwnd;
+                // Start from a known position in the opened menu. This prevents
+                // the previous "five DOWN" routine from depending on where EA
+                // happened to leave keyboard focus.
+                if (!NativeKeyboardInput.Key(VK_HOME, log))
+                    return false;
 
-                POINT client = new POINT { X = screenX, Y = screenY };
-                ScreenToClient(target, ref client);
+                Thread.Sleep(70);
 
-                IntPtr lParam = new IntPtr((client.Y << 16) | (client.X & 0xFFFF));
+                // Menu order shown by the user's EA screenshot:
+                // Widok, Ustawienia, Pomoc, Informacje, Tryb offline,
+                // Wyloguj się, Wyjdź -> five DOWN presses from the first row.
+                for (int i = 0; i < 5; i++)
+                {
+                    if (!NativeKeyboardInput.Key(VK_DOWN, log))
+                        return false;
+                    Thread.Sleep(50);
+                }
 
-                SendMessage(target, WM_MOUSEMOVE, IntPtr.Zero, lParam);
-                SendMessage(target, WM_LBUTTONDOWN, new IntPtr(MK_LBUTTON), lParam);
-                SendMessage(target, WM_LBUTTONUP, IntPtr.Zero, lParam);
-                Thread.Sleep(120);
+                if (!NativeKeyboardInput.SendEnter(log))
+                    return false;
 
-                log("EA native: wysłano WM_LBUTTON do okna pod pozycją menu.");
+                Thread.Sleep(150);
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
-                log("EA native: WM_LBUTTON nie powiódł się: " + ex.Message);
                 return false;
             }
         }
@@ -880,29 +875,6 @@ namespace PlayniteAccountManager.Services
             int x = rect.Left + (int)((rect.Right - rect.Left) * xPct);
             int y = rect.Top + (int)((rect.Bottom - rect.Top) * yPct);
             return NativeClickScreen(x, y, what);
-        }
-
-        private bool TryKeyboardMenuLogout()
-        {
-            try
-            {
-                for (int i = 0; i < 5; i++)
-                {
-                    if (!NativeKeyboardInput.Key(VK_DOWN, log))
-                        return false;
-                    Thread.Sleep(70);
-                }
-
-                if (!NativeKeyboardInput.SendEnter(log))
-                    return false;
-
-                Thread.Sleep(300);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private bool ForceRememberMeUnchecked(IntPtr hwnd)
