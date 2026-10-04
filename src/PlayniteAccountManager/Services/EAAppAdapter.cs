@@ -298,6 +298,45 @@ namespace PlayniteAccountManager.Services
             results.Add(Path.Combine(basePath, "Electronic Arts", "EA Desktop", "EADesktop.exe"));
         }
 
+        private void StopLauncherProcesses()
+        {
+            string[] processNames =
+            {
+                "EADesktop",
+                "EALauncher"
+            };
+
+            foreach (string name in processNames)
+            {
+                foreach (Process process in SafeGetProcesses(name))
+                {
+                    try
+                    {
+                        if (process.HasExited)
+                            continue;
+
+                        try { process.CloseMainWindow(); } catch { }
+
+                        if (!process.WaitForExit(1200))
+                        {
+                            try { process.Kill(); } catch { }
+                            try { process.WaitForExit(1200); } catch { }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log("EA App: nie udało się zatrzymać procesu " + name + ": " + ex.Message);
+                    }
+                    finally
+                    {
+                        process.Dispose();
+                    }
+                }
+            }
+
+            Thread.Sleep(220);
+        }
+
         private static IEnumerable<Process> SafeGetProcesses(string name)
         {
             Process[] processes;
