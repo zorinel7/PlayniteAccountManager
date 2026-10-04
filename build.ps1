@@ -1,0 +1,25 @@
+$ErrorActionPreference = 'Stop'
+$root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$project = Join-Path $root 'src\PlayniteAccountManager\PlayniteAccountManager.csproj'
+
+$msbuild = $null
+$vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+if (Test-Path $vswhere) {
+    $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+}
+
+if (-not $msbuild) {
+    $candidates = @(
+        "$env:ProgramFiles\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe",
+        "$env:ProgramFiles\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe",
+        "$env:ProgramFiles\Microsoft Visual Studio\2022\Professional\MSBuild\Current\Bin\MSBuild.exe",
+        "$env:ProgramFiles\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+    )
+    $msbuild = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+}
+
+if (-not $msbuild) { throw 'Nie znaleziono MSBuild. Zainstaluj Visual Studio z workload .NET desktop development.' }
+
+Write-Host "MSBuild: $msbuild"
+& $msbuild $project /restore /t:Build /p:Configuration=Release
+Write-Host 'Gotowe (0.9.7). Wynik: src\PlayniteAccountManager\bin\Release'
