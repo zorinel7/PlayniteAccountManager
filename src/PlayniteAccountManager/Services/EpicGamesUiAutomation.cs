@@ -158,7 +158,7 @@ namespace PlayniteAccountManager.Services
 
                 if (focused != null && ElementNameMatches(focused, names))
                 {
-                    if (Invoke(focused))
+                    if (TryInvoke(focused))
                     {
                         log("Epic Games UIA/keyboard: wykonano " + description +
                             " po nawigacji Tab (" + (i + 1) + ").");
@@ -209,7 +209,8 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private static AutomationElement FindNamedInvokable(IntPtr hwnd, string[] names)
+        private static AutomationElement FindNamedInvokable(
+            IntPtr hwnd, string[] names)
         {
             AutomationElement root = AutomationElement.FromHandle(hwnd);
             if (root == null)
@@ -226,12 +227,14 @@ namespace PlayniteAccountManager.Services
                     if (!ElementNameMatches(e, names))
                         continue;
 
-                    // Prefer the named element itself, then walk up to a
-                    // clickable/invokable parent. No geometry is involved.
                     AutomationElement current = e;
-                    for (int i = 0; current != null && i < 6; i++)
+
+                    // First try the named node itself, then its ancestors.
+                    // This handles Epic WebView text nodes wrapped in clickable
+                    // Custom/Button containers.
+                    for (int i = 0; current != null && i < 8; i++)
                     {
-                        if (Invoke(current))
+                        if (TryInvoke(current))
                             return current;
 
                         current = SafeParent(current);
@@ -243,6 +246,31 @@ namespace PlayniteAccountManager.Services
             return null;
         }
 
+        private static bool TryInvoke(AutomationElement element)
+        {
+            try
+            {
+                var invoke = (InvokePattern)element.GetCurrentPattern(
+                    InvokePattern.Pattern);
+
+                invoke.Invoke();
+                return true;
+            }
+            catch { }
+
+            try
+            {
+                var toggle = (TogglePattern)element.GetCurrentPattern(
+                    TogglePattern.Pattern);
+
+                toggle.Toggle();
+                return true;
+            }
+            catch { }
+
+            return false;
+        }
+
         private AutomationElement FindEditableElement(
             IntPtr hwnd, bool password, int maxTabs)
         {
@@ -250,29 +278,65 @@ namespace PlayniteAccountManager.Services
             if (root == null)
                 return null;
 
+            string[] labels = password
+                ? new[] { "Hasło", "Password", "Wprowadź hasło", "Enter password" }
+                : new[] { "Adres e-mail", "E-mail", "Email", "Email address" };
+
+            // First search by the visible semantic label, regardless of the
+            // Chromium control type. This is important because Epic has used
+            // Custom controls instead of ControlType.Edit in different builds.
             foreach (AutomationElement e in root.FindAll(
                 TreeScope.Descendants, AutomationCondition.TrueCondition))
             {
                 try
                 {
-                    if (e.Current.IsOffscreen ||
-                        !e.Current.IsEnabled ||
-                        e.Current.ControlType != ControlType.Edit)
+                    if (e.Current.IsOffscreen || !e.Current.IsEnabled)
                         continue;
 
-                    if (password && !e.Current.IsPassword)
+                    string name = e.Current.Name ?? string.Empty;
+
+                    if (!labels.Any(label =>
+                        name.IndexOf(label, StringComparison.OrdinalIgnoreCase) >= 0))
                         continue;
 
-                    if (!password && e.Current.IsPassword)
-                        continue;
-
-                    return e;
+                    if (TryFocusTarget(e))
+                    {
+                        log("Epic Games UIA: znaleziono pole " +
+                            (password ? "hasła" : "e-mail") +
+                            " po nazwie „" + name + "”.");
+                        return e;
+                    }
                 }
                 catch { }
             }
 
-            // Some Chromium inputs are exposed only when they receive focus.
-            // Navigate through focusable elements instead of using coordinates.
+            // Second pass: look for an actual editable/value-capable control
+            // without assuming a specific ControlType.
+            foreach (AutomationElement e in root.FindAll(
+                TreeScope.Descendants, AutomationCondition.TrueCondition))
+            {
+                try
+                {
+                    if (e.Current.IsOffscreen || !e.Current.IsEnabled)
+                        continue;
+
+                    if (!IsLikelyEditable(e, password))
+                        continue;
+
+                    if (TryFocusTarget(e))
+                    {
+                        log("Epic Games UIA: znaleziono edytowalny element pola " +
+                            (password ? "hasła" : "e-mail") +
+                            " bez polegania na ControlType.Edit.");
+                        return e;
+                    }
+                }
+                catch { }
+            }
+
+            // Final fallback: navigate focus semantically. No screen
+            // coordinates are used. The focused WebView element is accepted
+            // only if it is a likely editable/password control.
             for (int i = 0; i < maxTabs; i++)
             {
                 AutomationElement focused = null;
@@ -280,13 +344,13 @@ namespace PlayniteAccountManager.Services
 
                 try
                 {
-                    if (focused != null &&
-                        focused.Current.IsEnabled &&
-                        !focused.Current.IsOffscreen &&
-                        focused.Current.ControlType == ControlType.Edit &&
-                        (!password || focused.Current.IsPassword) &&
-                        (password || !focused.Current.IsPassword))
+                    if (focused != null && IsLikelyEditable(focused, password))
+                    {
+                        log("Epic Games UIA: pole " +
+                            (password ? "hasła" : "e-mail") +
+                            " znaleziono przez fokus klawiatury.");
                         return focused;
+                    }
                 }
                 catch { }
 
@@ -297,6 +361,146 @@ namespace PlayniteAccountManager.Services
             }
 
             return null;
+        }
+
+        private static bool IsLikelyEditable(
+            AutomationElement element, bool password)
+        {
+            try
+            {
+                if (element.Current.IsOffscreen || !element.Current.IsEnabled)
+                    return false;
+
+                if (password)
+                {
+                    try
+                    {
+                        if (element.Current.IsPassword)
+                            return true;
+                    }
+                    catch { }
+                }
+
+                if (element.Current.ControlType == ControlType.Edit)
+                    return true;
+
+                try
+                {
+                    element.GetCurrentPattern(ValuePattern.Pattern);
+                    return !password;
+                }
+                catch { }
+
+                try
+                {
+                    element.GetCurrentPattern(TextPattern.Pattern);
+                    return !password;
+                }
+                catch { }
+
+                string name = element.Current.Name ?? string.Empty;
+                if (password)
+                    return name.IndexOf("Hasło", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                           name.IndexOf("Password", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                return name.IndexOf("E-mail", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                       name.IndexOf("Email", StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool TryFocusTarget(AutomationElement element)
+        {
+            try
+            {
+                if (!element.Current.IsEnabled || element.Current.IsOffscreen)
+                    return false;
+
+                try
+                {
+                    if (!element.Current.IsKeyboardFocusable)
+                        return TryFocusAncestorOrDescendant(element);
+                }
+                catch { }
+
+                element.SetFocus();
+                Thread.Sleep(70);
+
+                AutomationElement focused = null;
+                try { focused = AutomationElement.FocusedElement; } catch { }
+
+                return focused != null && SameElement(focused, element);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool TryFocusAncestorOrDescendant(AutomationElement element)
+        {
+            try
+            {
+                AutomationElement current = element;
+
+                for (int i = 0; i < 5 && current != null; i++)
+                {
+                    try
+                    {
+                        if (current.Current.IsEnabled &&
+                            !current.Current.IsOffscreen &&
+                            current.Current.IsKeyboardFocusable)
+                        {
+                            current.SetFocus();
+                            Thread.Sleep(70);
+                            return true;
+                        }
+                    }
+                    catch { }
+
+                    current = SafeParent(current);
+                }
+
+                var children = element.FindAll(
+                    TreeScope.Descendants,
+                    AutomationCondition.TrueCondition);
+
+                foreach (AutomationElement child in children)
+                {
+                    try
+                    {
+                        if (child.Current.IsEnabled &&
+                            !child.Current.IsOffscreen &&
+                            child.Current.IsKeyboardFocusable)
+                        {
+                            child.SetFocus();
+                            Thread.Sleep(70);
+                            return true;
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        private static bool SameElement(
+            AutomationElement a, AutomationElement b)
+        {
+            try
+            {
+                return a != null && b != null &&
+                       a.Equals(b);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static bool IsTextVisible(IntPtr hwnd, string text)
@@ -346,39 +550,6 @@ namespace PlayniteAccountManager.Services
 
                 Thread.Sleep(60);
                 return NativeKeyboardInput.TypeText(text, hwnd, log);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static bool Focus(AutomationElement element)
-        {
-            try
-            {
-                if (!element.Current.IsEnabled || element.Current.IsOffscreen)
-                    return false;
-
-                element.SetFocus();
-                Thread.Sleep(60);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static bool Invoke(AutomationElement element)
-        {
-            try
-            {
-                var invoke = (InvokePattern)element.GetCurrentPattern(
-                    InvokePattern.Pattern);
-
-                invoke.Invoke();
-                return true;
             }
             catch
             {
