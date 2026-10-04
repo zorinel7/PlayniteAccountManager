@@ -44,12 +44,6 @@ namespace PlayniteAccountManager
                 Action = _ => OpenManager(PlayniteApi.MainView.SelectedGames)
             };
 
-            yield return new MainMenuItem
-            {
-                MenuSection = "@",
-                Description = "EA App — konfiguracja bez administratora",
-                Action = _ => SetupEAWithoutAdministrator()
-            };
         }
 
         public override IEnumerable<GameMenuItem> GetGameMenuItems(GetGameMenuItemsArgs args)
