@@ -26,6 +26,7 @@ namespace PlayniteAccountManager.Services
 
         private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
         private const uint MOUSEEVENTF_LEFTUP = 0x0004;
+        private const ushort VK_DOWN = 0x0028;
 
         public EAAppUiAutomation(Action<string> log)
         {
@@ -72,11 +73,22 @@ namespace PlayniteAccountManager.Services
 
             EnsureWindowForeground(hwnd);
 
-            if (!IsLoginScreen(hwnd))
+            bool authenticated;
+            if (!WaitForEAState(hwnd, 15, out authenticated))
             {
-                log("EA App: wykryto aktywną sesję. Otwieram menu główne i wylogowuję obecnego użytkownika.");
-                if (!OpenHamburgerAndLogout(hwnd, 12, out error))
+                error = "Nie udało się rozpoznać stanu EA App (zalogowana sesja / ekran logowania).";
+                return false;
+            }
+
+            if (authenticated)
+            {
+                log("EA App: wykryto aktywną sesję. Rozpoczynam pełne wylogowanie obecnego konta.");
+                if (!OpenHamburgerAndLogout(hwnd, 15, out error))
                     return false;
+            }
+            else
+            {
+                log("EA App: wykryto ekran logowania. Pomijam wylogowanie i przechodzę do logowania.");
             }
 
             hwnd = WaitForMainWindow(20);
@@ -125,10 +137,10 @@ namespace PlayniteAccountManager.Services
             if (!EnsureWindowForeground(hwnd))
                 log("EA App: nie uzyskano pełnej pewności aktywnego okna, ale kontynuuję.");
 
-            // First try the accessibility tree. The supplied diagnostic shows
-            // that the hamburger itself is not exposed there, so the native
-            // click is the normal fallback for current EA App builds.
-            AutomationElement button = FindClickableAtRelativeRegion(hwnd, 0.0, 0.0, 0.075, 0.06, true);
+            // The supplied diagnostic shows that the hamburger itself is not
+            // exposed as a named UIA control. Try point-based UIA first, then
+            // use an exact native click near the visible hamburger icon.
+            AutomationElement button = FindClickableAtRelativeRegion(hwnd, 0.0, 0.0, 0.055, 0.055, true);
             if (button != null && Invoke(button))
             {
                 log("EA UIA: znaleziono i wykonano kontrolkę menu głównego.");
@@ -168,14 +180,24 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(200);
             }
 
-            // Fallback for EA builds where the popup is visually present but
-            // omitted from the UIA tree. The menu order in the supplied
-            // screenshot is: Widok, Ustawienia, Pomoc, Informacje,
-            // Tryb offline, Wyloguj się, Wyjdź.
+            // Fallback 1: the popup can be keyboard-focusable even when it
+            // is missing from the accessibility tree. Its visible order is:
+            // Widok, Ustawienia, Pomoc, Informacje, Tryb offline,
+            // Wyloguj się, Wyjdź. From the first row, five Down presses land
+            // on "Wyloguj się".
+            if (TryKeyboardMenuLogout())
+            {
+                log("EA native: wylogowanie wykonane przez nawigację klawiaturą menu.");
+                if (WaitForLoginScreen(hwnd, 12))
+                    return true;
+            }
+
+            // Fallback 2: exact native click on the sixth menu row.
             if (NativeClickMenuLogout(hwnd))
             {
                 log("EA native: kliknięto „Wyloguj się” po pozycji menu.");
-                return true;
+                if (WaitForLoginScreen(hwnd, 12))
+                    return true;
             }
 
             error = "Po otwarciu menu EA App nie znaleziono ani nie wykonano pozycji „Wyloguj się”.";
@@ -439,28 +461,87 @@ namespace PlayniteAccountManager.Services
                 if (root == null)
                     return false;
 
-                var names = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition)
-                    .Cast<AutomationElement>()
-                    .Select(SafeName)
-                    .Where(x => !string.IsNullOrWhiteSpace(x));
-
-                string text = string.Join(" ", names);
-                int edits = CountVisibleEdits(hwnd);
+                string text = GetVisibleText(hwnd);
+                if (string.IsNullOrWhiteSpace(text))
+                    return false;
 
                 bool loginHint =
                     text.IndexOf("Zaloguj się na swoje konto EA", StringComparison.OrdinalIgnoreCase) >= 0 ||
                     text.IndexOf("TWOJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
                     text.IndexOf("TWÓJ E-MAIL", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    text.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    text.IndexOf("Log in", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    text.IndexOf("Sign in", StringComparison.OrdinalIgnoreCase) >= 0;
+                    text.IndexOf("Podaj hasło", StringComparison.OrdinalIgnoreCase) >= 0;
 
-                return loginHint || edits >= 1 && text.IndexOf("EA PC", StringComparison.OrdinalIgnoreCase) < 0;
+                if (loginHint)
+                    return true;
+
+                // Login UI normally contains at least one editable field.
+                // The main EA screen also contains an Edit ("Szukaj"), so the
+                // authenticated state is checked separately before this test.
+                int edits = CountVisibleEdits(hwnd);
+                return edits >= 1 && !IsAuthenticatedScreen(hwnd);
             }
             catch
             {
                 return false;
             }
+        }
+
+        private static bool IsAuthenticatedScreen(IntPtr hwnd)
+        {
+            try
+            {
+                string text = GetVisibleText(hwnd);
+                if (string.IsNullOrWhiteSpace(text))
+                    return false;
+
+                bool hasLibrary = text.IndexOf("Biblioteka", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool hasHome = text.IndexOf("Strona główna", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool hasInstalled = text.IndexOf("Zainstalowane gry", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool hasSearch = text.IndexOf("Szukaj", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                return (hasLibrary && hasHome) || (hasLibrary && hasInstalled) || (hasHome && hasSearch);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool WaitForEAState(IntPtr hwnd, int seconds, out bool authenticated)
+        {
+            authenticated = false;
+            DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(5, seconds));
+
+            while (DateTime.UtcNow < deadline)
+            {
+                if (IsAuthenticatedScreen(hwnd))
+                {
+                    authenticated = true;
+                    return true;
+                }
+
+                if (IsLoginScreen(hwnd))
+                {
+                    authenticated = false;
+                    return true;
+                }
+
+                Thread.Sleep(350);
+                hwnd = FindMainWindowHandle();
+                if (hwnd == IntPtr.Zero)
+                    continue;
+            }
+
+            if (IsAuthenticatedScreen(hwnd))
+            {
+                authenticated = true;
+                return true;
+            }
+
+            if (IsLoginScreen(hwnd))
+                return true;
+
+            return false;
         }
 
         private static int CountVisibleEdits(IntPtr hwnd)
@@ -677,6 +758,29 @@ namespace PlayniteAccountManager.Services
             int x = rect.Left + (int)((rect.Right - rect.Left) * xPct);
             int y = rect.Top + (int)((rect.Bottom - rect.Top) * yPct);
             return NativeClickScreen(x, y, what);
+        }
+
+        private bool TryKeyboardMenuLogout()
+        {
+            try
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    if (!NativeKeyboardInput.Key(VK_DOWN, log))
+                        return false;
+                    Thread.Sleep(70);
+                }
+
+                if (!NativeKeyboardInput.SendEnter(log))
+                    return false;
+
+                Thread.Sleep(300);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private bool NativeClickMenuLogout(IntPtr hwnd)
