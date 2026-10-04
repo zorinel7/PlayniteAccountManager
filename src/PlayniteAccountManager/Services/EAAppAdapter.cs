@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using PlayniteAccountManager.Models;
 
 namespace PlayniteAccountManager.Services
@@ -16,16 +17,19 @@ namespace PlayniteAccountManager.Services
     {
         private readonly Action<string> log;
         private readonly EAAppUiAutomation uiAutomation;
+        private readonly EAAppSessionStore sessionStore;
 
-        public EAAppAdapter(Action<string> log)
+        public EAAppAdapter(string pluginUserDataPath, Action<string> log)
         {
             this.log = log ?? (_ => { });
             uiAutomation = new EAAppUiAutomation(this.log);
+            sessionStore = new EAAppSessionStore(pluginUserDataPath, this.log);
         }
 
         public bool PrepareAndLogin(AccountRecord account, string password, out string error)
         {
             error = null;
+
             if (account == null || account.Id == Guid.Empty)
             {
                 error = "Nie wybrano konta EA App.";
@@ -38,32 +42,90 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
+            bool hasSavedSession = sessionStore.HasSnapshot(account.Id);
+
+            if (!hasSavedSession &&
+                (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password)))
             {
                 error = "Brak loginu lub hasła zapisanych dla konta EA App.";
                 return false;
             }
 
-            string exe = FindEAExecutable();
-            if (string.IsNullOrWhiteSpace(exe) || !File.Exists(exe))
-            {
-                error = "Nie znaleziono EA App na tym komputerze.";
-                return false;
-            }
-
             try
             {
-                bool started = StartEA(exe);
-                if (!started)
+                string exe = FindEAExecutableFast();
+                if (string.IsNullOrWhiteSpace(exe) || !File.Exists(exe))
                 {
-                    error = "Nie udało się uruchomić EA App.";
+                    error = "Nie znaleziono programu EA App na tym komputerze.";
                     return false;
                 }
 
-                if (!uiAutomation.PrepareAndLogin(account.UserName, password, 60, out error))
+                log("EA App: zamykam launcher i przygotowuję przełączenie konta.");
+
+                StopLauncherProcesses();
+                TryStopBackgroundService();
+
+                if (hasSavedSession)
+                {
+                    log("EA App: znaleziono zapisany stan sesji. Przywracam konto bez wpisywania hasła.");
+
+                    if (!sessionStore.Restore(account.Id, out error))
+                        return false;
+
+                    if (!StartEA(exe))
+                    {
+                        error = "Nie udało się uruchomić EA App po przywróceniu sesji.";
+                        return false;
+                    }
+
+                    if (uiAutomation.WaitUntilAuthenticated(25, out error))
+                    {
+                        log("EA App: zapisany stan sesji konta „" + account.Name + "” działa poprawnie.");
+                        return true;
+                    }
+
+                    // Stale/broken snapshot: rebuild it through the normal
+                    // login once, then overwrite the cached session.
+                    log("EA App: zapisany stan sesji nie uruchomił zalogowanego konta. Odbudowuję sesję przez login i hasło.");
+                    StopLauncherProcesses();
+                    TryStopBackgroundService();
+
+                    if (!sessionStore.ClearLiveState(out error))
+                        return false;
+
+                    if (!StartEA(exe))
+                    {
+                        error = "Nie udało się ponownie uruchomić EA App.";
+                        return false;
+                    }
+                }
+                else
+                {
+                    // First login for this Playnite account: start from a clean
+                    // EA login state and create a reusable session snapshot.
+                    if (!sessionStore.ClearLiveState(out error))
+                        return false;
+
+                    if (!StartEA(exe))
+                    {
+                        error = "Nie udało się uruchomić EA App.";
+                        return false;
+                    }
+                }
+
+                if (!uiAutomation.PrepareAndLogin(account.UserName, password, 20, out error))
                     return false;
 
-                log("EA App: konto „" + account.Name + "” jest aktywne. Playnite kontynuuje normalne uruchomienie gry.");
+                string saveError;
+                if (!sessionStore.SaveCurrent(account.Id, out saveError))
+                {
+                    // The game can still start with the newly authenticated
+                    // account. Cache failure is logged so the user knows why
+                    // the next switch may require a fresh login.
+                    log("EA App: ostrzeżenie — nie udało się zapisać sesji konta: " + saveError);
+                }
+
+                log("EA App: konto „" + account.Name + "” jest aktywne.");
                 return true;
             }
             catch (Exception ex)
@@ -76,7 +138,57 @@ namespace PlayniteAccountManager.Services
 
         public bool Logout(out string error)
         {
-            return uiAutomation.Logout(out error);
+            error = null;
+
+            try
+            {
+                StopLauncherProcesses();
+                TryStopBackgroundService();
+                return sessionStore.ClearLiveState(out error);
+            }
+            catch (Exception ex)
+            {
+                error = "Błąd czyszczenia sesji EA App: " + ex.Message;
+                log(error);
+                return false;
+            }
+        }
+
+        private void TryStopBackgroundService()
+        {
+            try
+            {
+                using (var p = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "sc.exe",
+                    Arguments = "stop EABackgroundService",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                }))
+                {
+                    if (p == null)
+                        return;
+
+                    string stdout = p.StandardOutput.ReadToEnd();
+                    string stderr = p.StandardError.ReadToEnd();
+                    p.WaitForExit(3000);
+
+                    if (p.ExitCode == 0)
+                        log("EA App: zatrzymano usługę EABackgroundService.");
+
+                    if (!string.IsNullOrWhiteSpace(stderr) &&
+                        stderr.IndexOf("Access is denied", StringComparison.OrdinalIgnoreCase) >= 0)
+                        log("EA App: brak praw do zatrzymania EABackgroundService. Przy operacji ProgramData wymagane są uprawnienia administratora.");
+                }
+            }
+            catch (Exception ex)
+            {
+                log("EA App: nie udało się zatrzymać EABackgroundService: " + ex.Message);
+            }
+
+            Thread.Sleep(250);
         }
 
         private static bool StartEA(string exe)
@@ -95,6 +207,45 @@ namespace PlayniteAccountManager.Services
             {
                 return p != null;
             }
+        }
+
+        private static string FindEAExecutableFast()
+        {
+            string pf = Environment.GetEnvironmentVariable("ProgramFiles");
+            string pf86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+
+            string[] candidates =
+            {
+                Path.Combine(pf ?? string.Empty, "Electronic Arts", "EA Desktop", "EA Desktop", "EADesktop.exe"),
+                Path.Combine(pf ?? string.Empty, "Electronic Arts", "EA Desktop", "EADesktop.exe"),
+                Path.Combine(pf86 ?? string.Empty, "Electronic Arts", "EA Desktop", "EA Desktop", "EADesktop.exe"),
+                Path.Combine(pf86 ?? string.Empty, "Electronic Arts", "EA Desktop", "EADesktop.exe")
+            };
+
+            foreach (string candidate in candidates)
+            {
+                if (!string.IsNullOrWhiteSpace(candidate) && File.Exists(candidate))
+                    return candidate;
+            }
+
+            foreach (Process p in SafeGetProcesses("EADesktop"))
+            {
+                try
+                {
+                    if (p.HasExited)
+                        continue;
+
+                    string path = null;
+                    try { path = p.MainModule.FileName; } catch { }
+
+                    if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+                        return path;
+                }
+                catch { }
+                finally { p.Dispose(); }
+            }
+
+            return FindEAExecutable();
         }
 
         private static string FindEAExecutable()
