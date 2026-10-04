@@ -1261,8 +1261,8 @@ namespace PlayniteAccountManager.Services
 
                 IntPtr foreground = GetForegroundWindow();
                 uint currentThread = GetCurrentThreadId();
-                uint foregroundThread = foreground == IntPtr.Zero ? 0 : GetWindowThreadProcessId(foreground, IntPtr.Zero);
-                uint targetThread = GetWindowThreadProcessId(hwnd, IntPtr.Zero);
+                uint foregroundThread = foreground == IntPtr.Zero ? 0 : GetWindowThreadId(foreground);
+                uint targetThread = GetWindowThreadId(hwnd);
 
                 bool attached = false;
                 try
@@ -1424,7 +1424,13 @@ namespace PlayniteAccountManager.Services
         private static extern uint GetCurrentThreadId();
 
         [DllImport("user32.dll")]
-        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr lpdwProcessId);
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        private static uint GetWindowThreadId(IntPtr hwnd)
+        {
+            uint pid;
+            return GetWindowThreadProcessId(hwnd, out pid);
+        }
 
         [DllImport("user32.dll")]
         private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
