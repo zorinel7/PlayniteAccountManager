@@ -41,9 +41,12 @@ namespace PlayniteAccountManager.EAHelper
             string accountId = lines.Length > 1 ? (lines[1] ?? string.Empty).Trim() : string.Empty;
             string cacheRoot = lines.Length > 2 ? (lines[2] ?? string.Empty).Trim() : string.Empty;
 
-            Guid id;
-            if (!Guid.TryParse(accountId, out id) || id == Guid.Empty)
-                return WriteResult(requestFile, false, "Nieprawidłowy identyfikator konta EA.");
+            Guid id = Guid.Empty;
+            if (operation == "save" || operation == "restore")
+            {
+                if (!Guid.TryParse(accountId, out id) || id == Guid.Empty)
+                    return WriteResult(requestFile, false, "Nieprawidłowy identyfikator konta EA.");
+            }
 
             if (string.IsNullOrWhiteSpace(cacheRoot))
                 return WriteResult(requestFile, false, "Brak katalogu cache EA.");
@@ -55,6 +58,10 @@ namespace PlayniteAccountManager.EAHelper
                 if (operation == "clear")
                 {
                     ClearLiveState();
+                }
+                else if (operation == "start-service")
+                {
+                    StartEAService();
                 }
                 else if (operation == "save")
                 {
@@ -84,6 +91,12 @@ namespace PlayniteAccountManager.EAHelper
         private static void StopEAService()
         {
             ExecuteSc("stop " + ServiceName);
+            Thread.Sleep(350);
+        }
+
+        private static void StartEAService()
+        {
+            ExecuteSc("start " + ServiceName);
             Thread.Sleep(350);
         }
 
