@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using DrawingSize = System.Drawing.Size;
+using DrawingPoint = System.Drawing.Point;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -313,7 +315,7 @@ namespace PlayniteAccountManager.Services
                             windowRect.Top,
                             0,
                             0,
-                            new Size(width, height),
+                            new DrawingSize(width, height),
                             CopyPixelOperation.SourceCopy);
                     }
 
@@ -384,8 +386,8 @@ namespace PlayniteAccountManager.Services
                     if (!mask[x, y] || visited[x, y])
                         continue;
 
-                    var queue = new Queue<Point>();
-                    queue.Enqueue(new Point(x, y));
+                    var queue = new Queue<DrawingPoint>();
+                    queue.Enqueue(new DrawingPoint(x, y));
                     visited[x, y] = true;
 
                     int minX = x;
@@ -396,7 +398,7 @@ namespace PlayniteAccountManager.Services
 
                     while (queue.Count > 0)
                     {
-                        Point p = queue.Dequeue();
+                        DrawingPoint p = queue.Dequeue();
                         pixels++;
 
                         minX = Math.Min(minX, p.X);
