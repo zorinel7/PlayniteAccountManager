@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using PlayniteAccountManager.Models;
 
 namespace PlayniteAccountManager.Services
@@ -322,6 +323,62 @@ namespace PlayniteAccountManager.Services
             }
 
             Thread.Sleep(250);
+        }
+
+        private static string FindEAExecutable()
+        {
+            var candidates = new List<string>();
+            string pf = Environment.GetEnvironmentVariable("ProgramFiles");
+            string pf86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+            string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
+            AddCandidates(candidates, pf);
+            AddCandidates(candidates, pf86);
+            AddCandidates(candidates, local);
+
+            foreach (Process p in SafeGetProcesses("EADesktop"))
+            {
+                try
+                {
+                    if (p.HasExited)
+                        continue;
+
+                    string path = null;
+                    try { path = p.MainModule.FileName; } catch { }
+                    if (!string.IsNullOrWhiteSpace(path))
+                        candidates.Add(path);
+                }
+                catch { }
+                finally { p.Dispose(); }
+            }
+
+            candidates.AddRange(FindFromUninstallRegistry());
+            candidates.AddRange(FindFromStartMenuShortcuts());
+
+            foreach (string candidate in candidates.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    string full = Path.GetFullPath(Environment.ExpandEnvironmentVariables(candidate));
+                    string file = Path.GetFileName(full);
+                    if (File.Exists(full) &&
+                        (file.Equals("EADesktop.exe", StringComparison.OrdinalIgnoreCase) ||
+                         file.Equals("EALauncher.exe", StringComparison.OrdinalIgnoreCase)))
+                        return full;
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        private static void AddCandidates(List<string> results, string basePath)
+        {
+            if (string.IsNullOrWhiteSpace(basePath))
+                return;
+
+            results.Add(Path.Combine(basePath, "Electronic Arts", "EA Desktop", "EA Desktop", "EADesktop.exe"));
+            results.Add(Path.Combine(basePath, "Electronic Arts", "EA Desktop", "EADesktop.exe"));
         }
 
         private static IEnumerable<Process> SafeGetProcesses(string name)
