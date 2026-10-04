@@ -46,157 +46,119 @@ namespace PlayniteAccountManager.Services
 
             EnsureForeground(hwnd);
 
-            // EADesktop.exe can exist several seconds before its Chromium/WebView
-            // login page is actually ready. Do not start UI automation merely
-            // because the process/window exists. Wait for the login surface
-            // itself, using semantic UIA signals or the dynamically detected
-            // primary button.
+            // The exact keyboard sequence was verified manually on the current
+            // Epic login UI. We reproduce that sequence directly instead of
+            // relying on UIA focus order, which Epic's WebView does not expose
+            // reliably.
             if (!WaitForLoginSurfaceReady(hwnd, 20))
             {
                 error = "Epic Games Launcher został uruchomiony, ale ekran logowania nie był gotowy w ciągu 20 sekund.";
-                log("Epic Games: ekran logowania nie osiągnął stanu gotowego w wyznaczonym czasie.");
+                log("Epic Games: ekran logowania nie osiągnął stanu gotowego.");
                 return false;
             }
 
-            log("Epic Games: ekran logowania jest gotowy. Rozpoczynam automatyczne logowanie.");
+            log("Epic Games: ekran logowania gotowy. Używam potwierdzonej sekwencji klawiatury.");
 
-            // First page: locate the actual editable control through UIA.
-            AutomationElement email = FindEditableElement(hwnd, false, 8);
+            // [Tab] -> e-mail
+            if (!PressTab("fokus e-mail"))
+                return Fail(out error, "Nie udało się ustawić fokusu pola e-mail.");
 
-            if (email == null)
-            {
-                // Some Epic WebView builds expose neither the input nor its
-                // button through UIA. Detect the actual input rectangle from
-                // the current window image and click its center. This is
-                // dynamic: no fixed X/Y, DPI, or resolution is assumed.
-                log("Epic Games UIA: pole e-mail nie jest dostępne. Używam dynamicznego wykrycia pola formularza.");
+            Thread.Sleep(120);
 
-                if (!TryClickVisualInputField(hwnd, false, "pole e-mail"))
-                {
-                    error = "Nie udało się znaleźć pola e-mail Epic Games.";
-                    return false;
-                }
+            if (!NativeKeyboardInput.TypeText(username, hwnd, log))
+                return Fail(out error, "Nie udało się wpisać e-maila Epic Games.");
 
-                email = null;
-                log("Epic Games visual: kliknięto wykryte pole e-mail. Kontynuuję bez wymagania, aby WebView raportował fokus przez UIA.");
-            }            else if (!TryFocusTarget(email))
-            {
-                error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
-                return false;
-            }
+            // [Tab] [Tab] [Enter] -> continue
+            if (!PressTabs(2, "przejście do hasła"))
+                return Fail(out error, "Nie udało się przejść do następnego etapu logowania Epic Games.");
 
-            log("Epic Games UIA: ustawiono fokus pola e-mail.");
+            Thread.Sleep(100);
+            if (!NativeKeyboardInput.SendEnter(log))
+                return Fail(out error, "Nie udało się zatwierdzić adresu e-mail Epic Games.");
 
-            if (!SelectAllAndType(username, hwnd))
-            {
-                error = "Nie udało się wpisać e-maila Epic Games.";
-                return false;
-            }
-
-            // No screen coordinates. If the button is exposed by UIA, invoke
-            // it by its semantic name. Otherwise navigate keyboard focus until
-            // the focused control itself is "Kontynuuj".
-            if (!InvokeNamedOrTab(hwnd,
-                new[] { "Kontynuuj", "Continue" }, 12,
-                "przycisk „Kontynuuj”"))
-            {
-                error = "Nie udało się przejść do ekranu hasła Epic Games.";
-                return false;
-            }
-
-            // Wait for the password page instead of assuming a fixed 450 ms
-            // load time. Slow machines simply take longer; fast machines move
-            // on immediately.
-            if (!WaitForPasswordSurfaceReady(hwnd, 12))
+            // Do not assume a fixed load time; wait for the password surface.
+            if (!WaitForPasswordSurfaceReady(hwnd, 15))
             {
                 error = "Epic Games nie załadował ekranu hasła w wyznaczonym czasie.";
                 return false;
             }
 
-            log("Epic Games: ekran hasła jest gotowy.");
+            log("Epic Games: ekran hasła gotowy.");
 
-            AutomationElement passwordEdit = FindEditableElement(hwnd, true, 12);
+            // [Tab] [Tab] -> password
+            if (!PressTabs(2, "fokus hasła"))
+                return Fail(out error, "Nie udało się ustawić fokusu pola hasła Epic Games.");
 
-            if (passwordEdit == null)
-            {
-                log("Epic Games UIA: pole hasła nie jest dostępne. Używam dynamicznego wykrycia pola formularza.");
-
-                if (!TryClickVisualInputField(hwnd, true, "pole hasła"))
-                {
-                    error = "Nie udało się znaleźć pola hasła Epic Games.";
-                    return false;
-                }
-
-                passwordEdit = null;
-                log("Epic Games visual: kliknięto wykryte pole hasła. Kontynuuję bez wymagania, aby WebView raportował fokus przez UIA.");
-            }            else if (!TryFocusTarget(passwordEdit))
-            {
-                error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
-                return false;
-            }
-
-            log("Epic Games UIA: ustawiono fokus pola hasła.");
+            Thread.Sleep(100);
 
             if (!NativeKeyboardInput.TypeText(password, hwnd, log))
-            {
-                error = "Nie udało się wpisać hasła Epic Games.";
-                return false;
-            }
+                return Fail(out error, "Nie udało się wpisać hasła Epic Games.");
 
-            if (!InvokeNamedOrTab(hwnd,
-                new[] { "Zaloguj się", "Zaloguj", "Log in", "Sign in" }, 16,
-                "przycisk „Zaloguj się”"))
-            {
-                error = "Nie udało się zatwierdzić logowania Epic Games.";
-                return false;
-            }
+            // [Tab] [Tab] [Tab] [Tab] [Enter] -> login
+            if (!PressTabs(4, "przejście do przycisku logowania"))
+                return Fail(out error, "Nie udało się przejść do przycisku logowania Epic Games.");
 
-            // Epic may immediately ask to configure 2FA. When that screen is
-            // shown, always choose "Ustaw później" by semantic name/focus,
-            // never by screen coordinates.
-            // Wait briefly for the post-login transition. The 2FA setup page,
-            // when enabled for the account, gets priority and "Ustaw później"
-            // is selected semantically.
-            if (WaitAndInvokeLater2FA(hwnd, 12))
-                return true;
+            Thread.Sleep(100);
+            if (!NativeKeyboardInput.SendEnter(log))
+                return Fail(out error, "Nie udało się zatwierdzić logowania Epic Games.");
+
+            // Epic may display 2FA setup after successful authentication.
+            // Always choose "Ustaw później" semantically if it appears.
+            WaitAndInvokeLater2FA(hwnd, 15);
 
             return true;
+        }
+
+        private bool PressTab(string description)
+        {
+            if (!NativeKeyboardInput.SendTab(log))
+                return false;
+
+            log("Epic Games keyboard: [TAB] -> " + description + ".");
+            Thread.Sleep(100);
+            return true;
+        }
+
+        private bool PressTabs(int count, string description)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (!NativeKeyboardInput.SendTab(log))
+                    return false;
+
+                Thread.Sleep(90);
+            }
+
+            log("Epic Games keyboard: wysłano " + count + "x [TAB] -> " + description + ".");
+            return true;
+        }
+
+        private static bool Fail(out string error, string message)
+        {
+            error = message;
+            return false;
         }
 
         private bool WaitForLoginSurfaceReady(IntPtr hwnd, int seconds)
         {
             DateTime deadline = DateTime.UtcNow.AddSeconds(Math.Max(2, seconds));
-            int visualChecks = 0;
 
             while (DateTime.UtcNow < deadline)
             {
                 hwnd = FindMainWindowHandle();
-                if (hwnd == IntPtr.Zero)
-                {
-                    Thread.Sleep(120);
-                    continue;
-                }
 
-                // Strong semantic signals from the actual login page.
-                if (IsTextVisible(hwnd, "Zaloguj się do Epic Games") ||
-                    IsTextVisible(hwnd, "Adres e-mail") ||
-                    FindNamedElement(hwnd, new[] { "Kontynuuj", "Continue" }) != null)
+                if (hwnd != IntPtr.Zero &&
+                    (IsTextVisible(hwnd, "Zaloguj się do Epic Games") ||
+                     IsTextVisible(hwnd, "Adres e-mail") ||
+                     IsTextVisible(hwnd, "Kontynuuj")))
                 {
-                    log("Epic Games UIA: wykryto gotowy ekran logowania.");
+                    EnsureForeground(hwnd);
                     return true;
                 }
 
-                // WebView accessibility can lag behind rendering. Use the
-                // already implemented DPI-independent visual detector only as
-                // a readiness signal, not as a hardcoded click target.
-                if ((visualChecks++ % 4) == 0 &&
-                    TryDetectVisualBlueButton(hwnd))
-                {
-                    log("Epic Games visual: wykryto gotowy główny przycisk logowania.");
-                    return true;
-                }
-
-                Thread.Sleep(150);
+                // The WebView may temporarily expose no text to UIA. Keep
+                // polling the window instead of sending Tab prematurely.
+                Thread.Sleep(180);
             }
 
             return false;
@@ -209,90 +171,20 @@ namespace PlayniteAccountManager.Services
             while (DateTime.UtcNow < deadline)
             {
                 hwnd = FindMainWindowHandle();
-                if (hwnd == IntPtr.Zero)
-                {
-                    Thread.Sleep(120);
-                    continue;
-                }
 
-                if (IsTextVisible(hwnd, "Hasło") ||
-                    IsTextVisible(hwnd, "Wprowadź hasło") ||
-                    IsTextVisible(hwnd, "Password"))
+                if (hwnd != IntPtr.Zero &&
+                    (IsTextVisible(hwnd, "Hasło") ||
+                     IsTextVisible(hwnd, "Wprowadź hasło") ||
+                     IsTextVisible(hwnd, "Password")))
                 {
+                    EnsureForeground(hwnd);
                     return true;
                 }
 
-                AutomationElement password = FindPasswordElementWithoutFocus(hwnd);
-                if (password != null)
-                    return true;
-
-                Thread.Sleep(150);
+                Thread.Sleep(180);
             }
 
             return false;
-        }
-
-        private static AutomationElement FindPasswordElementWithoutFocus(IntPtr hwnd)
-        {
-            AutomationElement root = AutomationElement.FromHandle(hwnd);
-            if (root == null)
-                return null;
-
-            foreach (AutomationElement e in root.FindAll(
-                TreeScope.Descendants, AutomationCondition.TrueCondition))
-            {
-                try
-                {
-                    if (e.Current.IsOffscreen ||
-                        !e.Current.IsEnabled)
-                        continue;
-
-                    if (e.Current.ControlType == ControlType.Edit &&
-                        e.Current.IsPassword)
-                        return e;
-
-                    string name = e.Current.Name ?? string.Empty;
-                    if (name.IndexOf("Hasło", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                        name.IndexOf("Password", StringComparison.OrdinalIgnoreCase) >= 0)
-                        return e;
-                }
-                catch { }
-            }
-
-            return null;
-        }
-
-        private bool TryDetectVisualBlueButton(IntPtr hwnd)
-        {
-            try
-            {
-                RECT windowRect;
-                if (!GetWindowRect(hwnd, out windowRect))
-                    return false;
-
-                int width = windowRect.Right - windowRect.Left;
-                int height = windowRect.Bottom - windowRect.Top;
-                if (width < 300 || height < 300)
-                    return false;
-
-                using (var bitmap = new Bitmap(width, height, PixelFormat.Format24bppRgb))
-                using (Graphics graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.CopyFromScreen(
-                        windowRect.Left,
-                        windowRect.Top,
-                        0,
-                        0,
-                        new DrawingSize(width, height),
-                        CopyPixelOperation.SourceCopy);
-
-                    return FindLargeEpicBlueButton(bitmap) != Rectangle.Empty;
-                }
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private bool WaitAndInvokeLater2FA(IntPtr hwnd, int seconds)
@@ -875,273 +767,6 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private static AutomationElement FindNamedInvokable(
-            IntPtr hwnd, string[] names)
-        {
-            AutomationElement root = AutomationElement.FromHandle(hwnd);
-            if (root == null)
-                return null;
-
-            foreach (AutomationElement e in root.FindAll(
-                TreeScope.Descendants, AutomationCondition.TrueCondition))
-            {
-                try
-                {
-                    if (e.Current.IsOffscreen || !e.Current.IsEnabled)
-                        continue;
-
-                    if (!ElementNameMatches(e, names))
-                        continue;
-
-                    AutomationElement current = e;
-
-                    // First try the named node itself, then its ancestors.
-                    // This handles Epic WebView text nodes wrapped in clickable
-                    // Custom/Button containers.
-                    for (int i = 0; current != null && i < 8; i++)
-                    {
-                        if (TryInvoke(current))
-                            return current;
-
-                        current = SafeParent(current);
-                    }
-                }
-                catch { }
-            }
-
-            return null;
-        }
-
-        private static bool TryInvoke(AutomationElement element)
-        {
-            try
-            {
-                var invoke = (InvokePattern)element.GetCurrentPattern(
-                    InvokePattern.Pattern);
-
-                invoke.Invoke();
-                return true;
-            }
-            catch { }
-
-            try
-            {
-                var toggle = (TogglePattern)element.GetCurrentPattern(
-                    TogglePattern.Pattern);
-
-                toggle.Toggle();
-                return true;
-            }
-            catch { }
-
-            return false;
-        }
-
-        private AutomationElement FindEditableElement(
-            IntPtr hwnd, bool password, int maxTabs)
-        {
-            AutomationElement root = AutomationElement.FromHandle(hwnd);
-            if (root == null)
-                return null;
-
-            string[] labels = password
-                ? new[] { "Hasło", "Password", "Wprowadź hasło", "Enter password" }
-                : new[] { "Adres e-mail", "E-mail", "Email", "Email address" };
-
-            // Only inspect semantic UIA elements. Do not send Tab here.
-            // Epic's Chromium login page can expose focusable provider controls
-            // without exposing the HTML input itself. Tab traversal therefore
-            // caused the exact behavior seen in testing: e-mail -> Continue ->
-            // Create account -> PlayStation -> Xbox -> Nintendo.
-            foreach (AutomationElement e in root.FindAll(
-                TreeScope.Descendants, AutomationCondition.TrueCondition))
-            {
-                try
-                {
-                    if (e.Current.IsOffscreen || !e.Current.IsEnabled)
-                        continue;
-
-                    string name = e.Current.Name ?? string.Empty;
-
-                    if (!labels.Any(label =>
-                        name.IndexOf(label, StringComparison.OrdinalIgnoreCase) >= 0))
-                        continue;
-
-                    if (TryFocusTarget(e))
-                    {
-                        log("Epic Games UIA: znaleziono pole " +
-                            (password ? "hasła" : "e-mail") +
-                            " po nazwie „" + name + "”.");
-                        return e;
-                    }
-                }
-                catch { }
-            }
-
-            // Second semantic pass: accept real editable/value controls even
-            // when Chromium does not expose a useful localized label.
-            foreach (AutomationElement e in root.FindAll(
-                TreeScope.Descendants, AutomationCondition.TrueCondition))
-            {
-                try
-                {
-                    if (e.Current.IsOffscreen || !e.Current.IsEnabled)
-                        continue;
-
-                    if (!IsLikelyEditable(e, password))
-                        continue;
-
-                    if (TryFocusTarget(e))
-                    {
-                        log("Epic Games UIA: znaleziono edytowalny element pola " +
-                            (password ? "hasła" : "e-mail") + ".");
-                        return e;
-                    }
-                }
-                catch { }
-            }
-
-            return null;
-        }
-
-        private static bool IsLikelyEditable(
-            AutomationElement element, bool password)
-        {
-            try
-            {
-                if (element.Current.IsOffscreen || !element.Current.IsEnabled)
-                    return false;
-
-                if (password)
-                {
-                    try
-                    {
-                        if (element.Current.IsPassword)
-                            return true;
-                    }
-                    catch { }
-                }
-
-                if (element.Current.ControlType == ControlType.Edit)
-                    return true;
-
-                try
-                {
-                    element.GetCurrentPattern(ValuePattern.Pattern);
-                    return !password;
-                }
-                catch { }
-
-                try
-                {
-                    element.GetCurrentPattern(TextPattern.Pattern);
-                    return !password;
-                }
-                catch { }
-
-                string name = element.Current.Name ?? string.Empty;
-                if (password)
-                    return name.IndexOf("Hasło", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                           name.IndexOf("Password", StringComparison.OrdinalIgnoreCase) >= 0;
-
-                return name.IndexOf("E-mail", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                       name.IndexOf("Email", StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static bool TryFocusTarget(AutomationElement element)
-        {
-            try
-            {
-                if (element == null ||
-                    !element.Current.IsEnabled ||
-                    element.Current.IsOffscreen)
-                    return false;
-
-                try
-                {
-                    if (!element.Current.IsKeyboardFocusable)
-                        return TryFocusAncestorOrDescendant(element);
-                }
-                catch { }
-
-                element.SetFocus();
-                Thread.Sleep(60);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static bool TryFocusAncestorOrDescendant(AutomationElement element)
-        {
-            try
-            {
-                AutomationElement current = element;
-
-                for (int i = 0; i < 5 && current != null; i++)
-                {
-                    try
-                    {
-                        if (current.Current.IsEnabled &&
-                            !current.Current.IsOffscreen &&
-                            current.Current.IsKeyboardFocusable)
-                        {
-                            current.SetFocus();
-                            Thread.Sleep(70);
-                            return true;
-                        }
-                    }
-                    catch { }
-
-                    current = SafeParent(current);
-                }
-
-                var children = element.FindAll(
-                    TreeScope.Descendants,
-                    AutomationCondition.TrueCondition);
-
-                foreach (AutomationElement child in children)
-                {
-                    try
-                    {
-                        if (child.Current.IsEnabled &&
-                            !child.Current.IsOffscreen &&
-                            child.Current.IsKeyboardFocusable)
-                        {
-                            child.SetFocus();
-                            Thread.Sleep(70);
-                            return true;
-                        }
-                    }
-                    catch { }
-                }
-            }
-            catch { }
-
-            return false;
-        }
-
-        private static bool SameElement(
-            AutomationElement a, AutomationElement b)
-        {
-            try
-            {
-                return a != null && b != null &&
-                       a.Equals(b);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         private static bool IsTextVisible(IntPtr hwnd, string text)
         {
             AutomationElement root = AutomationElement.FromHandle(hwnd);
@@ -1165,47 +790,6 @@ namespace PlayniteAccountManager.Services
             }
 
             return false;
-        }
-
-        private bool SelectAllAndType(string text, IntPtr hwnd)
-        {
-            try
-            {
-                INPUT[] chord =
-                {
-                    CreateKeyboardInput(VK_CONTROL, false),
-                    CreateKeyboardInput(VK_A, false),
-                    CreateKeyboardInput(VK_A, true),
-                    CreateKeyboardInput(VK_CONTROL, true)
-                };
-
-                uint sent = SendInput(
-                    (uint)chord.Length,
-                    chord,
-                    Marshal.SizeOf(typeof(INPUT)));
-
-                if (sent != chord.Length)
-                    return false;
-
-                Thread.Sleep(60);
-                return NativeKeyboardInput.TypeText(text, hwnd, log);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static AutomationElement SafeParent(AutomationElement element)
-        {
-            try
-            {
-                return TreeWalker.RawViewWalker.GetParent(element);
-            }
-            catch
-            {
-                return null;
-            }
         }
 
         private static IntPtr WaitForMainWindow(int timeoutSeconds)
