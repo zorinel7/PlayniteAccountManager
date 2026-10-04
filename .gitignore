@@ -1,0 +1,29 @@
+# Visual Studio / MSBuild
+.vs/
+obj/
+bin/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+packages/
+*.nupkg
+
+# Build output
+PlayniteAccountManager_*.zip
+
+# Local diagnostics / generated data
+EAApp_UIA_Diagnostic_*.txt
+UbisoftConnect_*.txt
+*.log
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Secrets / credentials
+credentials.dat
+*.secret
+.env
