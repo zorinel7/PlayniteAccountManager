@@ -522,8 +522,5 @@ namespace PlayniteAccountManager.Services
             public uint time;
             public UIntPtr dwExtraInfo;
         }
-
-
-        }
     }
 }
