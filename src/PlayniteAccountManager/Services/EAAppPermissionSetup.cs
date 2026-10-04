@@ -87,7 +87,7 @@ if (Test-Path $eaProgramData) {
 # Existing service permissions are preserved; we append one ACE.
 $service = 'EABackgroundService'
 $sdLines = & sc.exe sdshow $service 2>$null
-$sd = ($sdLines | Where-Object { $_ -match 'D:' } | Select-Object -First 1)
+$sd = (($sdLines | Where-Object { $_ -match 'D:' }) -join '').Trim()
 if ([string]::IsNullOrWhiteSpace($sd)) {
     throw 'Nie udało się odczytać zabezpieczeń usługi EABackgroundService.'
 }
