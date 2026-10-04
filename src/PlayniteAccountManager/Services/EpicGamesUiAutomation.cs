@@ -44,13 +44,30 @@ namespace PlayniteAccountManager.Services
 
             // First page: locate the actual editable control through UIA.
             AutomationElement email = FindEditableElement(hwnd, false, 8);
+
             if (email == null)
             {
-                error = "Nie znaleziono pola e-mail Epic Games.";
-                return false;
-            }
+                log("Epic Games UIA: pole e-mail nie jest bezpośrednio dostępne. Używam semantycznego przycisku „Kontynuuj” jako punktu odniesienia i klikam jego aktualny BoundingRectangle.");
 
-            if (!TryFocusTarget(email))
+                AutomationElement continueButton = FindNamedElement(
+                    hwnd, new[] { "Kontynuuj", "Continue" });
+
+                if (continueButton == null ||
+                    !ClickElementCenter(continueButton, "przycisk „Kontynuuj”"))
+                {
+                    error = "Nie znaleziono pola e-mail Epic Games ani przycisku „Kontynuuj”.";
+                    return false;
+                }
+
+                if (!FocusPreviousEditable(hwnd, false, 8))
+                {
+                    error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
+                    return false;
+                }
+
+                email = AutomationElement.FocusedElement;
+            }
+            else if (!TryFocusTarget(email))
             {
                 error = "Nie udało się ustawić fokusu pola e-mail Epic Games.";
                 return false;
@@ -78,9 +95,32 @@ namespace PlayniteAccountManager.Services
             Thread.Sleep(450);
 
             AutomationElement passwordEdit = FindEditableElement(hwnd, true, 12);
-            if (passwordEdit == null || !TryFocusTarget(passwordEdit))
+
+            if (passwordEdit == null)
             {
-                error = "Nie znaleziono pola hasła Epic Games.";
+                log("Epic Games UIA: pole hasła nie jest bezpośrednio dostępne. Używam semantycznego przycisku „Zaloguj się” jako punktu odniesienia.");
+
+                AutomationElement loginButtonAnchor = FindNamedElement(
+                    hwnd, new[] { "Zaloguj się", "Zaloguj", "Log in", "Sign in" });
+
+                if (loginButtonAnchor == null ||
+                    !ClickElementCenter(loginButtonAnchor, "przycisk „Zaloguj się”"))
+                {
+                    error = "Nie znaleziono pola hasła Epic Games ani przycisku logowania.";
+                    return false;
+                }
+
+                if (!FocusPreviousEditable(hwnd, true, 8))
+                {
+                    error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
+                    return false;
+                }
+
+                passwordEdit = AutomationElement.FocusedElement;
+            }
+            else if (!TryFocusTarget(passwordEdit))
+            {
+                error = "Nie udało się ustawić fokusu pola hasła Epic Games.";
                 return false;
             }
 
@@ -141,11 +181,22 @@ namespace PlayniteAccountManager.Services
         private bool InvokeNamedOrTab(
             IntPtr hwnd, string[] names, int maxTabs, string description)
         {
-            AutomationElement element = FindNamedInvokable(hwnd, names);
-            if (element != null && TryInvoke(element))
+            AutomationElement element = FindNamedElement(hwnd, names);
+
+            if (element != null)
             {
-                log("Epic Games UIA: wykonano " + description + ".");
-                return true;
+                if (TryInvoke(element))
+                {
+                    log("Epic Games UIA: wykonano " + description + ".");
+                    return true;
+                }
+
+                // UIA found the exact semantic element but its WebView does not
+                // expose InvokePattern. Use the element's CURRENT bounding
+                // rectangle. This is dynamic screen geometry, not a hardcoded
+                // coordinate, so DPI/resolution/window position do not matter.
+                if (ClickElementCenter(element, description))
+                    return true;
             }
 
             for (int i = 0; i < maxTabs; i++)
@@ -165,8 +216,6 @@ namespace PlayniteAccountManager.Services
                         return true;
                     }
 
-                    // Some WebView controls do not expose InvokePattern but do
-                    // respond to Enter when they have keyboard focus.
                     if (NativeKeyboardInput.SendEnter(log))
                     {
                         log("Epic Games keyboard: wykonano " + description +
@@ -181,12 +230,134 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(80);
             }
 
-            // One final semantic UIA scan after the tab traversal.
-            element = FindNamedInvokable(hwnd, names);
+            element = FindNamedElement(hwnd, names);
             if (element != null && TryInvoke(element))
             {
                 log("Epic Games UIA: wykonano " + description + " po ponownym skanowaniu.");
                 return true;
+            }
+
+            return element != null && ClickElementCenter(element, description);
+        }
+
+        private static AutomationElement FindNamedElement(
+            IntPtr hwnd, string[] names)
+        {
+            AutomationElement root = AutomationElement.FromHandle(hwnd);
+            if (root == null)
+                return null;
+
+            foreach (AutomationElement e in root.FindAll(
+                TreeScope.Descendants, AutomationCondition.TrueCondition))
+            {
+                try
+                {
+                    if (e.Current.IsOffscreen || !e.Current.IsEnabled)
+                        continue;
+
+                    if (ElementNameMatches(e, names))
+                        return e;
+                }
+                catch { }
+            }
+
+            return null;
+        }
+
+        private bool ClickElementCenter(
+            AutomationElement element, string description)
+        {
+            try
+            {
+                Rect rect = element.Current.BoundingRectangle;
+
+                if (rect.Width <= 0 || rect.Height <= 0)
+                {
+                    // The named element can be a text node with no geometry;
+                    // walk up to the nearest visible ancestor with a real rect.
+                    AutomationElement current = SafeParent(element);
+
+                    for (int i = 0; current != null && i < 8; i++)
+                    {
+                        try
+                        {
+                            rect = current.Current.BoundingRectangle;
+                            if (rect.Width > 0 && rect.Height > 0 &&
+                                !current.Current.IsOffscreen &&
+                                current.Current.IsEnabled)
+                            {
+                                element = current;
+                                break;
+                            }
+                        }
+                        catch { }
+
+                        current = SafeParent(current);
+                    }
+                }
+
+                if (rect.Width <= 0 || rect.Height <= 0)
+                    return false;
+
+                int x = (int)Math.Round(rect.Left + rect.Width / 2.0);
+                int y = (int)Math.Round(rect.Top + rect.Height / 2.0);
+
+                if (SetCursorPos(x, y) == false)
+                    return false;
+
+                Thread.Sleep(35);
+
+                INPUT[] inputs =
+                {
+                    CreateMouseInput(0x0002),
+                    CreateMouseInput(0x0004)
+                };
+
+                uint sent = SendInput(
+                    (uint)inputs.Length,
+                    inputs,
+                    Marshal.SizeOf(typeof(INPUT)));
+
+                if (sent != inputs.Length)
+                    return false;
+
+                Thread.Sleep(120);
+                log("Epic Games hybrid click: " + description +
+                    " @ UIA rect (" + Math.Round(rect.Left) + "," +
+                    Math.Round(rect.Top) + "," +
+                    Math.Round(rect.Width) + "," +
+                    Math.Round(rect.Height) + ").");
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private bool FocusPreviousEditable(
+            IntPtr hwnd, bool password, int maxTabs)
+        {
+            for (int i = 0; i < maxTabs; i++)
+            {
+                if (!NativeKeyboardInput.SendShiftTab(log: null))
+                    return false;
+
+                Thread.Sleep(80);
+
+                AutomationElement focused = null;
+                try { focused = AutomationElement.FocusedElement; } catch { }
+
+                if (focused != null && IsLikelyEditable(focused, password))
+                {
+                    try
+                    {
+                        focused.SetFocus();
+                    }
+                    catch { }
+
+                    return true;
+                }
             }
 
             return false;
@@ -653,6 +824,21 @@ namespace PlayniteAccountManager.Services
             }
         }
 
+        private static INPUT CreateMouseInput(uint flags)
+        {
+            return new INPUT
+            {
+                type = 0,
+                u = new InputUnion
+                {
+                    mi = new MOUSEINPUT
+                    {
+                        dwFlags = flags
+                    }
+                }
+            };
+        }
+
         private static INPUT CreateKeyboardInput(ushort virtualKey, bool keyUp)
         {
             return new INPUT
@@ -685,6 +871,9 @@ namespace PlayniteAccountManager.Services
         [DllImport("user32.dll")]
         private static extern bool IsWindowVisible(IntPtr hwnd);
 
+        [DllImport("user32.dll")]
+        private static extern bool SetCursorPos(int x, int y);
+
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint SendInput(
             uint nInputs, [In] INPUT[] pInputs, int cbSize);
@@ -701,6 +890,20 @@ namespace PlayniteAccountManager.Services
         {
             [FieldOffset(0)]
             public KEYBDINPUT ki;
+
+            [FieldOffset(0)]
+            public MOUSEINPUT mi;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MOUSEINPUT
+        {
+            public int dx;
+            public int dy;
+            public uint mouseData;
+            public uint dwFlags;
+            public uint time;
+            public UIntPtr dwExtraInfo;
         }
 
         [StructLayout(LayoutKind.Sequential)]
