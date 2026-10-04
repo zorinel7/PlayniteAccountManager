@@ -89,36 +89,14 @@ namespace PlayniteAccountManager
             }
         }
 
-        private void SetupEAWithoutAdministrator()
+        internal bool IsEAHelperReady()
         {
-            try
-            {
-                string error;
-                bool ok = EAAppPermissionSetup.RunInteractive(
-                    message => logger.Info(message),
-                    out error);
+            return ea.IsNonAdminReady();
+        }
 
-                if (ok)
-                {
-                    PlayniteApi.Notifications.Add(new NotificationMessage(
-                        "PlayniteAccountManager",
-                        "EA App skonfigurowana. Playnite może teraz działać bez administratora.",
-                        NotificationType.Info));
-                }
-                else if (!string.IsNullOrWhiteSpace(error))
-                {
-                    PlayniteApi.Dialogs.ShowErrorMessage(
-                        error,
-                        "Menadżer Kont — EA App");
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "Nie udało się uruchomić konfiguratora EA App.");
-                PlayniteApi.Dialogs.ShowErrorMessage(
-                    "Nie udało się skonfigurować EA App.\n\n" + ex.Message,
-                    "Menadżer Kont — EA App");
-            }
+        internal bool EnsureEAHelper(out string error)
+        {
+            return ea.EnsureNonAdminReady(out error);
         }
 
         private void OpenManager(IEnumerable<Game> contextGames)
