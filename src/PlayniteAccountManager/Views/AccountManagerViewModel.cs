@@ -154,8 +154,6 @@ namespace PlayniteAccountManager.Views
                 store.ClearPrimaryEAAccount(record.Id);
             else if (wasPrimary && record.Launcher == LauncherType.EpicGames && !record.IsPrimary)
                 store.ClearPrimaryEpicAccount(record.Id);
-            else if (wasPrimary && record.Launcher == LauncherType.EpicGames && !record.IsPrimary)
-                store.ClearPrimaryEpicAccount(record.Id);
 
             if (!string.IsNullOrEmpty(EditPassword))
                 store.Credentials.Set(record.Id, EditPassword);
