@@ -916,6 +916,72 @@ namespace PlayniteAccountManager.Services
             }
         }
 
+        private bool NativeClickRelative(IntPtr hwnd, double xPct, double yPct, string what)
+        {
+            RECT rect;
+            if (!GetWindowRect(hwnd, out rect))
+                return false;
+
+            int x = rect.Left + (int)Math.Round((rect.Right - rect.Left) * xPct);
+            int y = rect.Top + (int)Math.Round((rect.Bottom - rect.Top) * yPct);
+            return NativeClickScreen(x, y, what);
+        }
+
+        private bool CancelOfflineConfirmationIfPresent(IntPtr hwnd)
+        {
+            try
+            {
+                AutomationElement root = AutomationElement.FromHandle(hwnd);
+                if (root == null)
+                    return false;
+
+                bool confirmation = false;
+                AutomationElement cancel = null;
+
+                var all = root.FindAll(TreeScope.Descendants, AutomationCondition.TrueCondition);
+                foreach (AutomationElement e in all)
+                {
+                    try
+                    {
+                        if (e.Current.IsOffscreen || !e.Current.IsEnabled)
+                            continue;
+
+                        string name = e.Current.Name ?? string.Empty;
+
+                        if (name.IndexOf("Czy na pewno chcesz przejść w tryb offline", StringComparison.OrdinalIgnoreCase) >= 0)
+                            confirmation = true;
+
+                        if (name.Equals("ANULUJ", StringComparison.OrdinalIgnoreCase) ||
+                            name.Equals("Anuluj", StringComparison.OrdinalIgnoreCase) ||
+                            name.Equals("CANCEL", StringComparison.OrdinalIgnoreCase))
+                            cancel = e;
+                    }
+                    catch { }
+                }
+
+                if (!confirmation)
+                    return false;
+
+                if (cancel != null && Invoke(cancel))
+                {
+                    log("EA UIA: wykryto dialog trybu offline i wykonano „ANULUJ”.");
+                    return true;
+                }
+
+                // Escape is safer than another blind coordinate: it cancels
+                // this modal dialog without changing the EA session.
+                if (NativeKeyboardInput.Key(VK_ESCAPE, log))
+                {
+                    Thread.Sleep(100);
+                    log("EA keyboard: anulowano dialog trybu offline przez Esc.");
+                    return true;
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
         private bool NativeClickMenuLogoutAt(IntPtr hwnd, double menuX, double menuY)
         {
             RECT rect;
@@ -931,7 +997,7 @@ namespace PlayniteAccountManager.Services
 
         private bool NativeClickMenuLogout(IntPtr hwnd)
         {
-            return NativeClickMenuLogoutAt(hwnd, 44.0, 255.0);
+            return NativeClickMenuLogoutAt(hwnd, 95.0, 590.0);
         }
 
         private bool NativeClickScreen(int x, int y, string what)
