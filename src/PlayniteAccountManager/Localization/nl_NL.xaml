@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">Accountbeheer</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Beheer launcheraccounts en wijs ze toe aan games</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ACCOUNT TOEVOEGEN</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">OPGESLAGEN ACCOUNTS</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nieuw account</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Accountnaam</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Login / e-mail</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">Wachtwoord</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">ACCOUNT OPSLAAN</sys:String>
+</ResourceDictionary>
