@@ -33,7 +33,7 @@ namespace PlayniteAccountManager.Services
                 using (var process = Process.Start(new ProcessStartInfo
                 {
                     FileName = "schtasks.exe",
-                    Arguments = "/Query /TN "" + TaskName + """,
+                    Arguments = "/Query /TN \"" + TaskName + "\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
@@ -84,7 +84,7 @@ Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Pr
                 using (var process = Process.Start(new ProcessStartInfo
                 {
                     FileName = "powershell.exe",
-                    Arguments = "-NoProfile -ExecutionPolicy Bypass -File "" + script + """,
+                    Arguments = "-NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"",
                     UseShellExecute = true,
                     Verb = "runas",
                     WindowStyle = ProcessWindowStyle.Hidden
@@ -161,7 +161,7 @@ Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Pr
                 using (var process = Process.Start(new ProcessStartInfo
                 {
                     FileName = "schtasks.exe",
-                    Arguments = "/Run /TN "" + TaskName + """,
+                    Arguments = "/Run /TN \"" + TaskName + "\"",
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
