@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">खाते व्यवस्थापक</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">लाँचर खाती व्यवस्थापित करा आणि ती गेम्सना नियुक्त करा</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  खाते जोडा</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">जतन केलेली खाती</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">नवीन खाते</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">लाँचर</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">खात्याचे नाव</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">लॉगिन / ई-मेल</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">पासवर्ड</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">खाते जतन करा</sys:String>
+</ResourceDictionary>
