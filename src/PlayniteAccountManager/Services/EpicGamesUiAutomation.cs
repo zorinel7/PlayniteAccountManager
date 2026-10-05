@@ -302,6 +302,9 @@ namespace PlayniteAccountManager.Services
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr lpdwProcessId);
 
         [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
         [DllImport("kernel32.dll")]
