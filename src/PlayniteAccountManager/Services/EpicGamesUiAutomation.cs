@@ -33,33 +33,36 @@ namespace PlayniteAccountManager.Services
 
             try
             {
+                // Match the supplied AHK closely: wait 15 seconds after launching
+                // Epic, then operate on the foreground window.
                 log("Epic INPUT: odpowiednik AHK Sleep 15000 — czekam 15 sekund na launcher.");
                 Thread.Sleep(15000);
 
-                IntPtr hwnd = WaitForMainWindow(10);
+                IntPtr hwnd = GetEpicForegroundWindow();
                 if (hwnd == IntPtr.Zero)
                 {
-                    error = "Epic Games Launcher nie udostępnił głównego okna w wymaganym czasie.";
+                    error = "Nie udało się znaleźć aktywnego okna Epic Games Launcher po 15 sekundach.";
                     return false;
                 }
 
+                log("Epic INPUT: aktywne okno należy do Epic Games Launcher.");
                 if (!EnsureWindowForeground(hwnd))
                 {
                     error = "Nie udało się aktywować okna Epic Games Launcher. Przerywam automatyczne wpisywanie danych.";
                     return false;
                 }
 
-                // User's AHK:
-                // Send, {Tab}
-                // Send, {Tab}
-                log("Epic INPUT: AHK krok 1/7 — TAB, TAB.");
-                SendTab();
-                SendTab();
+                // Exact sequence from the user's AHK script.
+                log("Epic INPUT: AHK krok 1 — TAB, TAB.");
+                if (!SendTab() || !SendTab())
+                {
+                    error = "Nie udało się wykonać początkowej sekwencji TAB w Epic Games Launcher.";
+                    return false;
+                }
 
                 Thread.Sleep(2000);
 
-                // Send, username
-                log("Epic INPUT: AHK krok 2/7 — wpisuję login.");
+                log("Epic INPUT: AHK krok 2 — wpisuję login.");
                 if (!NativeKeyboardInput.TypeText(username, hwnd, log))
                 {
                     error = "Nie udało się wpisać loginu Epic Games.";
@@ -67,48 +70,45 @@ namespace PlayniteAccountManager.Services
                 }
 
                 Thread.Sleep(300);
-                SendTab();
+                if (!SendTab()) return Fail("Nie udało się przejść do kolejnego pola Epic Games.", out error);
                 Thread.Sleep(300);
-                SendTab();
+                if (!SendTab()) return Fail("Nie udało się przejść do kolejnego pola Epic Games.", out error);
                 Thread.Sleep(300);
 
-                // Send, {Enter}
-                log("Epic INPUT: AHK krok 3/7 — ENTER.");
-                NativeKeyboardInput.SendEnter(log);
+                log("Epic INPUT: AHK krok 3 — ENTER.");
+                if (!NativeKeyboardInput.SendEnter(log))
+                    return Fail("Nie udało się wysłać ENTER w Epic Games Launcher.", out error);
 
-                // Sleep, 10000
-                log("Epic INPUT: AHK krok 4/7 — czekam 10 sekund po zatwierdzeniu loginu.");
+                log("Epic INPUT: AHK krok 4 — czekam 10 sekund.");
                 Thread.Sleep(10000);
 
-                // Send, {Tab} x3
-                log("Epic INPUT: AHK krok 5/7 — TAB, TAB, TAB.");
-                SendTab();
+                log("Epic INPUT: AHK krok 5 — TAB, TAB, TAB.");
+                if (!SendTab()) return Fail("Nie udało się wykonać TAB #1 po loginie Epic Games.", out error);
                 Thread.Sleep(300);
-                SendTab();
+                if (!SendTab()) return Fail("Nie udało się wykonać TAB #2 po loginie Epic Games.", out error);
                 Thread.Sleep(300);
-                SendTab();
+                if (!SendTab()) return Fail("Nie udało się wykonać TAB #3 po loginie Epic Games.", out error);
                 Thread.Sleep(300);
 
-                // Send, password
-                log("Epic INPUT: AHK krok 6/7 — wpisuję hasło.");
+                log("Epic INPUT: AHK krok 6 — wpisuję hasło.");
                 if (!NativeKeyboardInput.TypeText(password, hwnd, log))
                 {
                     error = "Nie udało się wpisać hasła Epic Games.";
                     return false;
                 }
 
-                // Send, {Tab} x4
-                SendTab();
                 Thread.Sleep(300);
-                SendTab();
+                log("Epic INPUT: AHK — TAB, TAB, TAB, TAB.");
+                if (!SendTab()) return Fail("Nie udało się wykonać TAB #1 po haśle Epic Games.", out error);
                 Thread.Sleep(300);
-                SendTab();
+                if (!SendTab()) return Fail("Nie udało się wykonać TAB #2 po haśle Epic Games.", out error);
                 Thread.Sleep(300);
-                SendTab();
+                if (!SendTab()) return Fail("Nie udało się wykonać TAB #3 po haśle Epic Games.", out error);
+                Thread.Sleep(300);
+                if (!SendTab()) return Fail("Nie udało się wykonać TAB #4 po haśle Epic Games.", out error);
                 Thread.Sleep(300);
 
-                // Send, {Enter}
-                log("Epic INPUT: AHK krok 7/7 — ENTER.");
+                log("Epic INPUT: AHK krok 7 — ENTER.");
                 if (!NativeKeyboardInput.SendEnter(log))
                 {
                     error = "Nie udało się wysłać końcowego ENTER w Epic Games Launcher.";
@@ -122,6 +122,53 @@ namespace PlayniteAccountManager.Services
             catch (Exception ex)
             {
                 error = "Błąd automatycznego logowania Epic Games: " + ex.Message;
+                return false;
+            }
+        }
+
+        private bool Fail(string message, out string error)
+        {
+            error = message;
+            return false;
+        }
+
+        private IntPtr GetEpicForegroundWindow()
+        {
+            IntPtr foreground = GetForegroundWindow();
+            if (foreground != IntPtr.Zero && IsWindowOwnedByEpic(foreground))
+                return foreground;
+
+            IntPtr main = FindMainWindowHandle();
+            if (main != IntPtr.Zero)
+            {
+                EnsureWindowForeground(main);
+                if (IsWindowOwnedByEpic(main))
+                    return main;
+            }
+
+            log("Epic INPUT: aktywne okno nie należy do Epic Games Launcher.");
+            return IntPtr.Zero;
+        }
+
+        private static bool IsWindowOwnedByEpic(IntPtr hwnd)
+        {
+            try
+            {
+                uint pid;
+                GetWindowThreadProcessId(hwnd, out pid);
+                if (pid == 0)
+                    return false;
+
+                using (Process process = Process.GetProcessById((int)pid))
+                {
+                    return string.Equals(
+                        process.ProcessName,
+                        MainProcessName,
+                        StringComparison.OrdinalIgnoreCase);
+                }
+            }
+            catch
+            {
                 return false;
             }
         }
@@ -253,6 +300,9 @@ namespace PlayniteAccountManager.Services
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr lpdwProcessId);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         [DllImport("user32.dll", SetLastError = true)]
         private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);

@@ -195,13 +195,19 @@ namespace PlayniteAccountManager
                     (account.Launcher == LauncherType.EpicGames &&
                      account.EpicLoginMode == EpicLoginMode.Manual);
 
-                bool runAssignedFlow = assignment.AutoLogin || manualLauncher;
+                bool automaticEpic =
+                    account.Launcher == LauncherType.EpicGames &&
+                    account.EpicLoginMode == EpicLoginMode.Automatic;
+
+                bool runAssignedFlow =
+                    assignment.AutoLogin || manualLauncher || automaticEpic;
 
                 if (runAssignedFlow)
                 {
                     if (account.Launcher != LauncherType.UbisoftConnect &&
                         account.Launcher != LauncherType.Steam &&
-                        !manualLauncher)
+                        !manualLauncher &&
+                        !automaticEpic)
                         return;
 
                     logger.Info(account.Launcher.GetDisplayName() +
