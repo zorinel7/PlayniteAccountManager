@@ -41,69 +41,6 @@ namespace PlayniteAccountManager.Services
         }
 
 
-        public AccountRecord EnsurePrimaryEpicAccount()
-        {
-            var primary = GetPrimaryEpicAccount();
-            if (primary != null)
-                return primary;
-
-            var firstEpic = settings.Accounts.FirstOrDefault(x => x.Launcher == LauncherType.EpicGames);
-            if (firstEpic != null)
-            {
-                firstEpic.IsPrimary = true;
-                Save();
-                return firstEpic;
-            }
-
-            return null;
-        }
-
-        public void SetPrimaryEpicAccount(Guid accountId)
-        {
-            foreach (var account in settings.Accounts.Where(x => x.Launcher == LauncherType.EpicGames))
-                account.IsPrimary = account.Id == accountId;
-            Save();
-        }
-
-        public void ClearPrimaryEpicAccount(Guid accountId)
-        {
-            var account = GetAccount(accountId);
-            if (account != null && account.Launcher == LauncherType.EpicGames)
-                account.IsPrimary = false;
-            Save();
-        }
-
-        public AccountRecord EnsurePrimaryEAAccount()
-        {
-            var primary = GetPrimaryEAAccount();
-            if (primary != null)
-                return primary;
-
-            var firstEa = settings.Accounts.FirstOrDefault(x => x.Launcher == LauncherType.EAApp);
-            if (firstEa != null)
-            {
-                firstEa.IsPrimary = true;
-                Save();
-                return firstEa;
-            }
-
-            return null;
-        }
-
-        public void SetPrimaryEAAccount(Guid accountId)
-        {
-            foreach (var account in settings.Accounts.Where(x => x.Launcher == LauncherType.EAApp))
-                account.IsPrimary = account.Id == accountId;
-            Save();
-        }
-
-        public void ClearPrimaryEAAccount(Guid accountId)
-        {
-            var account = GetAccount(accountId);
-            if (account != null && account.Launcher == LauncherType.EAApp)
-                account.IsPrimary = false;
-            Save();
-        }
         public void SetPrimarySteamAccount(Guid accountId)
         {
             foreach (var account in settings.Accounts.Where(x => x.Launcher == LauncherType.Steam))
