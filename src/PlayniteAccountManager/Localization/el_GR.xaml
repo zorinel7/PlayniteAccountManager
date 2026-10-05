@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Διαχειριστής λογαριασμών</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Διαχειριστείτε λογαριασμούς launcher και αντιστοιχίστε τους σε παιχνίδια</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ΠΡΟΣΘΗΚΗ ΛΟΓΑΡΙΑΣΜΟΥ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">ΑΠΟΘΗΚΕΥΜΕΝΟΙ ΛΟΓΑΡΙΑΣΜΟΙ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Νέος λογαριασμός</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Όνομα λογαριασμού</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Σύνδεση / e-mail</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Κωδικός πρόσβασης</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">ΑΠΟΘΗΚΕΥΣΗ ΛΟΓΑΡΙΑΣΜΟΥ</sys:String>
+</ResourceDictionary>

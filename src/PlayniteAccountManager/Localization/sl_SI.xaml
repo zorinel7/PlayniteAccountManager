@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">Upravitelj računov</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Upravljajte račune zaganjalnikov in jih dodeljujte igram</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  DODAJ RAČUN</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">SHRANJENI RAČUNI</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nov račun</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Zaganjalnik</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Ime računa</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Prijava / e-pošta</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">Geslo</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">SHRANI RAČUN</sys:String>
+</ResourceDictionary>

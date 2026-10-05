@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">Správca účtov</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Spravujte účty launcherov a priraďujte ich hrám</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  PRIDAŤ ÚČET</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">ULOŽENÉ ÚČTY</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nový účet</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Názov účtu</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Prihlásenie / e-mail</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">Heslo</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">ULOŽIŤ ÚČET</sys:String>
+</ResourceDictionary>

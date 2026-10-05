@@ -43,7 +43,7 @@ namespace PlayniteAccountManager
             yield return new MainMenuItem
             {
                 MenuSection = "@",
-                Description = "Menadżer Kont",
+                Description = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuTitle"),
                 Action = _ => OpenManager(PlayniteApi.MainView.SelectedGames)
             };
 
@@ -57,7 +57,7 @@ namespace PlayniteAccountManager
             yield return new GameMenuItem
             {
                 MenuSection = "Menadżer Kont",
-                Description = "Przypisz konto",
+                Description = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuAssign"),
                 Action = _ => OpenManager(args.Games)
             };
 
@@ -71,8 +71,8 @@ namespace PlayniteAccountManager
                     {
                         MenuSection = "Menadżer Kont",
                         Description = account == null
-                            ? "Usuń przypisanie konta"
-                            : "Usuń przypisanie: " + account.Name,
+                            ? ResourceProvider.GetString("LOCPlayniteAccountManagerMenuUnassign")
+                            : string.Format(ResourceProvider.GetString("LOCPlayniteAccountManagerMenuUnassignNamed"), account.Name),
                         Action = _ =>
                         {
                             Store.ClearAssignment(args.Games[0].Id);

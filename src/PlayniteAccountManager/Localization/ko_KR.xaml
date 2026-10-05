@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">계정 관리자</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">런처 계정을 관리하고 게임에 할당합니다</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  계정 추가</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">저장된 계정</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">새 계정</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">런처</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">계정 이름</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">로그인 / 이메일</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">비밀번호</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">계정 저장</sys:String>
+</ResourceDictionary>

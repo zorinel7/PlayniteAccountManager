@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">帳戶管理員</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">管理啟動器帳戶並將其指派給遊戲</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  新增帳戶</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">已儲存的帳戶</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">新帳戶</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">啟動器</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">帳戶名稱</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">登入 / 電子郵件</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">密碼</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">儲存帳戶</sys:String>
+</ResourceDictionary>

@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
 
         <TextBlock x:Name="TitleText"
-                   Text="Logowanie"
+                   Text="{DynamicResource LOCPlayniteAccountManagerLoginTitleFallback}"
                    FontSize="24"
                    FontWeight="SemiBold"
                    Foreground="#F4F4F4"/>
@@ -36,7 +36,7 @@
                 CornerRadius="10"
                 Padding="14">
             <StackPanel>
-                <TextBlock Text="Login / e-mail"
+                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerLoginEmail}"
                            FontSize="11"
                            Foreground="#AAAAAA"
                            Margin="0,0,0,5"/>
@@ -50,9 +50,9 @@
                          BorderThickness="1.5"
                          Padding="10,7"
                          MouseLeftButtonUp="LoginBox_MouseLeftButtonUp"
-                         ToolTip="Kliknij, aby skopiować login"/>
+                         ToolTip="{DynamicResource LOCPlayniteAccountManagerCopyLoginTooltip}"/>
 
-                <TextBlock Text="Hasło"
+                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerPassword}"
                            FontSize="11"
                            Foreground="#AAAAAA"
                            Margin="0,14,0,5"/>
@@ -66,7 +66,7 @@
                          BorderThickness="1.5"
                          Padding="10,7"
                          MouseLeftButtonUp="PasswordBox_MouseLeftButtonUp"
-                         ToolTip="Kliknij, aby skopiować hasło"/>
+                         ToolTip="{DynamicResource LOCPlayniteAccountManagerCopyPasswordTooltip}"/>
             </StackPanel>
         </Border>
 
@@ -75,7 +75,7 @@
                    FontSize="11"
                    Foreground="#9B9B9B"
                    TextWrapping="Wrap"
-                   Text="Hasło jest ukryte na ekranie. Kliknij login lub hasło, aby skopiować je do schowka. Następnie w launcherze użyj Ctrl+V i zaloguj się ręcznie."/>
+                   Text="{DynamicResource LOCPlayniteAccountManagerLoginInstruction}"/>
 
         <Border Grid.Row="8"
                 Background="#151515"
@@ -84,7 +84,7 @@
                 CornerRadius="8"
                 Padding="11">
             <TextBlock x:Name="StatusText"
-                       Text="Launcher został uruchomiony. Zaloguj się ręcznie."
+                       Text="{DynamicResource LOCPlayniteAccountManagerLauncherStarted}"
                        FontSize="11"
                        Foreground="#BDBDBD"
                        TextWrapping="Wrap"/>
@@ -95,13 +95,13 @@
                     HorizontalAlignment="Right"
                     Margin="0,16,0,0">
             <Button x:Name="CancelButton"
-                    Content="ANULUJ START"
+                    Content="{DynamicResource LOCPlayniteAccountManagerCancelStart}"
                     MinWidth="120"
                     Margin="0,0,8,0"
                     Padding="12,8"
                     Click="CancelButton_Click"/>
             <Button x:Name="DoneButton"
-                    Content="GOTOWE — URUCHOM GRĘ"
+                    Content="{DynamicResource LOCPlayniteAccountManagerDoneLaunch}"
                     MinWidth="190"
                     Padding="12,8"
                     FontWeight="SemiBold"

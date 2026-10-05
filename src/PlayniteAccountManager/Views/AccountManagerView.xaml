@@ -283,10 +283,10 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="Menadżer Kont" FontSize="25" FontWeight="SemiBold" Foreground="#F4F4F4"/>
-                <TextBlock Text="Zarządzaj kontami launcherów i przypisuj je do gier" Margin="0,4,0,0" FontSize="12" Foreground="#9B9B9B"/>
+                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerTitle}" FontSize="25" FontWeight="SemiBold" Foreground="#F4F4F4"/>
+                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerSubtitle}" Margin="0,4,0,0" FontSize="12" Foreground="#9B9B9B"/>
             </StackPanel>
-            <Button Grid.Column="1" x:Name="NewAccountButton" Content="＋  DODAJ KONTO"
+            <Button Grid.Column="1" x:Name="NewAccountButton" Content="{DynamicResource LOCPlayniteAccountManagerAddAccount}"
                     Style="{StaticResource PrimaryButton}" MinWidth="165" Click="NewAccountButton_Click"/>
         </Grid>
 
@@ -307,7 +307,7 @@
                         <RowDefinition Height="12"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="ZAPISANE KONTA" FontSize="12" Foreground="#D7D7D7" FontWeight="SemiBold"/>
+                    <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerSavedAccounts}" FontSize="12" Foreground="#D7D7D7" FontWeight="SemiBold"/>
                     <Grid Grid.Row="2">
                         <ListBox x:Name="AccountsList"
                                  ItemsSource="{Binding Accounts}"
@@ -352,7 +352,7 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                         <TextBlock x:Name="EmptyAccountsText"
-                                   Text="Brak zapisanych kont.&#x0a;&#x0a;Kliknij „DODAJ KONTO”, aby dodać pierwsze konto."
+                                   Text="{DynamicResource LOCPlayniteAccountManagerNoSavedAccounts}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
                                    TextWrapping="Wrap" Width="220" FontSize="12" Foreground="#7C7C7C" IsHitTestVisible="False" Visibility="Collapsed"/>
                     </Grid>
@@ -381,11 +381,11 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <TextBlock x:Name="EditorStatusText" Grid.Row="0" Text="Nowe konto"
+                    <TextBlock x:Name="EditorStatusText" Grid.Row="0" Text="{DynamicResource LOCPlayniteAccountManagerNewAccount}"
                                FontSize="24" FontWeight="SemiBold" Foreground="#F4F4F4"/>
 
                     <StackPanel Grid.Row="2">
-                        <TextBlock Text="Launcher" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerLauncher}" Style="{StaticResource FieldLabel}"/>
                         <ComboBox x:Name="LauncherCombo" Style="{StaticResource LauncherComboBox}" ItemsSource="{Binding Launchers}"
                                   SelectedValuePath="Value" SelectedValue="{Binding EditLauncher, Mode=TwoWay}">
                             <ComboBox.ItemTemplate>
@@ -397,19 +397,19 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="4">
-                        <TextBlock Text="Nazwa konta" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerAccountName}" Style="{StaticResource FieldLabel}"/>
                         <TextBox x:Name="NameTextBox" Text="{Binding EditName, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="6">
-                        <TextBlock Text="Login / e-mail" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerLoginEmail}" Style="{StaticResource FieldLabel}"/>
                         <TextBox x:Name="UserNameTextBox" Text="{Binding EditUserName, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Row="8">
-                        <TextBlock Text="Hasło" Style="{StaticResource FieldLabel}"/>
+                        <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerPassword}" Style="{StaticResource FieldLabel}"/>
                         <PasswordBox x:Name="PasswordBox" PasswordChanged="PasswordBox_PasswordChanged"/>
-                        <TextBlock Text="Przy edycji pozostaw puste, aby zachować obecne hasło."
+                        <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerKeepPassword}"
                                    FontSize="11" Foreground="#777777" Margin="2,5,2,0" TextWrapping="Wrap"/>
                     </StackPanel>
 
@@ -417,18 +417,18 @@
                             CornerRadius="8" Padding="11,9">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <CheckBox x:Name="AutoLoginCheck" Content="Automatyczne logowanie"
+                                <CheckBox x:Name="AutoLoginCheck" Content="{DynamicResource LOCPlayniteAccountManagerAutoLogin}"
                                           IsChecked="{Binding EditAutoLogin, Mode=TwoWay}"/>
-                                <CheckBox x:Name="LogoutCheck" Content="Wyloguj po zakończeniu gry"
+                                <CheckBox x:Name="LogoutCheck" Content="{DynamicResource LOCPlayniteAccountManagerLogoutAfterGame}"
                                           IsChecked="{Binding EditLogoutAfterGame, Mode=TwoWay}" Margin="0"/>
-                                <CheckBox x:Name="PrimaryAccountCheck" Content="Główne konto Steam"
+                                <CheckBox x:Name="PrimaryAccountCheck" Content="{DynamicResource LOCPlayniteAccountManagerPrimarySteam}"
                                           IsChecked="{Binding EditIsPrimary, Mode=TwoWay}"
                                           IsEnabled="{Binding IsPrimaryEligibleLauncher}" Margin="24,0,0,0"/>
                             </StackPanel>
 
                             <StackPanel Margin="0,12,0,0"
                                         Visibility="{Binding IsEpicGamesLauncher, Converter={StaticResource BoolToVisibility}}">
-                                <TextBlock Text="Tryb logowania Epic Games"
+                                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerEpicLoginMode}"
                                            Style="{StaticResource FieldLabel}"/>
                                 <ComboBox x:Name="EpicLoginModeCombo"
                                           Style="{StaticResource LauncherComboBox}"
@@ -443,14 +443,14 @@
                                         </DataTemplate>
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
-                                <TextBlock Text="Manualne: pokazuje dane do skopiowania. Automatyczne: Menadżer Kont sam uruchamia Epic Games i wpisuje zapisany login oraz hasło."
+                                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerEpicManualHint}"
                                            Margin="2,5,2,0"
                                            FontSize="10"
                                            Foreground="#777777"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
 
-                            <TextBlock Text="Ubisoft Connect: automatyczne logowanie korzysta z natywnego wejścia klawiatury. Steam: przypisane gry używają wybranego konta, a nieprzypisane gry używają konta oznaczonego jako główne. EA App pozostaje w trybie ręcznym. Epic Games może korzystać z logowania ręcznego albo automatycznego."
+                            <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerLauncherHint}"
                                        Margin="0,8,0,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
@@ -462,7 +462,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1" x:Name="TestLoginButton"
-                                Content="TESTUJ AUTOMATYCZNE LOGOWANIE"
+                                Content="{DynamicResource LOCPlayniteAccountManagerTestAuto}"
                                 Style="{StaticResource DarkButton}"
                                 Click="TestLoginButton_Click"/>
                     </Grid>
@@ -476,11 +476,11 @@
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="1" x:Name="AssignButton" Content="PRZYPISZ DO ZAZNACZONYCH GIER"
+                        <Button Grid.Column="1" x:Name="AssignButton" Content="{DynamicResource LOCPlayniteAccountManagerAssign}"
                                 Style="{StaticResource DarkButton}" Click="AssignButton_Click" IsEnabled="False"/>
-                        <Button Grid.Column="3" x:Name="DeleteButton" Content="USUŃ KONTO"
+                        <Button Grid.Column="3" x:Name="DeleteButton" Content="{DynamicResource LOCPlayniteAccountManagerDelete}"
                                 Style="{StaticResource DarkButton}" Click="DeleteButton_Click" IsEnabled="False"/>
-                        <Button Grid.Column="5" x:Name="SaveButton" Content="ZAPISZ KONTO"
+                        <Button Grid.Column="5" x:Name="SaveButton" Content="{DynamicResource LOCPlayniteAccountManagerSave}"
                                 Style="{StaticResource PrimaryButton}" Click="SaveButton_Click"/>
                     </Grid>
                 </Grid>
@@ -489,7 +489,7 @@
 
         <Border Grid.Row="4" Background="#171717" BorderBrush="#282828" BorderThickness="1"
                 CornerRadius="8" Padding="11,9">
-            <TextBlock x:Name="StatusText" Text="Wybierz konto albo dodaj nowe."
+            <TextBlock x:Name="StatusText" Text="{DynamicResource LOCPlayniteAccountManagerStatusEmpty}"
                        FontSize="11" Foreground="#9B9B9B"/>
         </Border>
     </Grid>
