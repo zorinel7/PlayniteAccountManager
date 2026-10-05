@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">Kontoadministrator</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Administrer launcher-kontoer og tilordne dem til spill</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  LEGG TIL KONTO</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">LAGREDE KONTOER</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Ny konto</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Kontonavn</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Innlogging / e-post</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">Passord</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">LAGRE KONTO</sys:String>
+</ResourceDictionary>
