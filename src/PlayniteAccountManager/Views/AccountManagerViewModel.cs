@@ -53,13 +53,13 @@ namespace PlayniteAccountManager.Views
         public bool EditLogoutAfterGame { get => editLogoutAfterGame; set => SetValue(ref editLogoutAfterGame, value); }
         public bool EditIsPrimary { get => editIsPrimary; set => SetValue(ref editIsPrimary, value); }
         public bool IsSteamLauncher => EditLauncher == LauncherType.Steam;
-        public bool IsPrimaryEligibleLauncher => EditLauncher == LauncherType.Steam || EditLauncher == LauncherType.EAApp || EditLauncher == LauncherType.EpicGames;
+        public bool IsPrimaryEligibleLauncher => EditLauncher == LauncherType.Steam;
 
         internal AccountManagerViewModel(AccountManagerStore store)
         {
             this.store = store;
             ContextGames = new List<Game>();
-            Launchers = new ObservableCollection<LauncherOption>(Enum.GetValues(typeof(LauncherType)).Cast<LauncherType>().Select(x => new LauncherOption(x)));
+            Launchers = new ObservableCollection<LauncherOption>(Enum.GetValues(typeof(LauncherType)).Cast<LauncherType>().Where(x => x != LauncherType.EAApp && x != LauncherType.EpicGames).Select(x => new LauncherOption(x)));
             Refresh();
             BeginNewAccount();
         }
@@ -144,16 +144,8 @@ namespace PlayniteAccountManager.Views
 
             if (record.Launcher == LauncherType.Steam && record.IsPrimary)
                 store.SetPrimarySteamAccount(record.Id);
-            else if (record.Launcher == LauncherType.EAApp && record.IsPrimary)
-                store.SetPrimaryEAAccount(record.Id);
-            else if (record.Launcher == LauncherType.EpicGames && record.IsPrimary)
-                store.SetPrimaryEpicAccount(record.Id);
             else if (wasPrimary && record.Launcher == LauncherType.Steam && !record.IsPrimary)
                 store.ClearPrimarySteamAccount(record.Id);
-            else if (wasPrimary && record.Launcher == LauncherType.EAApp && !record.IsPrimary)
-                store.ClearPrimaryEAAccount(record.Id);
-            else if (wasPrimary && record.Launcher == LauncherType.EpicGames && !record.IsPrimary)
-                store.ClearPrimaryEpicAccount(record.Id);
 
             if (!string.IsNullOrEmpty(EditPassword))
                 store.Credentials.Set(record.Id, EditPassword);
