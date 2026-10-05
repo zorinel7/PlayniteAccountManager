@@ -9,6 +9,7 @@ namespace PlayniteAccountManager.Models
         public LauncherType Launcher { get; set; }
         public string UserName { get; set; }
         public bool IsPrimary { get; set; }
+        public EpicLoginMode EpicLoginMode { get; set; }
 
         public AccountRecord()
         {
@@ -16,6 +17,7 @@ namespace PlayniteAccountManager.Models
             Name = string.Empty;
             UserName = string.Empty;
             IsPrimary = false;
+            EpicLoginMode = EpicLoginMode.Manual;
             Launcher = LauncherType.UbisoftConnect;
         }
     }

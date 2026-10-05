@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.50 - Epic Games manual/automatic login
+- Added a per-account Epic Games login mode: Manual or Automatic.
+- Automatic mode reproduces the supplied AutoHotkey sequence inside the plugin without requiring AutoHotkey.
+- Automatic Epic login closes Epic Games Launcher and EpicWebHelper, clears the active Epic session state, starts the launcher again, and then sends the configured Tab/Enter/input sequence.
+- Login and password are read from the existing protected credential store; the real password is never shown in the UI.
+- Manual Epic Games login continues to use the existing masked credential window.
+- Steam, Ubisoft Connect and EA App behavior is left unchanged.
+
+
 ## 0.9.49 - Fix EA App detection on 32-bit Playnite processes
 - EA App detection now explicitly checks the Windows `ProgramW6432` environment variable, covering the 64-bit `C:\Program Files` directory when Playnite runs as a 32-bit process.
 - The detection log now records `ProgramFiles`, `ProgramFiles(x86)` and `ProgramW6432` when EA App cannot be found, making future diagnostics easier.

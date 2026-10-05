@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using PlayniteAccountManager.Models;
 
 namespace PlayniteAccountManager.Services
 {
@@ -16,11 +18,13 @@ namespace PlayniteAccountManager.Services
 
         private readonly Action<string> log;
         private readonly EpicGamesSessionStore sessionStore;
+        private readonly EpicGamesUiAutomation uiAutomation;
 
         public EpicGamesAdapter(Action<string> log)
         {
             this.log = log ?? (_ => { });
             sessionStore = new EpicGamesSessionStore(this.log);
+            uiAutomation = new EpicGamesUiAutomation(this.log);
         }
 
         public bool PrepareForManualLogin(out string error)
@@ -59,6 +63,68 @@ namespace PlayniteAccountManager.Services
             catch (Exception ex)
             {
                 error = "Nie udało się przygotować Epic Games do ręcznego logowania: " + ex.Message;
+                return false;
+            }
+        }
+
+        public bool PrepareAndLogin(AccountRecord account, string password, out string error)
+        {
+            error = null;
+
+            if (account == null || account.Id == Guid.Empty)
+            {
+                error = "Nie wybrano konta Epic Games.";
+                return false;
+            }
+
+            if (account.Launcher != LauncherType.EpicGames)
+            {
+                error = "Wybrane konto nie jest kontem Epic Games.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
+            {
+                error = "Brak loginu lub hasła zapisanego dla konta „" + account.Name + "”.";
+                return false;
+            }
+
+            try
+            {
+                string exe = FindExecutable();
+                if (string.IsNullOrWhiteSpace(exe))
+                {
+                    error = "Nie znaleziono Epic Games Launcher na tym komputerze.";
+                    return false;
+                }
+
+                log("Epic Games: automatyczne logowanie dla konta „" + account.Name + "”.");
+                log("Epic Games: zamykam poprzednią sesję i launcher.");
+                StopProcesses();
+
+                // Twoja sekwencja AHK ma 2 sekundy między zamknięciem launchera
+                // a jego ponownym uruchomieniem.
+                Thread.Sleep(2000);
+
+                if (!sessionStore.ClearLiveState(out error))
+                    return false;
+
+                using (var process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = exe,
+                    WorkingDirectory = Path.GetDirectoryName(exe),
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Normal
+                }))
+                {
+                }
+
+                log("Epic Games: launcher uruchomiony — odtwarzam sekwencję automatycznego logowania z AHK.");
+                return uiAutomation.Login(account.UserName, password, out error);
+            }
+            catch (Exception ex)
+            {
+                error = "Błąd automatycznego logowania Epic Games: " + ex.Message;
                 return false;
             }
         }
