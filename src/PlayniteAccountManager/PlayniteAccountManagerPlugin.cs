@@ -20,8 +20,6 @@ namespace PlayniteAccountManager
         private ILogger logger;
         private UbisoftConnectAdapter ubisoft;
         private SteamAdapter steam;
-        private EAAppAdapter ea;
-        private EpicGamesAdapter epic;
         private Guid activeAccountId;
         private Guid activeGameId;
         private LauncherType activeLauncher;
@@ -33,8 +31,6 @@ namespace PlayniteAccountManager
             Store = new AccountManagerStore(this);
             ubisoft = new UbisoftConnectAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             steam = new SteamAdapter(message => logger.Info(message));
-            ea = new EAAppAdapter(GetPluginUserDataPath(), message => logger.Info(message));
-            epic = new EpicGamesAdapter(GetPluginUserDataPath(), message => logger.Info(message));
         }
 
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
@@ -85,16 +81,6 @@ namespace PlayniteAccountManager
             }
         }
 
-        internal bool IsEAHelperReady()
-        {
-            return ea.IsNonAdminReady();
-        }
-
-        internal bool EnsureEAHelper(out string error)
-        {
-            return ea.EnsureNonAdminReady(out error);
-        }
-
         private void OpenManager(IEnumerable<Game> contextGames)
         {
             try
@@ -140,10 +126,6 @@ namespace PlayniteAccountManager
                     return ubisoft.PrepareAndLogin(account, password, out error);
                 case LauncherType.Steam:
                     return steam.PrepareAndLogin(account, password, out error);
-                case LauncherType.EAApp:
-                    return ea.PrepareAndLogin(account, password, out error);
-                case LauncherType.EpicGames:
-                    return epic.PrepareAndLogin(account, password, out error);
                 default:
                     error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
                     return false;
@@ -160,7 +142,7 @@ namespace PlayniteAccountManager
                 if (account == null)
                     return;
 
-                if (account.Launcher != LauncherType.UbisoftConnect && account.Launcher != LauncherType.Steam && account.Launcher != LauncherType.EAApp && account.Launcher != LauncherType.EpicGames)
+                if (account.Launcher != LauncherType.UbisoftConnect && account.Launcher != LauncherType.Steam)
                     return;
 
                 logger.Info(account.Launcher.GetDisplayName() + ": przygotowuję logowanie przed uruchomieniem: " + args.Game.Name);
@@ -173,10 +155,6 @@ namespace PlayniteAccountManager
                 {
                     if (account.Launcher == LauncherType.UbisoftConnect)
                         ok = ubisoft.PrepareAndLogin(account, password, out error);
-                    else if (account.Launcher == LauncherType.EAApp)
-                        ok = ea.PrepareAndLogin(account, password, out error);
-                    else if (account.Launcher == LauncherType.EpicGames)
-                        ok = epic.PrepareAndLogin(account, password, out error);
                     else
                         ok = steam.PrepareForGame(account, out error);
                 }
@@ -204,73 +182,6 @@ namespace PlayniteAccountManager
                 activeLogoutAfterGame = assignment.LogoutAfterGame;
 
                 logger.Info(account.Launcher.GetDisplayName() + ": logowanie zakończone. Playnite kontynuuje normalne uruchamianie gry.");
-                return;
-            }
-
-            if (IsEAGame(args.Game))
-            {
-                var mainEa = Store.GetPrimaryEAAccount();
-                if (mainEa == null) mainEa = Store.EnsurePrimaryEAAccount();
-                if (mainEa == null)
-                {
-                    logger.Info("EA App: gra „" + args.Game.Name + "” nie ma przypisanego konta i nie ustawiono głównego konta EA App. Nie zmieniam profilu EA.");
-                    return;
-                }
-
-                logger.Info("EA App: gra „" + args.Game.Name + "” nie ma przypisanego konta. Ustawiam główne konto EA App: „" + mainEa.UserName + "”.");
-                string mainEaError;
-                string mainEaPassword = Store.Credentials.Get(mainEa.Id);
-                bool mainEaOk;
-                try { mainEaOk = ea.PrepareAndLogin(mainEa, mainEaPassword, out mainEaError); }
-                catch (Exception ex) { mainEaOk = false; mainEaError = "Błąd ustawiania głównego konta EA App: " + ex.Message; logger.Error(ex, "Wyjątek podczas ustawiania głównego konta EA App."); }
-                if (!mainEaOk)
-                {
-                    args.CancelStartup = true;
-                    logger.Error(mainEaError);
-                    PlayniteApi.Notifications.Add(new NotificationMessage("PlayniteAccountManager", mainEaError, NotificationType.Error));
-                }
-                return;
-            }
-
-            if (IsEpicGame(args.Game))
-            {
-                var mainEpic = Store.GetPrimaryEpicAccount();
-                if (mainEpic == null)
-                    mainEpic = Store.EnsurePrimaryEpicAccount();
-
-                if (mainEpic == null)
-                {
-                    logger.Info("Epic Games: gra „" + args.Game.Name + "” nie ma przypisanego konta i nie ustawiono głównego konta Epic Games. Nie zmieniam profilu Epic Games.");
-                    return;
-                }
-
-                logger.Info("Epic Games: gra „" + args.Game.Name + "” nie ma przypisanego konta. Ustawiam główne konto Epic Games: „" + mainEpic.UserName + "”.");
-
-                string mainEpicError;
-                string mainEpicPassword = Store.Credentials.Get(mainEpic.Id);
-                bool mainEpicOk;
-
-                try
-                {
-                    mainEpicOk = epic.PrepareAndLogin(mainEpic, mainEpicPassword, out mainEpicError);
-                }
-                catch (Exception ex)
-                {
-                    mainEpicOk = false;
-                    mainEpicError = "Błąd ustawiania głównego konta Epic Games: " + ex.Message;
-                    logger.Error(ex, "Wyjątek podczas ustawiania głównego konta Epic Games.");
-                }
-
-                if (!mainEpicOk)
-                {
-                    args.CancelStartup = true;
-                    logger.Error(mainEpicError);
-                    PlayniteApi.Notifications.Add(new NotificationMessage(
-                        "PlayniteAccountManager",
-                        mainEpicError,
-                        NotificationType.Error));
-                }
-
                 return;
             }
 
@@ -315,18 +226,6 @@ namespace PlayniteAccountManager
                 steam.ForgetActiveSessionWithoutRestore();
                 logger.Info("Steam: główne konto jest aktywne. Playnite kontynuuje normalne uruchamianie gry.");
             }
-        }
-
-        private static bool IsEAGame(Game game)
-        {
-            return game != null && game.Source != null && !string.IsNullOrWhiteSpace(game.Source.Name) && game.Source.Name.IndexOf("EA", StringComparison.OrdinalIgnoreCase) >= 0;
-        }
-
-        private static bool IsEpicGame(Game game)
-        {
-            return game != null && game.Source != null &&
-                   !string.IsNullOrWhiteSpace(game.Source.Name) &&
-                   game.Source.Name.IndexOf("Epic Games", StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private static bool IsSteamGame(Game game)
@@ -377,69 +276,10 @@ namespace PlayniteAccountManager
                     ubisoft.Logout();
                 else if (activeLauncher == LauncherType.Steam)
                     steam.Logout();
-                else if (activeLauncher == LauncherType.EAApp)
-                    LogoutAndRestorePrimaryEA();
-                else if (activeLauncher == LauncherType.EpicGames)
-                    LogoutAndRestorePrimaryEpic();
             }
             catch (Exception ex)
             {
                 logger.Error(ex, "Nie udało się zakończyć sesji launchera.");
-            }
-        }
-
-        private void LogoutAndRestorePrimaryEA()
-        {
-            string logoutError;
-            if (!ea.Logout(out logoutError) && !string.IsNullOrWhiteSpace(logoutError))
-                logger.Error(logoutError);
-
-            var primary = Store.GetPrimaryEAAccount();
-            if (primary == null || primary.Id == activeAccountId)
-                return;
-
-            string password = Store.Credentials.Get(primary.Id);
-            string loginError;
-            try
-            {
-                if (string.IsNullOrEmpty(password))
-                {
-                    logger.Error("EA App: brak hasła głównego konta, nie przywracam profilu po zakończeniu gry.");
-                    return;
-                }
-
-                if (!ea.PrepareAndLogin(primary, password, out loginError))
-                    logger.Error("EA App: nie udało się przywrócić głównego konta: " + loginError);
-                else
-                    logger.Info("EA App: przywrócono główne konto „" + primary.UserName + "” po zakończeniu gry.");
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "EA App: wyjątek podczas przywracania głównego konta.");
-            }
-        }
-
-        private void LogoutAndRestorePrimaryEpic()
-        {
-            epic.Logout();
-
-            var primary = Store.GetPrimaryEpicAccount();
-            if (primary == null || primary.Id == activeAccountId)
-                return;
-
-            string password = Store.Credentials.Get(primary.Id);
-            string loginError;
-
-            try
-            {
-                if (epic.PrepareAndLogin(primary, password, out loginError))
-                    logger.Info("Epic Games: przywrócono główne konto „" + primary.UserName + "” po zakończeniu gry.");
-                else
-                    logger.Error("Epic Games: nie udało się przywrócić głównego konta: " + loginError);
-            }
-            catch (Exception ex)
-            {
-                logger.Error(ex, "Epic Games: wyjątek podczas przywracania głównego konta.");
             }
         }
 
