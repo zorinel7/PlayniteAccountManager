@@ -4,6 +4,8 @@ namespace PlayniteAccountManager.Models
     {
         UbisoftConnect = 0,
         Steam = 1,
+        EpicGames = 2,
+        EAApp = 3,
         RockstarGamesLauncher = 4,
         BattleNet = 5,
         GOGGalaxy = 6,
