@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.52 - Fix manual Epic login window during game startup
+- Manual Epic login dialog is now shown through the Playnite WPF Dispatcher when `OnGameStarting` runs outside the UI thread.
+- Added explicit logging of the saved Epic login mode and assignment AutoLogin state for easier diagnostics.
+- Epic automatic login behavior and all other launchers remain unchanged.
+
+
 ## 0.9.51 - Fix Epic automatic game launch login
 - Epic Automatic mode now runs independently of the legacy per-assignment "Automatyczne logowanie" checkbox.
 - Epic automatic input now follows the supplied AHK more closely by operating on the Epic foreground window after the same 15-second startup delay.
