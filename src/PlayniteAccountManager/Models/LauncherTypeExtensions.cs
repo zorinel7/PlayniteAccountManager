@@ -8,8 +8,6 @@ namespace PlayniteAccountManager.Models
             {
                 case LauncherType.UbisoftConnect: return "Ubisoft Connect";
                 case LauncherType.Steam: return "Steam";
-                case LauncherType.EpicGames: return "Epic Games";
-                case LauncherType.EAApp: return "EA App";
                 case LauncherType.RockstarGamesLauncher: return "Rockstar Games Launcher";
                 case LauncherType.BattleNet: return "Battle.net";
                 case LauncherType.GOGGalaxy: return "GOG Galaxy";
