@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.9.55 - EA App automatic login integration
+- Added per-account EA App login mode selection: Manual or Automatic.
+- Added automatic EA App login using the same keyboard sequence as the supplied AHK script, implemented internally without requiring AutoHotkey.
+- Automatic EA App login closes the previous launcher session, clears the current-user EA App session state, waits 2 seconds, starts EA App, waits 15 seconds, then enters the saved login and password with the configured Tab/Enter sequence.
+- EA App launcher discovery no longer depends on a versioned installation folder. The plugin searches standard installation locations, Windows registry entries, running EA App processes, and likely EA App installation roots for EADesktop.exe / EALauncher.exe.
+- Assigned games can now trigger EA App automatic login independently of the legacy per-game "Automatyczne logowanie" checkbox.
+- Added automatic EA App login testing from the Account Manager.
+- Existing manual EA App login, Epic Games, Steam and Ubisoft Connect behavior remains available.
+
+## 0.9.54 - Playnite language localization
+- Added localization resources for the language/locale codes supplied for the plugin.
+- Account Manager UI now uses Playnite language resources through DynamicResource.
+- Runtime messages set from C# use Playnite's ResourceProvider.GetString.
+- Localization files are included in the .pext package.
+- Polish (pl_PL) localization is included as the primary fully translated UI.
+
+## 0.9.53 - Increase account manager and login window sizes
+- Increased the default and minimum size of the Account Manager window so long text and buttons are not clipped.
+- Increased the default and minimum size of the manual launcher login window.
+- No launcher login behavior was changed.
 ## 0.9.52 - Fix manual Epic login window during game startup
 - Manual Epic login dialog is now shown through the Playnite WPF Dispatcher when `OnGameStarting` runs outside the UI thread.
 - Added explicit logging of the saved Epic login mode and assignment AutoLogin state for easier diagnostics.
