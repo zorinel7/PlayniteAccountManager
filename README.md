@@ -60,7 +60,7 @@ Run:
 The plugin package is created as:
 
 ```text
-PlayniteAccountManager_0.9.43.pext
+PlayniteAccountManager_0.9.44.pext
 ```
 
 You can also run the supplied BAT file.
