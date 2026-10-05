@@ -21,12 +21,14 @@ namespace PlayniteAccountManager.Views
         private bool editLogoutAfterGame = true;
         private bool editIsPrimary;
         private EpicLoginMode editEpicLoginMode = EpicLoginMode.Manual;
+        private EALoginMode editEALoginMode = EALoginMode.Manual;
         private bool editingExisting;
 
         public ObservableCollection<AccountListItem> Accounts { get; private set; }
         public ObservableCollection<LauncherOption> Launchers { get; private set; }
         public List<Game> ContextGames { get; private set; }
         public ObservableCollection<EpicLoginModeOption> EpicLoginModes { get; private set; }
+        public ObservableCollection<EALoginModeOption> EALoginModes { get; private set; }
 
         public AccountListItem SelectedAccount
         {
@@ -50,6 +52,7 @@ namespace PlayniteAccountManager.Views
                 OnPropertyChanged(nameof(IsSteamLauncher));
                 OnPropertyChanged(nameof(IsPrimaryEligibleLauncher));
                 OnPropertyChanged(nameof(IsEpicGamesLauncher));
+                OnPropertyChanged(nameof(IsEAAppLauncher));
             }
         }
         public bool EditAutoLogin { get => editAutoLogin; set => SetValue(ref editAutoLogin, value); }
@@ -58,7 +61,9 @@ namespace PlayniteAccountManager.Views
         public bool IsSteamLauncher => EditLauncher == LauncherType.Steam;
         public bool IsPrimaryEligibleLauncher => EditLauncher == LauncherType.Steam;
         public bool IsEpicGamesLauncher => EditLauncher == LauncherType.EpicGames;
+        public bool IsEAAppLauncher => EditLauncher == LauncherType.EAApp;
         public EpicLoginMode EditEpicLoginMode { get => editEpicLoginMode; set => SetValue(ref editEpicLoginMode, value); }
+        public EALoginMode EditEALoginMode { get => editEALoginMode; set => SetValue(ref editEALoginMode, value); }
 
         internal AccountManagerViewModel(AccountManagerStore store)
         {
@@ -66,6 +71,7 @@ namespace PlayniteAccountManager.Views
             ContextGames = new List<Game>();
             Launchers = new ObservableCollection<LauncherOption>(Enum.GetValues(typeof(LauncherType)).Cast<LauncherType>().Select(x => new LauncherOption(x)));
             EpicLoginModes = new ObservableCollection<EpicLoginModeOption>(Enum.GetValues(typeof(EpicLoginMode)).Cast<EpicLoginMode>().Select(x => new EpicLoginModeOption(x)));
+            EALoginModes = new ObservableCollection<EALoginModeOption>(Enum.GetValues(typeof(EALoginMode)).Cast<EALoginMode>().Select(x => new EALoginModeOption(x)));
             Refresh();
             BeginNewAccount();
         }
@@ -94,6 +100,7 @@ namespace PlayniteAccountManager.Views
             EditLogoutAfterGame = true;
             EditIsPrimary = false;
             EditEpicLoginMode = EpicLoginMode.Manual;
+            EditEALoginMode = EALoginMode.Manual;
         }
 
         public void LoadSelectedAccount()
@@ -108,6 +115,7 @@ namespace PlayniteAccountManager.Views
             EditPassword = string.Empty;
             EditLauncher = model.Launcher;
             EditEpicLoginMode = model.EpicLoginMode;
+            EditEALoginMode = model.EALoginMode;
             EditIsPrimary = model.IsPrimary;
 
             var assignment = ContextGames.Count == 1 ? store.GetAssignment(ContextGames[0].Id) : null;
@@ -151,6 +159,9 @@ namespace PlayniteAccountManager.Views
             record.EpicLoginMode = record.Launcher == LauncherType.EpicGames
                 ? EditEpicLoginMode
                 : EpicLoginMode.Manual;
+            record.EALoginMode = record.Launcher == LauncherType.EAApp
+                ? EditEALoginMode
+                : EALoginMode.Manual;
             record.IsPrimary = IsPrimaryEligibleLauncher && EditIsPrimary;
 
             if (record.Launcher == LauncherType.Steam && record.IsPrimary)

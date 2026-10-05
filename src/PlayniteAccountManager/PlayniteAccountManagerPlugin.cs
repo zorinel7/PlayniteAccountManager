@@ -173,7 +173,10 @@ namespace PlayniteAccountManager
                     error = "To konto Epic Games jest ustawione na logowanie ręczne.";
                     return false;
                 case LauncherType.EAApp:
-                    error = "To konto EA App używa ręcznego logowania.";
+                    if (account.EALoginMode == (EALoginMode)1)
+                        return ea.PrepareAndLogin(account, password, out error);
+
+                    error = "To konto EA App jest ustawione na logowanie ręczne.";
                     return false;
                 default:
                     error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
@@ -192,7 +195,8 @@ namespace PlayniteAccountManager
                     return;
 
                 bool manualLauncher =
-                    account.Launcher == LauncherType.EAApp ||
+                    (account.Launcher == LauncherType.EAApp &&
+                     account.EALoginMode == EALoginMode.Manual) ||
                     (account.Launcher == LauncherType.EpicGames &&
                      account.EpicLoginMode == EpicLoginMode.Manual);
 
@@ -201,14 +205,16 @@ namespace PlayniteAccountManager
                     account.EpicLoginMode == EpicLoginMode.Automatic;
 
                 bool runAssignedFlow =
-                    assignment.AutoLogin || manualLauncher || automaticEpic;
+                    assignment.AutoLogin || manualLauncher || automaticEpic ||
+                    (account.Launcher == LauncherType.EAApp && account.EALoginMode == (EALoginMode)1);
 
                 if (runAssignedFlow)
                 {
                     if (account.Launcher != LauncherType.UbisoftConnect &&
                         account.Launcher != LauncherType.Steam &&
                         !manualLauncher &&
-                        !automaticEpic)
+                        !automaticEpic &&
+                        !(account.Launcher == LauncherType.EAApp && account.EALoginMode == (EALoginMode)1))
                         return;
 
                     logger.Info(account.Launcher.GetDisplayName() +
@@ -232,6 +238,9 @@ namespace PlayniteAccountManager
                         else if (account.Launcher == LauncherType.EpicGames &&
                                  account.EpicLoginMode == EpicLoginMode.Automatic)
                             ok = epic.PrepareAndLogin(account, password, out error);
+                        else if (account.Launcher == LauncherType.EAApp &&
+                                 account.EALoginMode == (EALoginMode)1)
+                            ok = ea.PrepareAndLogin(account, password, out error);
                         else if (manualLauncher)
                             ok = PrepareManualLauncherLogin(account, args.Game.Name, out error);
                         else

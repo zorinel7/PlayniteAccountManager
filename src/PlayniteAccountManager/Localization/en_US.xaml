@@ -64,4 +64,6 @@ Assignments of this account to games will also be removed.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Click to copy password</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Login copied to clipboard. Paste it in the launcher with Ctrl+V.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Password copied to clipboard. Paste it in the launcher with Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">EA App login mode</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manual: shows credentials to copy. Automatic: Account Manager launches EA App and enters the saved login and password.</sys:String>
 </ResourceDictionary>

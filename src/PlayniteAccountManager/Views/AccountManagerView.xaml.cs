@@ -41,6 +41,7 @@ namespace PlayniteAccountManager.Views
             LogoutCheck.IsChecked = true;
             PrimaryAccountCheck.IsChecked = false;
             EpicLoginModeCombo.SelectedValue = EpicLoginMode.Manual;
+            EALoginModeCombo.SelectedValue = EALoginMode.Manual;
             EditorStatusText.Text = L("LOCPlayniteAccountManagerNewAccount");
             UpdateButtons();
             UpdateStatus();
@@ -56,6 +57,7 @@ namespace PlayniteAccountManager.Views
                 LogoutCheck.IsChecked = vm.EditLogoutAfterGame;
                 PrimaryAccountCheck.IsChecked = vm.EditIsPrimary;
                 EpicLoginModeCombo.SelectedValue = vm.EditEpicLoginMode;
+                EALoginModeCombo.SelectedValue = vm.EditEALoginMode;
                 EditorStatusText.Text = string.Format(L("LOCPlayniteAccountManagerEditAccount"), vm.EditName);
             }
             UpdateButtons();
@@ -92,15 +94,18 @@ namespace PlayniteAccountManager.Views
 
             var model = store.GetAccount(account.Id);
             bool manualLauncher = model != null &&
-                                  (model.Launcher == LauncherType.EAApp ||
-                                   (model.Launcher == LauncherType.EpicGames &&
-                                    model.EpicLoginMode == EpicLoginMode.Manual));
+                                  ((model.Launcher == LauncherType.EpicGames &&
+                                    model.EpicLoginMode == EpicLoginMode.Manual) ||
+                                   (model.Launcher == LauncherType.EAApp &&
+                                    model.EALoginMode == (EALoginMode)0));
 
             bool automaticLauncher = model != null &&
                                      (model.Launcher == LauncherType.UbisoftConnect ||
                                       model.Launcher == LauncherType.Steam ||
                                       (model.Launcher == LauncherType.EpicGames &&
-                                       model.EpicLoginMode == EpicLoginMode.Automatic));
+                                       model.EpicLoginMode == EpicLoginMode.Automatic) ||
+                                      (model.Launcher == LauncherType.EAApp &&
+                                       model.EALoginMode == EALoginMode.Automatic));
 
             if (model == null || (!manualLauncher && !automaticLauncher))
             {
@@ -238,7 +243,9 @@ namespace PlayniteAccountManager.Views
                 selectedModel != null &&
                 (selectedModel.Launcher == LauncherType.EAApp ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
-                  selectedModel.EpicLoginMode == EpicLoginMode.Manual))
+                  selectedModel.EpicLoginMode == EpicLoginMode.Manual) ||
+                 (selectedModel.Launcher == LauncherType.EAApp &&
+                  selectedModel.EALoginMode == EALoginMode.Manual))
                     ? L("LOCPlayniteAccountManagerTestManual")
                     : L("LOCPlayniteAccountManagerTestAuto");
 
@@ -299,6 +306,25 @@ namespace PlayniteAccountManager.Views
         }
     }
 
+    public sealed class EALoginModeOption
+    {
+        public EALoginMode Value { get; }
+        public string DisplayName { get; }
+
+        public EALoginModeOption(EALoginMode value)
+        {
+            Value = value;
+            DisplayName = value == EALoginMode.Automatic
+                ? ResourceProvider.GetString("LOCPlayniteAccountManagerAutomaticLogin")
+                : ResourceProvider.GetString("LOCPlayniteAccountManagerManualLogin");
+        }
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
+    }
+
     public sealed class AccountListItem
     {
         public Guid Id { get; }
@@ -321,6 +347,11 @@ namespace PlayniteAccountManager.Views
 
             if (record.Launcher == LauncherType.EpicGames)
                 DisplayLauncher += record.EpicLoginMode == EpicLoginMode.Automatic
+                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
+                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+
+            if (record.Launcher == LauncherType.EAApp)
+                DisplayLauncher += record.EALoginMode == EALoginMode.Automatic
                     ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
                     : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
