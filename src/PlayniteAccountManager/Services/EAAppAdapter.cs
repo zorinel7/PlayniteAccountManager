@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using PlayniteAccountManager.Models;
 
 namespace PlayniteAccountManager.Services
 {
@@ -23,11 +24,13 @@ namespace PlayniteAccountManager.Services
 
         private readonly Action<string> log;
         private readonly EAAppSessionStore sessionStore;
+        private readonly EAAppUiAutomation uiAutomation;
 
         public EAAppAdapter(string pluginUserDataPath, Action<string> log)
         {
             this.log = log ?? (_ => { });
             sessionStore = new EAAppSessionStore(pluginUserDataPath, this.log);
+            uiAutomation = new EAAppUiAutomation(this.log);
         }
 
         public bool PrepareForManualLogin(out string error)
@@ -57,6 +60,60 @@ namespace PlayniteAccountManager.Services
             catch (Exception ex)
             {
                 error = "Nie udało się przygotować EA App do ręcznego logowania: " + ex.Message;
+                return false;
+            }
+        }
+
+        public bool PrepareAndLogin(AccountRecord account, string password, out string error)
+        {
+            error = null;
+
+            if (account == null || account.Id == Guid.Empty)
+            {
+                error = "Nie wybrano konta EA App.";
+                return false;
+            }
+
+            if (account.Launcher != LauncherType.EAApp)
+            {
+                error = "Wybrane konto nie jest kontem EA App.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
+            {
+                error = "Brak loginu lub hasła zapisanego dla konta „" + account.Name + "”.";
+                return false;
+            }
+
+            try
+            {
+                string exe = FindExecutable();
+                if (string.IsNullOrWhiteSpace(exe))
+                {
+                    error = "Nie znaleziono EA App na tym komputerze. Sprawdź, czy EADesktop.exe lub EALauncher.exe są zainstalowane.";
+                    return false;
+                }
+
+                log("EA App: automatyczne logowanie dla konta „" + account.Name + "”.");
+                log("EA App: wykryto launcher pod ścieżką: " + exe);
+                log("EA App: zamykam poprzednią sesję i launcher.");
+                StopProcesses();
+
+                // Dokładnie jak w AHK: 2 sekundy po zamknięciu EA App.
+                System.Threading.Thread.Sleep(2000);
+
+                if (!sessionStore.ClearLiveState(out error))
+                    return false;
+
+                Start(exe);
+
+                log("EA App: launcher uruchomiony — odtwarzam sekwencję automatycznego logowania z AHK.");
+                return uiAutomation.Login(account.UserName, password, out error);
+            }
+            catch (Exception ex)
+            {
+                error = "Błąd automatycznego logowania EA App: " + ex.Message;
                 return false;
             }
         }
