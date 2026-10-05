@@ -6,6 +6,8 @@ namespace PlayniteAccountManager.Views
 {
     public partial class ManualLauncherLoginView : UserControl
     {
+        private const string Mask = "••••••••••••";
+
         private readonly Action copyLogin;
         private readonly Action copyPassword;
         private readonly Action<bool> close;
@@ -26,7 +28,7 @@ namespace PlayniteAccountManager.Views
                             "\n\nZaloguj się ręcznie na poniższe konto w " +
                             launcherName + ".";
             LoginBox.Text = username ?? string.Empty;
-            PasswordBox.Text = password ?? string.Empty;
+            PasswordBox.Text = string.IsNullOrEmpty(password) ? string.Empty : Mask;
 
             this.copyLogin = copyLogin;
             this.copyPassword = copyPassword;

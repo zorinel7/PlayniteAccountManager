@@ -24,9 +24,4 @@ Write-Host "MSBuild: $msbuild"
 & $msbuild $project /restore /t:Build /p:Configuration=Release
 if ($LASTEXITCODE -ne 0) { throw "Budowanie PlayniteAccountManager.dll nie powiodło się." }
 
-$helperProject = Join-Path $root 'src\PlayniteAccountManager.EAHelper\PlayniteAccountManager.EAHelper.csproj'
-
-& $msbuild $helperProject /restore /t:Build /p:Configuration=Release
-if ($LASTEXITCODE -ne 0) { throw "EA helper build failed." }
-
-Write-Host 'Build completed: plugin + EA helper'
+Write-Host 'Build completed: plugin only'

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.47 - Remove EA helper and mask manual passwords
+- EA App no longer requires PlayniteAccountManager.EAHelper.exe.
+- Removed the elevated helper and scheduled-task/UAC setup from the build and package.
+- Assigned EA App games clear the current user's EA Desktop state without an administrator prompt.
+- Unassigned EA App games leave the active EA App session untouched.
+- EA and Epic manual login windows display a masked password while click-to-copy continues to copy the real password to the clipboard.
+- The package contains only PlayniteAccountManager.dll and extension.yaml.
+
+# Changelog
+
 ## 0.9.46 - EA App manual per-game login hardening
 - EA App now mirrors the Epic Games manual login flow more closely.
 - Assigned EA App games clear the active EA session before the manual login window is shown.
