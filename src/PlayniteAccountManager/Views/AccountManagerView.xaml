@@ -420,11 +420,11 @@
                                           IsChecked="{Binding EditAutoLogin, Mode=TwoWay}"/>
                                 <CheckBox x:Name="LogoutCheck" Content="Wyloguj po zakończeniu gry"
                                           IsChecked="{Binding EditLogoutAfterGame, Mode=TwoWay}" Margin="0"/>
-                                <CheckBox x:Name="PrimaryAccountCheck" Content="Główne konto Steam / EA App"
+                                <CheckBox x:Name="PrimaryAccountCheck" Content="Główne konto Steam"
                                           IsChecked="{Binding EditIsPrimary, Mode=TwoWay}"
                                           IsEnabled="{Binding IsPrimaryEligibleLauncher}" Margin="24,0,0,0"/>
                             </StackPanel>
-                            <TextBlock Text="Ubisoft Connect: automatyczne logowanie korzysta z natywnego wejścia klawiatury. Steam i EA App: przypisane gry używają wybranego konta, a nieprzypisane gry używają konta oznaczonego jako główne."
+                            <TextBlock Text="Ubisoft Connect: automatyczne logowanie korzysta z natywnego wejścia klawiatury. Steam: przypisane gry używają wybranego konta, a nieprzypisane gry używają konta oznaczonego jako główne."
                                        Margin="0,8,0,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
