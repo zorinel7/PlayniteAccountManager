@@ -20,6 +20,8 @@ namespace PlayniteAccountManager
         private ILogger logger;
         private UbisoftConnectAdapter ubisoft;
         private SteamAdapter steam;
+        private EAAppAdapter ea;
+        private EpicGamesAdapter epic;
         private Guid activeAccountId;
         private Guid activeGameId;
         private LauncherType activeLauncher;
@@ -31,6 +33,8 @@ namespace PlayniteAccountManager
             Store = new AccountManagerStore(this);
             ubisoft = new UbisoftConnectAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             steam = new SteamAdapter(message => logger.Info(message));
+            ea = new EAAppAdapter(GetPluginUserDataPath(), message => logger.Info(message));
+            epic = new EpicGamesAdapter(message => logger.Info(message));
         }
 
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
@@ -110,6 +114,41 @@ namespace PlayniteAccountManager
             }
         }
 
+        internal bool ShowManualLoginForTest(Guid accountId, out string error)
+        {
+            error = null;
+
+            var account = Store.GetAccount(accountId);
+            if (account == null)
+            {
+                error = "Nie znaleziono konta.";
+                return false;
+            }
+
+            if (account.Launcher != LauncherType.EAApp &&
+                account.Launcher != LauncherType.EpicGames)
+            {
+                error = "To konto nie korzysta z ręcznego logowania.";
+                return false;
+            }
+
+            string username = account.UserName ?? string.Empty;
+            string password = Store.Credentials.Get(account.Id) ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
+            {
+                error = "Konto „" + account.Name +
+                        "” nie ma zapisanych danych logowania.";
+                return false;
+            }
+
+            return ShowManualLoginWindow(
+                account.Launcher.GetDisplayName(),
+                "ręczny test logowania",
+                username,
+                password);
+        }
+
         internal bool TryTestLogin(Guid accountId, out string error)
         {
             var account = Store.GetAccount(accountId);
@@ -126,6 +165,10 @@ namespace PlayniteAccountManager
                     return ubisoft.PrepareAndLogin(account, password, out error);
                 case LauncherType.Steam:
                     return steam.PrepareAndLogin(account, password, out error);
+                case LauncherType.EAApp:
+                case LauncherType.EpicGames:
+                    error = "EA App i Epic Games używają ręcznego logowania przy uruchamianiu gry.";
+                    return false;
                 default:
                     error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
                     return false;
@@ -142,7 +185,10 @@ namespace PlayniteAccountManager
                 if (account == null)
                     return;
 
-                if (account.Launcher != LauncherType.UbisoftConnect && account.Launcher != LauncherType.Steam)
+                if (account.Launcher != LauncherType.UbisoftConnect &&
+                    account.Launcher != LauncherType.Steam &&
+                    account.Launcher != LauncherType.EAApp &&
+                    account.Launcher != LauncherType.EpicGames)
                     return;
 
                 logger.Info(account.Launcher.GetDisplayName() + ": przygotowuję logowanie przed uruchomieniem: " + args.Game.Name);
@@ -155,6 +201,8 @@ namespace PlayniteAccountManager
                 {
                     if (account.Launcher == LauncherType.UbisoftConnect)
                         ok = ubisoft.PrepareAndLogin(account, password, out error);
+                    else if (account.Launcher == LauncherType.EAApp || account.Launcher == LauncherType.EpicGames)
+                        ok = PrepareManualLauncherLogin(account, args.Game.Name, out error);
                     else
                         ok = steam.PrepareForGame(account, out error);
                 }
@@ -268,6 +316,139 @@ namespace PlayniteAccountManager
             ClearActiveSession();
         }
 
+        private bool PrepareManualLauncherLogin(
+            AccountRecord account,
+            string gameName,
+            out string error)
+        {
+            error = null;
+
+            if (account == null)
+            {
+                error = "Nie znaleziono konta.";
+                return false;
+            }
+
+            string username = account.UserName ?? string.Empty;
+            string password = Store.Credentials.Get(account.Id) ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
+            {
+                error = "Konto „" + account.Name +
+                        "” nie ma zapisanych danych logowania.";
+                return false;
+            }
+
+            try
+            {
+                if (account.Launcher == LauncherType.EAApp)
+                {
+                    if (!ea.PrepareForManualLogin(out error))
+                        return false;
+                }
+                else if (account.Launcher == LauncherType.EpicGames)
+                {
+                    if (!epic.PrepareForManualLogin(out error))
+                        return false;
+                }
+                else
+                {
+                    error = "Nieobsługiwany launcher.";
+                    return false;
+                }
+
+                return ShowManualLoginWindow(
+                    account.Launcher.GetDisplayName(),
+                    gameName,
+                    username,
+                    password);
+            }
+            catch (Exception ex)
+            {
+                error = "Nie udało się przygotować ręcznego logowania: " + ex.Message;
+                logger.Error(ex, "Manual launcher login preparation failed.");
+                return false;
+            }
+        }
+
+        private bool ShowManualLoginWindow(
+            string launcherName,
+            string gameName,
+            string username,
+            string password)
+        {
+            bool accepted = false;
+            System.Windows.Window window = null;
+
+            Action copyLogin = () =>
+            {
+                try
+                {
+                    Clipboard.SetText(username ?? string.Empty);
+                    logger.Info(launcherName + ": login copied to clipboard.");
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "Failed to copy launcher login.");
+                }
+            };
+
+            Action copyPassword = () =>
+            {
+                try
+                {
+                    Clipboard.SetText(password ?? string.Empty);
+                    logger.Info(launcherName + ": password copied to clipboard.");
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "Failed to copy launcher password.");
+                }
+            };
+
+            Action<bool> close = result =>
+            {
+                accepted = result;
+                if (window != null)
+                    window.Close();
+            };
+
+            try
+            {
+                var view = new ManualLauncherLoginView(
+                    launcherName,
+                    gameName,
+                    username,
+                    password,
+                    copyLogin,
+                    copyPassword,
+                    close);
+
+                window = PlayniteApi.Dialogs.CreateWindow(new WindowCreationOptions
+                {
+                    ShowMinimizeButton = false,
+                    ShowMaximizeButton = false
+                });
+
+                window.Title = "Logowanie — " + launcherName;
+                window.Width = 580;
+                window.Height = 500;
+                window.MinWidth = 520;
+                window.MinHeight = 430;
+                window.Content = view;
+                window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
+                window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                window.ShowDialog();
+
+                return accepted;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Failed to show manual launcher login window.");
+                return false;
+            }
+        }
+
         private void LogoutActiveLauncher()
         {
             try
@@ -276,6 +457,18 @@ namespace PlayniteAccountManager
                     ubisoft.Logout();
                 else if (activeLauncher == LauncherType.Steam)
                     steam.Logout();
+                else if (activeLauncher == LauncherType.EAApp)
+                {
+                    string error;
+                    if (!ea.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
+                        logger.Error(error);
+                }
+                else if (activeLauncher == LauncherType.EpicGames)
+                {
+                    string error;
+                    if (!epic.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
+                        logger.Error(error);
+                }
             }
             catch (Exception ex)
             {
