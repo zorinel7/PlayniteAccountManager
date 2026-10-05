@@ -7,9 +7,6 @@ $out = Join-Path $root 'PlayniteAccountManager_0.9.47.pext'
 
 if (!(Test-Path (Join-Path $bin 'PlayniteAccountManager.dll'))) { throw 'Brak PlayniteAccountManager.dll po kompilacji.' }
 if (!(Test-Path $manifest)) { throw 'Brak extension.yaml.' }
-$helperBin = Join-Path $root 'src\PlayniteAccountManager.EAHelper\bin\Release\net462'
-$helperExe = Join-Path $helperBin 'PlayniteAccountManager.EAHelper.exe'
-if (!(Test-Path $helperExe)) { throw 'EA helper executable is missing after build.' }
 if (Test-Path $out) { Remove-Item $out -Force }
 
 $tmp = Join-Path $env:TEMP ('PlayniteAccountManager_0.9.47_' + [guid]::NewGuid().ToString('N'))
