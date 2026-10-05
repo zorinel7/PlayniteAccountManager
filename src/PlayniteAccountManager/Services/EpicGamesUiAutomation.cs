@@ -126,10 +126,9 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private static void SendTab()
+        private bool SendTab()
         {
-            NativeKeyboardInput.SendTab();
-            Thread.Sleep(300);
+            return NativeKeyboardInput.SendTab(log);
         }
 
         private IntPtr WaitForMainWindow(int timeoutSeconds)
