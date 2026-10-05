@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">ගිණුම් කළමනාකරු</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">ලෝන්චර් ගිණුම් කළමනාකරණය කර ක්‍රීඩා වෙත පවරන්න</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ගිණුම එක් කරන්න</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">සුරකින ලද ගිණුම්</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">නව ගිණුම</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">ලෝන්චර්</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">ගිණුමේ නම</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">පිවිසුම / විද්‍යුත් තැපෑල</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">මුරපදය</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">ගිණුම සුරකින්න</sys:String>
+</ResourceDictionary>
