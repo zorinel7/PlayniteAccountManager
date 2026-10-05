@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.48 - Fix EA App launcher detection
+- EA App detection now checks the documented default installation paths for both 64-bit and 32-bit Program Files locations.
+- Added detection through the Windows uninstall registry entries and App Paths registry entries.
+- Added detection of the actual executable path from a running EADesktop/EALauncher process.
+- Added a last-resort search inside likely EA App installation folders for EADesktop.exe and EALauncher.exe.
+- Manual EA/Epic password masking from 0.9.47 is retained.
+
 ## 0.9.47 - Remove EA helper and mask manual passwords
 - EA App no longer requires PlayniteAccountManager.EAHelper.exe.
 - Removed the elevated helper and scheduled-task/UAC setup from the build and package.
