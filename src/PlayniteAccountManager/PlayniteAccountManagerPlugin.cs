@@ -173,7 +173,10 @@ namespace PlayniteAccountManager
                     error = "To konto Epic Games jest ustawione na logowanie ręczne.";
                     return false;
                 case LauncherType.EAApp:
-                    error = "To konto EA App używa ręcznego logowania.";
+                    if (account.EALoginMode == (EALoginMode)1)
+                        return ea.PrepareAndLogin(account, password, out error);
+
+                    error = "To konto EA App jest ustawione na logowanie ręczne.";
                     return false;
                 default:
                     error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
