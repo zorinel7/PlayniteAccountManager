@@ -87,42 +87,72 @@ namespace PlayniteAccountManager.Views
             }
 
             var model = store.GetAccount(account.Id);
-            if (model == null || (model.Launcher != LauncherType.UbisoftConnect && model.Launcher != LauncherType.Steam))
+            bool manualLauncher = model != null &&
+                                  (model.Launcher == LauncherType.EAApp ||
+                                   model.Launcher == LauncherType.EpicGames);
+
+            bool automaticLauncher = model != null &&
+                                     (model.Launcher == LauncherType.UbisoftConnect ||
+                                      model.Launcher == LauncherType.Steam);
+
+            if (model == null || (!manualLauncher && !automaticLauncher))
             {
-                MessageBox.Show("Automatyczne logowanie nie jest jeszcze dostępne dla tego launchera.", "Menadżer Kont", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(
+                    "Automatyczne logowanie nie jest jeszcze dostępne dla tego launchera.",
+                    "Menadżer Kont",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
                 return;
             }
 
-            if (model.Launcher == LauncherType.EAApp ||
-                model.Launcher == LauncherType.EpicGames)
+            if (manualLauncher)
             {
                 string manualError;
                 bool manualOk = plugin.ShowManualLoginForTest(model.Id, out manualError);
+
                 UpdateStatus(manualOk
                     ? "Dane logowania zostały wyświetlone."
                     : "Nie udało się otworzyć danych logowania.");
 
                 if (!manualOk && !string.IsNullOrWhiteSpace(manualError))
+                {
                     MessageBox.Show(
                         manualError,
                         model.Launcher.GetDisplayName(),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
+                }
 
                 UpdateButtons();
                 return;
             }
 
             TestLoginButton.IsEnabled = false;
-            UpdateStatus("Uruchamiam " + model.Launcher.GetDisplayName() + " i automatycznie wprowadzam dane logowania...");
+            UpdateStatus(
+                "Uruchamiam " + model.Launcher.GetDisplayName() +
+                " i automatycznie wprowadzam dane logowania...");
 
             try
             {
                 string error = null;
-                bool ok = await System.Threading.Tasks.Task.Run(() => plugin.TryTestLogin(model.Id, out error));
-                UpdateStatus(ok ? "Automatyczne logowanie " + model.Launcher.GetDisplayName() + " zakończone pomyślnie." : "Nie udało się zalogować automatycznie.");
+                bool ok = await System.Threading.Tasks.Task.Run(
+                    () => plugin.TryTestLogin(model.Id, out error));
+
+                UpdateStatus(
+                    ok
+                        ? "Automatyczne logowanie " +
+                          model.Launcher.GetDisplayName() +
+                          " zakończone pomyślnie."
+                        : "Nie udało się zalogować automatycznie.");
+
                 if (!ok && !string.IsNullOrWhiteSpace(error))
-                    MessageBox.Show(error, model.Launcher.GetDisplayName(), MessageBoxButton.OK, MessageBoxImage.Warning);
+                {
+                    MessageBox.Show(
+                        error,
+                        model.Launcher.GetDisplayName(),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                }
             }
             finally
             {
@@ -163,16 +193,24 @@ namespace PlayniteAccountManager.Views
             var games = vm.ContextGames.ToList();
             if (games.Count == 0)
             {
-                MessageBox.Show("Najpierw zaznacz co najmniej jedną grę w Playnite.", "Menadżer Kont", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(
+                    "Najpierw zaznacz co najmniej jedną grę w Playnite.",
+                    "Menadżer Kont",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
                 return;
             }
 
             foreach (var game in games)
-            {
-                store.SetAssignment(game.Id, account.Id, vm.EditAutoLogin, vm.EditLogoutAfterGame);
-            }
+                store.SetAssignment(
+                    game.Id,
+                    account.Id,
+                    vm.EditAutoLogin,
+                    vm.EditLogoutAfterGame);
 
-            UpdateStatus("Konto „" + account.Name + "” przypisano do " + games.Count + " gier.");
+            UpdateStatus(
+                "Konto „" + account.Name + "” przypisano do " +
+                games.Count + " gier.");
         }
 
         private void UpdateButtons()
@@ -180,13 +218,19 @@ namespace PlayniteAccountManager.Views
             var has = vm.SelectedAccount != null;
             DeleteButton.IsEnabled = has;
             AssignButton.IsEnabled = has && vm.ContextGames.Any();
-            var selectedModel = has ? store.GetAccount(vm.SelectedAccount.Id) : null;
+
+            var selectedModel = has
+                ? store.GetAccount(vm.SelectedAccount.Id)
+                : null;
+
             bool supported = selectedModel != null &&
                              (selectedModel.Launcher == LauncherType.UbisoftConnect ||
                               selectedModel.Launcher == LauncherType.Steam ||
                               selectedModel.Launcher == LauncherType.EAApp ||
                               selectedModel.Launcher == LauncherType.EpicGames);
+
             TestLoginButton.IsEnabled = supported;
+
             TestLoginButton.Content =
                 selectedModel != null &&
                 (selectedModel.Launcher == LauncherType.EAApp ||
@@ -194,9 +238,10 @@ namespace PlayniteAccountManager.Views
                     ? "POKAŻ DANE LOGOWANIA"
                     : "TESTUJ AUTOMATYCZNE LOGOWANIE";
 
-            EmptyAccountsText.Visibility = vm.Accounts != null && vm.Accounts.Count > 0
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            EmptyAccountsText.Visibility =
+                vm.Accounts != null && vm.Accounts.Count > 0
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
         }
 
         private void UpdateStatus(string custom = null)
@@ -245,7 +290,12 @@ namespace PlayniteAccountManager.Views
             Name = record.Name;
             UserName = record.UserName;
             DisplayText = record.Name + "  •  " + record.Launcher.GetDisplayName();
-            DisplayLauncher = record.Launcher.GetDisplayName() + ((record.Launcher == LauncherType.Steam) && record.IsPrimary ? "  •  GŁÓWNE" : "");
+            DisplayLauncher =
+                record.Launcher.GetDisplayName() +
+                ((record.Launcher == LauncherType.Steam) && record.IsPrimary
+                    ? "  •  GŁÓWNE"
+                    : "");
+
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
         }
