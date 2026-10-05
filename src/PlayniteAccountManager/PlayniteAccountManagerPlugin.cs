@@ -235,6 +235,9 @@ namespace PlayniteAccountManager
                         else if (account.Launcher == LauncherType.EpicGames &&
                                  account.EpicLoginMode == EpicLoginMode.Automatic)
                             ok = epic.PrepareAndLogin(account, password, out error);
+                        else if (account.Launcher == LauncherType.EAApp &&
+                                 account.EALoginMode == (EALoginMode)1)
+                            ok = ea.PrepareAndLogin(account, password, out error);
                         else if (manualLauncher)
                             ok = PrepareManualLauncherLogin(account, args.Game.Name, out error);
                         else
