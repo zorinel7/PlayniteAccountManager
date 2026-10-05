@@ -87,7 +87,7 @@ namespace PlayniteAccountManager.Views
             }
 
             var model = store.GetAccount(account.Id);
-            if (model == null || (model.Launcher != LauncherType.UbisoftConnect && model.Launcher != LauncherType.Steam && model.Launcher != LauncherType.EAApp && model.Launcher != LauncherType.EpicGames))
+            if (model == null || (model.Launcher != LauncherType.UbisoftConnect && model.Launcher != LauncherType.Steam))
             {
                 MessageBox.Show("Automatyczne logowanie nie jest jeszcze dostępne dla tego launchera.", "Menadżer Kont", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -123,24 +123,6 @@ namespace PlayniteAccountManager.Views
             finally
             {
                 UpdateButtons();
-            }
-        }
-
-        private void EAHelperButton_Click(object sender, RoutedEventArgs e)
-        {
-            UpdateStatus("Konfiguruję jednorazowy pomocnik EA App...");
-            string error;
-
-            if (plugin.EnsureEAHelper(out error))
-            {
-                UpdateStatus("EA App skonfigurowana do pracy bez administratora.");
-                UpdateButtons();
-            }
-            else
-            {
-                UpdateStatus("Nie skonfigurowano pomocnika EA.");
-                if (!string.IsNullOrWhiteSpace(error))
-                    MessageBox.Show(error, "EA App", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -195,19 +177,8 @@ namespace PlayniteAccountManager.Views
             DeleteButton.IsEnabled = has;
             AssignButton.IsEnabled = has && vm.ContextGames.Any();
             var selectedModel = has ? store.GetAccount(vm.SelectedAccount.Id) : null;
-            bool supported = selectedModel != null && (selectedModel.Launcher == LauncherType.UbisoftConnect || selectedModel.Launcher == LauncherType.Steam || selectedModel.Launcher == LauncherType.EAApp || selectedModel.Launcher == LauncherType.EpicGames);
+            bool supported = selectedModel != null && (selectedModel.Launcher == LauncherType.UbisoftConnect || selectedModel.Launcher == LauncherType.Steam);
             TestLoginButton.IsEnabled = supported;
-
-            bool showEASetup = selectedModel != null && selectedModel.Launcher == LauncherType.EAApp;
-            EAHelperButton.Visibility = showEASetup ? Visibility.Visible : Visibility.Collapsed;
-            if (showEASetup)
-            {
-                bool ready = plugin.IsEAHelperReady();
-                EAHelperButton.Content = ready
-                    ? "EA: TRYB BEZ ADMINISTRATORA ✓"
-                    : "EA: KONFIGURUJ BEZ ADMINISTRATORA";
-                EAHelperButton.IsEnabled = !ready;
-            }
 
             EmptyAccountsText.Visibility = vm.Accounts != null && vm.Accounts.Count > 0
                 ? Visibility.Collapsed
@@ -260,7 +231,7 @@ namespace PlayniteAccountManager.Views
             Name = record.Name;
             UserName = record.UserName;
             DisplayText = record.Name + "  •  " + record.Launcher.GetDisplayName();
-            DisplayLauncher = record.Launcher.GetDisplayName() + ((record.Launcher == LauncherType.Steam || record.Launcher == LauncherType.EAApp || record.Launcher == LauncherType.EpicGames) && record.IsPrimary ? "  •  GŁÓWNE" : "");
+            DisplayLauncher = record.Launcher.GetDisplayName() + ((record.Launcher == LauncherType.Steam) && record.IsPrimary ? "  •  GŁÓWNE" : "");
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
         }
