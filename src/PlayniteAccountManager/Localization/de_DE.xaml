@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Kontenverwaltung</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Launcher-Konten verwalten und Spielen zuweisen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  KONTO HINZUFÜGEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">GESPEICHERTE KONTEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Neues Konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Kontoname</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Login / E-Mail</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Passwort</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">KONTO SPEICHERN</sys:String>
+</ResourceDictionary>
