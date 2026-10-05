@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.49 - Fix EA App detection on 32-bit Playnite processes
+- EA App detection now explicitly checks the Windows `ProgramW6432` environment variable, covering the 64-bit `C:\Program Files` directory when Playnite runs as a 32-bit process.
+- The detection log now records `ProgramFiles`, `ProgramFiles(x86)` and `ProgramW6432` when EA App cannot be found, making future diagnostics easier.
+
+
 ## 0.9.48 - Fix EA App launcher detection
 - EA App detection now checks the documented default installation paths for both 64-bit and 32-bit Program Files locations.
 - Added detection through the Windows uninstall registry entries and App Paths registry entries.

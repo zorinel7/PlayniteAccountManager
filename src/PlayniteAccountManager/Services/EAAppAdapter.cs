@@ -117,11 +117,13 @@ namespace PlayniteAccountManager.Services
 
             string pf = Environment.GetEnvironmentVariable("ProgramFiles");
             string pf86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+            string pf64 = Environment.GetEnvironmentVariable("ProgramW6432");
             string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
             // Default EA App location documented by EA.
             AddKnownInstallPaths(candidates, pf);
             AddKnownInstallPaths(candidates, pf86);
+            AddKnownInstallPaths(candidates, pf64);
             AddKnownInstallPaths(candidates, localAppData);
 
             // If the user installed EA App somewhere else, use Windows registry
@@ -158,6 +160,7 @@ namespace PlayniteAccountManager.Services
             // layouts where the installer added another nested directory level.
             AddRecursiveCandidates(candidates, Path.Combine(pf ?? string.Empty, "Electronic Arts", "EA Desktop"));
             AddRecursiveCandidates(candidates, Path.Combine(pf86 ?? string.Empty, "Electronic Arts", "EA Desktop"));
+            AddRecursiveCandidates(candidates, Path.Combine(pf64 ?? string.Empty, "Electronic Arts", "EA Desktop"));
             AddRecursiveCandidates(candidates, Path.Combine(localAppData ?? string.Empty, "Electronic Arts", "EA Desktop"));
 
             foreach (string candidate in candidates
@@ -180,7 +183,7 @@ namespace PlayniteAccountManager.Services
                 }
             }
 
-            log("EA App: launcher executable was not found.");
+            log("EA App: launcher executable was not found. ProgramFiles=" + (pf ?? "<null>") + ", ProgramFiles(x86)=" + (pf86 ?? "<null>") + ", ProgramW6432=" + (pf64 ?? "<null>"));
             return null;
         }
 
