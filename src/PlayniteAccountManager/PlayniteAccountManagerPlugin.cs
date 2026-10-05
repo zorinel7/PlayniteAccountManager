@@ -99,10 +99,10 @@ namespace PlayniteAccountManager
                     ShowMaximizeButton = true
                 });
                 window.Title = "Menadżer Kont";
-                window.Width = 1020;
-                window.Height = 720;
-                window.MinWidth = 920;
-                window.MinHeight = 620;
+                window.Width = 1200;
+                window.Height = 820;
+                window.MinWidth = 1100;
+                window.MinHeight = 700;
                 window.Content = view;
                 window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
                 window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -464,10 +464,10 @@ namespace PlayniteAccountManager
                 });
 
                 window.Title = "Logowanie — " + launcherName;
-                window.Width = 580;
-                window.Height = 500;
-                window.MinWidth = 520;
-                window.MinHeight = 430;
+                window.Width = 720;
+                window.Height = 600;
+                window.MinWidth = 660;
+                window.MinHeight = 540;
                 window.Content = view;
                 window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
                 window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
