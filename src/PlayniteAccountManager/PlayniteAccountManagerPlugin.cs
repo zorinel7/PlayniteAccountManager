@@ -189,64 +189,61 @@ namespace PlayniteAccountManager
                     account.Launcher == LauncherType.EAApp ||
                     account.Launcher == LauncherType.EpicGames;
 
-                // EA App and Epic Games always use the manual login window when
-                // an account is explicitly assigned to the game. For Steam and
-                // Ubisoft Connect the existing AutoLogin switch remains intact.
-                if (!assignment.AutoLogin && !manualLauncher)
-                    goto ContinueUnassignedHandling;
+                bool runAssignedFlow = assignment.AutoLogin || manualLauncher;
 
-                if (account.Launcher != LauncherType.UbisoftConnect &&
-                    account.Launcher != LauncherType.Steam &&
-                    !manualLauncher)
+                if (runAssignedFlow)
+                {
+                    if (account.Launcher != LauncherType.UbisoftConnect &&
+                        account.Launcher != LauncherType.Steam &&
+                        !manualLauncher)
+                        return;
+
+                    logger.Info(account.Launcher.GetDisplayName() +
+                                ": preparing login before starting: " +
+                                args.Game.Name);
+
+                    string password = Store.Credentials.Get(account.Id);
+                    string error;
+                    bool ok;
+
+                    try
+                    {
+                        if (account.Launcher == LauncherType.UbisoftConnect)
+                            ok = ubisoft.PrepareAndLogin(account, password, out error);
+                        else if (manualLauncher)
+                            ok = PrepareManualLauncherLogin(account, args.Game.Name, out error);
+                        else
+                            ok = steam.PrepareForGame(account, out error);
+                    }
+                    catch (Exception ex)
+                    {
+                        ok = false;
+                        error = "Launcher login preparation failed for " +
+                                account.Launcher.GetDisplayName() + ": " + ex.Message;
+                        logger.Error(ex, "Exception while preparing launcher login.");
+                    }
+
+                    if (!ok)
+                    {
+                        args.CancelStartup = true;
+                        logger.Error(error);
+                        PlayniteApi.Notifications.Add(new NotificationMessage(
+                            "PlayniteAccountManager",
+                            error,
+                            NotificationType.Error));
+                        return;
+                    }
+
+                    activeAccountId = account.Id;
+                    activeGameId = args.Game.Id;
+                    activeLauncher = account.Launcher;
+                    activeLogoutAfterGame = assignment.LogoutAfterGame;
+
+                    logger.Info(account.Launcher.GetDisplayName() +
+                                ": login preparation completed. Playnite continues normal game startup.");
                     return;
-
-                logger.Info(account.Launcher.GetDisplayName() +
-                            ": preparing login before starting: " +
-                            args.Game.Name);
-
-                string password = Store.Credentials.Get(account.Id);
-                string error;
-                bool ok;
-
-                try
-                {
-                    if (account.Launcher == LauncherType.UbisoftConnect)
-                        ok = ubisoft.PrepareAndLogin(account, password, out error);
-                    else if (manualLauncher)
-                        ok = PrepareManualLauncherLogin(account, args.Game.Name, out error);
-                    else
-                        ok = steam.PrepareForGame(account, out error);
                 }
-                catch (Exception ex)
-                {
-                    ok = false;
-                    error = "Launcher login preparation failed for " +
-                            account.Launcher.GetDisplayName() + ": " + ex.Message;
-                    logger.Error(ex, "Exception while preparing launcher login.");
-                }
-
-                if (!ok)
-                {
-                    args.CancelStartup = true;
-                    logger.Error(error);
-                    PlayniteApi.Notifications.Add(new NotificationMessage(
-                        "PlayniteAccountManager",
-                        error,
-                        NotificationType.Error));
-                    return;
-                }
-
-                activeAccountId = account.Id;
-                activeGameId = args.Game.Id;
-                activeLauncher = account.Launcher;
-                activeLogoutAfterGame = assignment.LogoutAfterGame;
-
-                logger.Info(account.Launcher.GetDisplayName() +
-                            ": login preparation completed. Playnite continues normal game startup.");
-                return;
             }
-
-ContinueUnassignedHandling:
             if (IsSteamGame(args.Game))
             {
                 var mainSteam = Store.GetPrimarySteamAccount();
