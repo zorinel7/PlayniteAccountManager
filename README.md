@@ -8,6 +8,8 @@ Playnite extension for managing multiple launcher accounts and assigning a selec
 |---|---|
 | Steam | Stable |
 | Ubisoft Connect | Stable |
+| EA App | Manual login |
+| Epic Games | Manual login |
 | Xbox App | Experimental / paused |
 
 ### Design
@@ -58,7 +60,7 @@ Run:
 The plugin package is created as:
 
 ```text
-PlayniteAccountManager_0.9.7.zip
+PlayniteAccountManager_0.9.43.pext
 ```
 
 You can also run the supplied BAT file.
