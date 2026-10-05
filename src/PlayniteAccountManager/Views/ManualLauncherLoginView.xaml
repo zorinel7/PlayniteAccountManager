@@ -1,0 +1,111 @@
+<UserControl x:Class="PlayniteAccountManager.Views.ManualLauncherLoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="520" MinHeight="430"
+             Background="#121212">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="14"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="TitleText"
+                   Text="Logowanie"
+                   FontSize="24"
+                   FontWeight="SemiBold"
+                   Foreground="#F4F4F4"/>
+
+        <TextBlock x:Name="GameText"
+                   Grid.Row="2"
+                   FontSize="12"
+                   Foreground="#BDBDBD"
+                   TextWrapping="Wrap"/>
+
+        <Border Grid.Row="4"
+                Background="#1A1A1A"
+                BorderBrush="#303030"
+                BorderThickness="1"
+                CornerRadius="10"
+                Padding="14">
+            <StackPanel>
+                <TextBlock Text="Login / e-mail"
+                           FontSize="11"
+                           Foreground="#AAAAAA"
+                           Margin="0,0,0,5"/>
+                <TextBox x:Name="LoginBox"
+                         IsReadOnly="True"
+                         Cursor="Hand"
+                         FontSize="14"
+                         Foreground="#F1F1F1"
+                         Background="#050505"
+                         BorderBrush="#686868"
+                         BorderThickness="1.5"
+                         Padding="10,7"
+                         MouseLeftButtonUp="LoginBox_MouseLeftButtonUp"
+                         ToolTip="Kliknij, aby skopiować"/>
+
+                <TextBlock Text="Hasło"
+                           FontSize="11"
+                           Foreground="#AAAAAA"
+                           Margin="0,14,0,5"/>
+                <TextBox x:Name="PasswordBox"
+                         IsReadOnly="True"
+                         Cursor="Hand"
+                         FontSize="14"
+                         Foreground="#F1F1F1"
+                         Background="#050505"
+                         BorderBrush="#686868"
+                         BorderThickness="1.5"
+                         Padding="10,7"
+                         MouseLeftButtonUp="PasswordBox_MouseLeftButtonUp"
+                         ToolTip="Kliknij, aby skopiować"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock x:Name="InstructionText"
+                   Grid.Row="6"
+                   FontSize="11"
+                   Foreground="#9B9B9B"
+                   TextWrapping="Wrap"
+                   Text="Kliknij login lub hasło, aby skopiować je do schowka. Następnie w launcherze użyj Ctrl+V i zaloguj się ręcznie."/>
+
+        <Border Grid.Row="8"
+                Background="#151515"
+                BorderBrush="#282828"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="11">
+            <TextBlock x:Name="StatusText"
+                       Text="Launcher został uruchomiony. Zaloguj się ręcznie."
+                       FontSize="11"
+                       Foreground="#BDBDBD"
+                       TextWrapping="Wrap"/>
+        </Border>
+
+        <StackPanel Grid.Row="9"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button x:Name="CancelButton"
+                    Content="ANULUJ START"
+                    MinWidth="120"
+                    Margin="0,0,8,0"
+                    Padding="12,8"
+                    Click="CancelButton_Click"/>
+            <Button x:Name="DoneButton"
+                    Content="GOTOWE — URUCHOM GRĘ"
+                    MinWidth="190"
+                    Padding="12,8"
+                    FontWeight="SemiBold"
+                    Click="DoneButton_Click"/>
+        </StackPanel>
+    </Grid>
+</UserControl>
