@@ -38,6 +38,7 @@ namespace PlayniteAccountManager.Views
             AutoLoginCheck.IsChecked = true;
             LogoutCheck.IsChecked = true;
             PrimaryAccountCheck.IsChecked = false;
+            EpicLoginModeCombo.SelectedValue = EpicLoginMode.Manual;
             EditorStatusText.Text = "Nowe konto";
             UpdateButtons();
             UpdateStatus();
@@ -52,6 +53,7 @@ namespace PlayniteAccountManager.Views
                 AutoLoginCheck.IsChecked = vm.EditAutoLogin;
                 LogoutCheck.IsChecked = vm.EditLogoutAfterGame;
                 PrimaryAccountCheck.IsChecked = vm.EditIsPrimary;
+                EpicLoginModeCombo.SelectedValue = vm.EditEpicLoginMode;
                 EditorStatusText.Text = "Edycja: " + vm.EditName;
             }
             UpdateButtons();
@@ -89,11 +91,14 @@ namespace PlayniteAccountManager.Views
             var model = store.GetAccount(account.Id);
             bool manualLauncher = model != null &&
                                   (model.Launcher == LauncherType.EAApp ||
-                                   model.Launcher == LauncherType.EpicGames);
+                                   (model.Launcher == LauncherType.EpicGames &&
+                                    model.EpicLoginMode == EpicLoginMode.Manual));
 
             bool automaticLauncher = model != null &&
                                      (model.Launcher == LauncherType.UbisoftConnect ||
-                                      model.Launcher == LauncherType.Steam);
+                                      model.Launcher == LauncherType.Steam ||
+                                      (model.Launcher == LauncherType.EpicGames &&
+                                       model.EpicLoginMode == EpicLoginMode.Automatic));
 
             if (model == null || (!manualLauncher && !automaticLauncher))
             {
@@ -234,7 +239,8 @@ namespace PlayniteAccountManager.Views
             TestLoginButton.Content =
                 selectedModel != null &&
                 (selectedModel.Launcher == LauncherType.EAApp ||
-                 selectedModel.Launcher == LauncherType.EpicGames)
+                 (selectedModel.Launcher == LauncherType.EpicGames &&
+                  selectedModel.EpicLoginMode == EpicLoginMode.Manual))
                     ? "POKAŻ DANE LOGOWANIA"
                     : "TESTUJ AUTOMATYCZNE LOGOWANIE";
 
@@ -276,6 +282,25 @@ namespace PlayniteAccountManager.Views
         }
     }
 
+    public sealed class EpicLoginModeOption
+    {
+        public EpicLoginMode Value { get; }
+        public string DisplayName { get; }
+
+        public EpicLoginModeOption(EpicLoginMode value)
+        {
+            Value = value;
+            DisplayName = value == EpicLoginMode.Automatic
+                ? "Automatyczne logowanie"
+                : "Manualne logowanie";
+        }
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
+    }
+
     public sealed class AccountListItem
     {
         public Guid Id { get; }
@@ -295,6 +320,11 @@ namespace PlayniteAccountManager.Views
                 ((record.Launcher == LauncherType.Steam) && record.IsPrimary
                     ? "  •  GŁÓWNE"
                     : "");
+
+            if (record.Launcher == LauncherType.EpicGames)
+                DisplayLauncher += record.EpicLoginMode == EpicLoginMode.Automatic
+                    ? "  •  AUTO"
+                    : "  •  MANUAL";
 
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
