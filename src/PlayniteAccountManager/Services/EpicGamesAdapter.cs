@@ -8,6 +8,12 @@ namespace PlayniteAccountManager.Services
 {
     internal sealed class EpicGamesAdapter
     {
+        private static readonly string[] ProcessNames =
+        {
+            "EpicGamesLauncher",
+            "EpicWebHelper"
+        };
+
         private readonly Action<string> log;
         private readonly EpicGamesSessionStore sessionStore;
 
@@ -23,8 +29,8 @@ namespace PlayniteAccountManager.Services
 
             try
             {
-                // Resolve the executable before stopping EpicGamesLauncher so a
-                // non-standard installation can still be discovered from the live process.
+                // Resolve the launcher before stopping Epic so a non-standard
+                // installation can still be discovered from the live process.
                 string exe = FindExecutable();
                 if (string.IsNullOrWhiteSpace(exe))
                 {
@@ -73,13 +79,18 @@ namespace PlayniteAccountManager.Services
 
         private static void StopProcesses()
         {
-            foreach (Process p in SafeGetProcesses("EpicGamesLauncher"))
+            // Epic uses Chromium/EOS helper processes to keep launcher state open.
+            // They must be stopped as well, otherwise session files can remain locked
+            // or the previous web session can be restored immediately.
+            foreach (string processName in ProcessNames)
+            foreach (Process p in SafeGetProcesses(processName))
             {
                 try
                 {
                     if (!p.HasExited)
                     {
                         try { p.CloseMainWindow(); } catch { }
+
                         if (!p.WaitForExit(1200))
                         {
                             try { p.Kill(); } catch { }
@@ -105,7 +116,8 @@ namespace PlayniteAccountManager.Services
             {
                 try
                 {
-                    if (p.HasExited) continue;
+                    if (p.HasExited)
+                        continue;
 
                     try
                     {
