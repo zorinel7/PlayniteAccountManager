@@ -59,7 +59,7 @@ namespace PlayniteAccountManager.Views
         {
             this.store = store;
             ContextGames = new List<Game>();
-            Launchers = new ObservableCollection<LauncherOption>(Enum.GetValues(typeof(LauncherType)).Cast<LauncherType>().Where(x => x != LauncherType.EAApp && x != LauncherType.EpicGames).Select(x => new LauncherOption(x)));
+            Launchers = new ObservableCollection<LauncherOption>(Enum.GetValues(typeof(LauncherType)).Cast<LauncherType>().Select(x => new LauncherOption(x)));
             Refresh();
             BeginNewAccount();
         }
