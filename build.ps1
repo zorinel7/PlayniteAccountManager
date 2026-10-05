@@ -21,12 +21,7 @@ if (-not $msbuild) {
 if (-not $msbuild) { throw 'Nie znaleziono MSBuild. Zainstaluj Visual Studio z workload .NET desktop development.' }
 
 Write-Host "MSBuild: $msbuild"
-$helperProject = Join-Path $root 'src\PlayniteAccountManager.EAHelper\PlayniteAccountManager.EAHelper.csproj'
-
 & $msbuild $project /restore /t:Build /p:Configuration=Release
 if ($LASTEXITCODE -ne 0) { throw "Budowanie PlayniteAccountManager.dll nie powiodło się." }
 
-& $msbuild $helperProject /restore /t:Build /p:Configuration=Release
-if ($LASTEXITCODE -ne 0) { throw "Budowanie PlayniteAccountManager.EAHelper.exe nie powiodło się." }
-
-Write-Host 'Gotowe. Wynik: plugin + EA helper'
+Write-Host 'Gotowe. Wynik: plugin'
