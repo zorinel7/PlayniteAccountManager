@@ -1,5 +1,21 @@
 # Playnite Account Manager
 
+## Test environment
+
+The current version of Playnite Account Manager has been tested on the following PC configuration:
+
+| Component | Tested hardware / setting |
+|---|---|
+| **CPU** | Intel Core i5-12400 |
+| **GPU** | NVIDIA GeForce RTX 5060 Ti 16 GB |
+| **RAM** | 32 GB DDR4 3200 MHz (2×16 GB) |
+| **Monitor** | AOC CQ27G2U/BK, 27-inch |
+| **Resolution** | 2560 × 1440 (1440p) |
+| **Operating system** | Windows 11 |
+
+The plugin was tested in this environment with Playnite and the supported launcher integrations described below. Hardware not listed here may work as well, but has not been part of the current validation setup.
+
+
 Playnite Account Manager is a Playnite extension for managing multiple accounts from different game launchers and assigning a selected account to a specific game.
 
 The project is designed for a console-like Playnite setup where several launcher accounts can be kept on one PC and the correct account can be prepared before a game starts.
