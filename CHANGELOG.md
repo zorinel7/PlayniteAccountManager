@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.45 - Harden Epic Games manual login
+- Epic Games session cleanup also terminates EpicWebHelper processes before deleting login state.
+- Epic Games manual login remains fully user-driven: the manager never enters the credentials into the Epic launcher.
+- Assigned Epic Games games clear the active Epic session before the manual login window is shown.
+- Unassigned Epic Games games leave the existing Epic Games session untouched.
+- Fixed the GitHub Actions artifact name/path to match the current package version.
+
 ## 0.9.44 - Epic Games manual per-game login
 - Fixed the Epic Games account registry path used when clearing the active session.
 - Epic Games launcher discovery now also checks the running launcher before it is closed.
