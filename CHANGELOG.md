@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.46 - EA App manual per-game login hardening
+- EA App now mirrors the Epic Games manual login flow more closely.
+- Assigned EA App games clear the active EA session before the manual login window is shown.
+- Unassigned EA App games leave the existing EA App session untouched.
+- EA launcher discovery happens before stopping the running launcher, so non-standard installations can still be detected.
+- Both EADesktop and EALauncher processes are stopped before the session state is cleared.
+- EALauncher.exe is preferred when starting EA App.
+- Login and password fields continue to copy to the clipboard for manual Ctrl+V entry in EA App.
+- Fixed the CI artifact/package version to 0.9.46.
+
 ## 0.9.45 - Harden Epic Games manual login
 - Epic Games session cleanup also terminates EpicWebHelper processes before deleting login state.
 - Epic Games manual login remains fully user-driven: the manager never enters the credentials into the Epic launcher.
