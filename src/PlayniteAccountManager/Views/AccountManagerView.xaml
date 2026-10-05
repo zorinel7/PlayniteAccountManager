@@ -450,6 +450,7 @@
                                            TextWrapping="Wrap"/>
                             </StackPanel>
 
+                            <!-- EA login mode is inserted above launcher hint. -->
                             <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerLauncherHint}"
                                        Margin="0,8,0,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
                         </StackPanel>
