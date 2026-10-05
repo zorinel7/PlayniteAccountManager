@@ -7,12 +7,16 @@ $out = Join-Path $root 'PlayniteAccountManager_0.9.42.pext'
 
 if (!(Test-Path (Join-Path $bin 'PlayniteAccountManager.dll'))) { throw 'Brak PlayniteAccountManager.dll po kompilacji.' }
 if (!(Test-Path $manifest)) { throw 'Brak extension.yaml.' }
+$helperBin = Join-Path $root 'src\PlayniteAccountManager.EAHelper\bin\Release\net462'
+$helperExe = Join-Path $helperBin 'PlayniteAccountManager.EAHelper.exe'
+if (!(Test-Path $helperExe)) { throw 'EA helper executable is missing after build.' }
 if (Test-Path $out) { Remove-Item $out -Force }
 
 $tmp = Join-Path $env:TEMP ('PlayniteAccountManager_0.9.42_' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tmp | Out-Null
 Copy-Item (Join-Path $bin 'PlayniteAccountManager.dll') $tmp
 Copy-Item $manifest $tmp
+Copy-Item $helperExe $tmp
 
 Compress-Archive -Path (Join-Path $tmp '*') -DestinationPath $out -CompressionLevel Optimal
 Remove-Item $tmp -Recurse -Force
