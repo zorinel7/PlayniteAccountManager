@@ -18,7 +18,6 @@
   <ItemGroup>
     <Reference Include="System.Security" />
     <Reference Include="System.Management" />
-    <Reference Include="System.Drawing" />
     <None Include="extension.yaml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
