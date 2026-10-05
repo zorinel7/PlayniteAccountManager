@@ -192,7 +192,8 @@ namespace PlayniteAccountManager
                     return;
 
                 bool manualLauncher =
-                    account.Launcher == LauncherType.EAApp ||
+                    (account.Launcher == LauncherType.EAApp &&
+                     account.EALoginMode == EALoginMode.Manual) ||
                     (account.Launcher == LauncherType.EpicGames &&
                      account.EpicLoginMode == EpicLoginMode.Manual);
 
