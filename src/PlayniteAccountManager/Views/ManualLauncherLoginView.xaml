@@ -50,7 +50,7 @@
                          BorderThickness="1.5"
                          Padding="10,7"
                          MouseLeftButtonUp="LoginBox_MouseLeftButtonUp"
-                         ToolTip="Kliknij, aby skopiować"/>
+                         ToolTip="Kliknij, aby skopiować login"/>
 
                 <TextBlock Text="Hasło"
                            FontSize="11"
@@ -66,7 +66,7 @@
                          BorderThickness="1.5"
                          Padding="10,7"
                          MouseLeftButtonUp="PasswordBox_MouseLeftButtonUp"
-                         ToolTip="Kliknij, aby skopiować"/>
+                         ToolTip="Kliknij, aby skopiować hasło"/>
             </StackPanel>
         </Border>
 
@@ -75,7 +75,7 @@
                    FontSize="11"
                    Foreground="#9B9B9B"
                    TextWrapping="Wrap"
-                   Text="Kliknij login lub hasło, aby skopiować je do schowka. Następnie w launcherze użyj Ctrl+V i zaloguj się ręcznie."/>
+                   Text="Hasło jest ukryte na ekranie. Kliknij login lub hasło, aby skopiować je do schowka. Następnie w launcherze użyj Ctrl+V i zaloguj się ręcznie."/>
 
         <Border Grid.Row="8"
                 Background="#151515"
