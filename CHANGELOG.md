@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.51 - Fix Epic automatic game launch login
+- Epic Automatic mode now runs independently of the legacy per-assignment "Automatyczne logowanie" checkbox.
+- Epic automatic input now follows the supplied AHK more closely by operating on the Epic foreground window after the same 15-second startup delay.
+- The plugin verifies that the foreground window belongs to EpicGamesLauncher.exe before sending login credentials.
+- Manual Epic login and other launchers remain unchanged.
+
 ## 0.9.50 - Epic Games manual/automatic login
 - Added a per-account Epic Games login mode: Manual or Automatic.
 - Automatic mode reproduces the supplied AutoHotkey sequence inside the plugin without requiring AutoHotkey.
