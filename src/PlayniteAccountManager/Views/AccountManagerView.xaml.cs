@@ -56,7 +56,7 @@ namespace PlayniteAccountManager.Views
                 LogoutCheck.IsChecked = vm.EditLogoutAfterGame;
                 PrimaryAccountCheck.IsChecked = vm.EditIsPrimary;
                 EpicLoginModeCombo.SelectedValue = vm.EditEpicLoginMode;
-                EditorStatusText.Text = "Edycja: " + vm.EditName;
+                EditorStatusText.Text = string.Format(L("LOCPlayniteAccountManagerEditAccount"), vm.EditName);
             }
             UpdateButtons();
             UpdateStatus();
@@ -172,7 +172,7 @@ namespace PlayniteAccountManager.Views
 
             var answer = MessageBox.Show(
                 string.Format(L("LOCPlayniteAccountManagerDeleteConfirm"), account.DisplayText),
-                "Usuń konto",
+                L("LOCPlayniteAccountManagerDeleteTitle"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 
