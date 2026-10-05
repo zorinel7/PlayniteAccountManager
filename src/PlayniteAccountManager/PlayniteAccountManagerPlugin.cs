@@ -214,6 +214,12 @@ namespace PlayniteAccountManager
                                 ": preparing login before starting: " +
                                 args.Game.Name);
 
+                    if (account.Launcher == LauncherType.EpicGames)
+                        logger.Info("Epic Games: zapisany tryb logowania = " +
+                                     account.EpicLoginMode +
+                                     ", AutoLogin przypisania = " +
+                                     assignment.AutoLogin + ".");
+
                     string password = Store.Credentials.Get(account.Id);
                     string error;
                     bool ok;
@@ -464,7 +470,24 @@ namespace PlayniteAccountManager
                 window.Content = view;
                 window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
                 window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                window.ShowDialog();
+
+                // OnGameStarting may execute outside the WPF UI thread.
+                // Always create/show the modal login window on the Playnite UI
+                // dispatcher, then block until the user finishes the dialog.
+                Dispatcher dispatcher = Application.Current == null
+                    ? null
+                    : Application.Current.Dispatcher;
+
+                if (dispatcher != null && !dispatcher.CheckAccess())
+                {
+                    logger.Info(launcherName + ": wyświetlam okno ręcznego logowania przez WPF Dispatcher.");
+                    dispatcher.Invoke(new Action(() => window.ShowDialog()));
+                }
+                else
+                {
+                    logger.Info(launcherName + ": wyświetlam okno ręcznego logowania.");
+                    window.ShowDialog();
+                }
 
                 return accepted;
             }
