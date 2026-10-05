@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">מנהל חשבונות</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">ניהול חשבונות של משגרים ושיוכם למשחקים</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  הוסף חשבון</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">חשבונות שמורים</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">חשבון חדש</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">משגר</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">שם החשבון</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">כניסה / דוא״ל</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">סיסמה</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">שמור חשבון</sys:String>
+</ResourceDictionary>
