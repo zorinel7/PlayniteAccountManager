@@ -83,7 +83,7 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | **Steam** | Stable | Account switching + primary account |
 | **Ubisoft Connect** | Stable | Automatic login |
 | **Epic Games** | Stable | Manual or automatic |
-| **EA App** | Stable / actively tested | Manual or automatic |
+| **EA App** | Stable | Manual or automatic |
 | Xbox App | Experimental / paused | Not implemented |
 | Rockstar Games Launcher | Account model available | Automatic login not implemented |
 | Battle.net | Account model available | Automatic login not implemented |
