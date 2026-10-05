@@ -7,7 +7,7 @@ namespace PlayniteAccountManager.Services
     internal sealed class EpicGamesSessionStore
     {
         private const string AccountIdSubKey =
-            @"SoftwareEpic GamesUnreal EngineIdentifiers";
+            @"Software\Epic Games\Unreal Engine\Identifiers";
 
         private const string AccountIdValue = "AccountId";
 
