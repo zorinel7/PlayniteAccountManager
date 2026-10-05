@@ -424,7 +424,7 @@
                                           IsChecked="{Binding EditIsPrimary, Mode=TwoWay}"
                                           IsEnabled="{Binding IsPrimaryEligibleLauncher}" Margin="24,0,0,0"/>
                             </StackPanel>
-                            <TextBlock Text="Ubisoft Connect: automatyczne logowanie korzysta z natywnego wejścia klawiatury. Steam: przypisane gry używają wybranego konta, a nieprzypisane gry używają konta oznaczonego jako główne."
+                            <TextBlock Text="Ubisoft Connect: automatyczne logowanie korzysta z natywnego wejścia klawiatury. Steam: przypisane gry używają wybranego konta, a nieprzypisane gry używają konta oznaczonego jako główne. EA App i Epic Games: logowanie do przypisanego konta wykonuje użytkownik ręcznie."
                                        Margin="0,8,0,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
