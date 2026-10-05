@@ -64,4 +64,6 @@ Przypisania tego konta do gier również zostaną usunięte.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Kliknij, aby skopiować hasło</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Login skopiowany do schowka. Wklej go w launcherze przez Ctrl+V.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Hasło skopiowane do schowka. Wklej je w launcherze przez Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Tryb logowania EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manualne: pokazuje dane do skopiowania. Automatyczne: Menadżer Kont uruchamia EA App i wpisuje zapisany login oraz hasło.</sys:String>
 </ResourceDictionary>
