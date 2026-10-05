@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Menadżer Kont</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Zarządzaj kontami launcherów i przypisuj je do gier</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  DODAJ KONTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">ZAPISANE KONTA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Brak zapisanych kont.
+
+Kliknij „DODAJ KONTO”, aby dodać pierwsze konto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nowe konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nazwa konta</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Login / e-mail</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Hasło</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Przy edycji pozostaw puste, aby zachować obecne hasło.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Automatyczne logowanie</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Wyloguj po zakończeniu gry</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Główne konto Steam</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Tryb logowania Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Manualne logowanie</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Automatyczne logowanie</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Manualne: pokazuje dane do skopiowania. Automatyczne: Menadżer Kont sam uruchamia Epic Games i wpisuje zapisany login oraz hasło.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">TESTUJ AUTOMATYCZNE LOGOWANIE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">POKAŻ DANE LOGOWANIA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">PRZYPISZ DO ZAZNACZONYCH GIER</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">USUŃ KONTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">ZAPISZ KONTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Wybierz konto albo dodaj nowe.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Zaznaczone gry w Playnite: {0}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Zaznacz grę lub gry w Playnite, aby przypisać konto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Logowanie</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Logowanie — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Gra: {0}
+
+Zaloguj się ręcznie na poniższe konto w {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Hasło jest ukryte na ekranie. Kliknij login lub hasło, aby skopiować je do schowka. Następnie w launcherze użyj Ctrl+V i zaloguj się ręcznie.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Launcher został uruchomiony. Zaloguj się ręcznie.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">ANULUJ START</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">GOTOWE — URUCHOM GRĘ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Konto „{0}” przypisano do {1} gier.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Konto usunięte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Konto zapisane.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Uruchamiam {0} i automatycznie wprowadzam zapisane dane logowania...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Automatyczne logowanie do {0} zakończone pomyślnie.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Nie udało się zalogować automatycznie.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Automatyczne logowanie nie jest jeszcze dostępne dla tego launchera.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Dane logowania zostały wyświetlone.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Nie udało się otworzyć danych logowania.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Najpierw wybierz zapisane konto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Najpierw zaznacz co najmniej jedną grę w Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Usunąć konto „{0}”?
+
+Przypisania tego konta do gier również zostaną usunięte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Usuń konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Edycja: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">GŁÓWNE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANUAL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Menadżer Kont</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Przypisz konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Usuń przypisanie konta</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Usuń przypisanie: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Kliknij, aby skopiować login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Kliknij, aby skopiować hasło</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Login skopiowany do schowka. Wklej go w launcherze przez Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Hasło skopiowane do schowka. Wklej je w launcherze przez Ctrl+V.</sys:String>
+</ResourceDictionary>
