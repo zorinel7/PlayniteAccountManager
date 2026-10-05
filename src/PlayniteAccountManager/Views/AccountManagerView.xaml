@@ -12,6 +12,7 @@
         <SolidColorBrush x:Key="TextBrush" Color="#F1F1F1"/>
         <SolidColorBrush x:Key="SubTextBrush" Color="#BDBDBD"/>
         <SolidColorBrush x:Key="MutedBrush" Color="#7D7D7D"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
@@ -424,7 +425,32 @@
                                           IsChecked="{Binding EditIsPrimary, Mode=TwoWay}"
                                           IsEnabled="{Binding IsPrimaryEligibleLauncher}" Margin="24,0,0,0"/>
                             </StackPanel>
-                            <TextBlock Text="Ubisoft Connect: automatyczne logowanie korzysta z natywnego wejścia klawiatury. Steam: przypisane gry używają wybranego konta, a nieprzypisane gry używają konta oznaczonego jako główne. EA App i Epic Games: logowanie do przypisanego konta wykonuje użytkownik ręcznie."
+
+                            <StackPanel Margin="0,12,0,0"
+                                        Visibility="{Binding IsEpicGamesLauncher, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="Tryb logowania Epic Games"
+                                           Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="EpicLoginModeCombo"
+                                          Style="{StaticResource LauncherComboBox}"
+                                          ItemsSource="{Binding EpicLoginModes}"
+                                          SelectedValuePath="Value"
+                                          SelectedValue="{Binding EditEpicLoginMode, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayName}"
+                                                       Foreground="#F2F2F2"
+                                                       FontSize="13"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock Text="Manualne: pokazuje dane do skopiowania. Automatyczne: Menadżer Kont sam uruchamia Epic Games i wpisuje zapisany login oraz hasło."
+                                           Margin="2,5,2,0"
+                                           FontSize="10"
+                                           Foreground="#777777"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Ubisoft Connect: automatyczne logowanie korzysta z natywnego wejścia klawiatury. Steam: przypisane gry używają wybranego konta, a nieprzypisane gry używają konta oznaczonego jako główne. EA App pozostaje w trybie ręcznym. Epic Games może korzystać z logowania ręcznego albo automatycznego."
                                        Margin="0,8,0,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
