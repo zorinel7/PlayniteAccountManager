@@ -93,6 +93,26 @@ namespace PlayniteAccountManager.Views
                 return;
             }
 
+            if (model.Launcher == LauncherType.EAApp ||
+                model.Launcher == LauncherType.EpicGames)
+            {
+                string manualError;
+                bool manualOk = plugin.ShowManualLoginForTest(model.Id, out manualError);
+                UpdateStatus(manualOk
+                    ? "Dane logowania zostały wyświetlone."
+                    : "Nie udało się otworzyć danych logowania.");
+
+                if (!manualOk && !string.IsNullOrWhiteSpace(manualError))
+                    MessageBox.Show(
+                        manualError,
+                        model.Launcher.GetDisplayName(),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+
+                UpdateButtons();
+                return;
+            }
+
             TestLoginButton.IsEnabled = false;
             UpdateStatus("Uruchamiam " + model.Launcher.GetDisplayName() + " i automatycznie wprowadzam dane logowania...");
 
@@ -161,8 +181,18 @@ namespace PlayniteAccountManager.Views
             DeleteButton.IsEnabled = has;
             AssignButton.IsEnabled = has && vm.ContextGames.Any();
             var selectedModel = has ? store.GetAccount(vm.SelectedAccount.Id) : null;
-            bool supported = selectedModel != null && (selectedModel.Launcher == LauncherType.UbisoftConnect || selectedModel.Launcher == LauncherType.Steam);
+            bool supported = selectedModel != null &&
+                             (selectedModel.Launcher == LauncherType.UbisoftConnect ||
+                              selectedModel.Launcher == LauncherType.Steam ||
+                              selectedModel.Launcher == LauncherType.EAApp ||
+                              selectedModel.Launcher == LauncherType.EpicGames);
             TestLoginButton.IsEnabled = supported;
+            TestLoginButton.Content =
+                selectedModel != null &&
+                (selectedModel.Launcher == LauncherType.EAApp ||
+                 selectedModel.Launcher == LauncherType.EpicGames)
+                    ? "POKAŻ DANE LOGOWANIA"
+                    : "TESTUJ AUTOMATYCZNE LOGOWANIE";
 
             EmptyAccountsText.Visibility = vm.Accounts != null && vm.Accounts.Count > 0
                 ? Visibility.Collapsed
