@@ -210,7 +210,8 @@ namespace PlayniteAccountManager
                     if (account.Launcher != LauncherType.UbisoftConnect &&
                         account.Launcher != LauncherType.Steam &&
                         !manualLauncher &&
-                        !automaticEpic)
+                        !automaticEpic &&
+                        !(account.Launcher == LauncherType.EAApp && account.EALoginMode == (EALoginMode)1))
                         return;
 
                     logger.Info(account.Launcher.GetDisplayName() +
