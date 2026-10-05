@@ -93,22 +93,6 @@ namespace PlayniteAccountManager.Views
                 return;
             }
 
-            // EA needs one elevated helper task because its background
-            // service owns protected ProgramData. Playnite itself remains
-            // non-elevated. The setup is integrated here and happens once.
-            if (model.Launcher == LauncherType.EAApp && !plugin.IsEAHelperReady())
-            {
-                UpdateStatus("Pierwsza konfiguracja EA App — pojawi się jednorazowy monit UAC...");
-                string setupError;
-                if (!plugin.EnsureEAHelper(out setupError))
-                {
-                    UpdateStatus("Nie skonfigurowano pomocnika EA.");
-                    if (!string.IsNullOrWhiteSpace(setupError))
-                        MessageBox.Show(setupError, "EA App", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-            }
-
             TestLoginButton.IsEnabled = false;
             UpdateStatus("Uruchamiam " + model.Launcher.GetDisplayName() + " i automatycznie wprowadzam dane logowania...");
 
