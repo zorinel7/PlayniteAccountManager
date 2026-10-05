@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">Tilienhallinta</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Hallitse käynnistimien tilejä ja liitä ne peleihin</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  LISÄÄ TILI</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">TALLENNETUT TILIT</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Uusi tili</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Käynnistin</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Tilin nimi</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Kirjautuminen / sähköposti</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">Salasana</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">TALLENNA TILI</sys:String>
+</ResourceDictionary>
