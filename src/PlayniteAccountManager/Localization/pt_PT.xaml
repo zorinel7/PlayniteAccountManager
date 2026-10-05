@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">Gestor de Contas</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Gira as contas dos launchers e atribui-as aos jogos</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ADICIONAR CONTA</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">CONTAS GUARDADAS</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nova conta</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nome da conta</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Início de sessão / e-mail</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">Palavra-passe</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">GUARDAR CONTA</sys:String>
+</ResourceDictionary>
