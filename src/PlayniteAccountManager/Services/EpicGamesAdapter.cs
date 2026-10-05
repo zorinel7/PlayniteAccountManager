@@ -23,17 +23,19 @@ namespace PlayniteAccountManager.Services
 
             try
             {
-                StopProcesses();
-
-                if (!sessionStore.ClearLiveState(out error))
-                    return false;
-
+                // Resolve the executable before stopping EpicGamesLauncher so a
+                // non-standard installation can still be discovered from the live process.
                 string exe = FindExecutable();
                 if (string.IsNullOrWhiteSpace(exe))
                 {
                     error = "Nie znaleziono Epic Games Launcher na tym komputerze.";
                     return false;
                 }
+
+                StopProcesses();
+
+                if (!sessionStore.ClearLiveState(out error))
+                    return false;
 
                 using (var process = Process.Start(new ProcessStartInfo
                 {
@@ -104,25 +106,35 @@ namespace PlayniteAccountManager.Services
                 try
                 {
                     if (p.HasExited) continue;
+
                     try
                     {
                         string path = p.MainModule.FileName;
                         if (!string.IsNullOrWhiteSpace(path))
                             candidates.Add(path);
                     }
-                    catch { }
+                    catch
+                    {
+                    }
                 }
-                finally { p.Dispose(); }
+                finally
+                {
+                    p.Dispose();
+                }
             }
 
-            foreach (string candidate in candidates.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
+            foreach (string candidate in candidates
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct(StringComparer.OrdinalIgnoreCase))
             {
                 try
                 {
                     if (File.Exists(candidate))
                         return candidate;
                 }
-                catch { }
+                catch
+                {
+                }
             }
 
             return null;
@@ -133,8 +145,13 @@ namespace PlayniteAccountManager.Services
             if (string.IsNullOrWhiteSpace(root))
                 return;
 
-            candidates.Add(Path.Combine(root, "Epic Games", "Launcher", "Portal", "Binaries", "Win32", "EpicGamesLauncher.exe"));
-            candidates.Add(Path.Combine(root, "Epic Games", "Launcher", "Portal", "Binaries", "Win64", "EpicGamesLauncher.exe"));
+            candidates.Add(Path.Combine(
+                root, "Epic Games", "Launcher", "Portal",
+                "Binaries", "Win32", "EpicGamesLauncher.exe"));
+
+            candidates.Add(Path.Combine(
+                root, "Epic Games", "Launcher", "Portal",
+                "Binaries", "Win64", "EpicGamesLauncher.exe"));
         }
 
         private static IEnumerable<Process> SafeGetProcesses(string name)
