@@ -94,11 +94,10 @@ namespace PlayniteAccountManager.Views
 
             var model = store.GetAccount(account.Id);
             bool manualLauncher = model != null &&
-                                  (model.Launcher == LauncherType.EAApp ||
-                                   (model.Launcher == LauncherType.EpicGames &&
+                                  ((model.Launcher == LauncherType.EpicGames &&
                                     model.EpicLoginMode == EpicLoginMode.Manual) ||
                                    (model.Launcher == LauncherType.EAApp &&
-                                    model.EALoginMode == EALoginMode.Manual));
+                                    model.EALoginMode == (EALoginMode)0));
 
             bool automaticLauncher = model != null &&
                                      (model.Launcher == LauncherType.UbisoftConnect ||
