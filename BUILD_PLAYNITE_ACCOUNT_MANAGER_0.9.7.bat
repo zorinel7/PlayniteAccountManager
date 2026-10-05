@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 echo ==================================================
-echo   Playnite Account Manager - BUILD 0.9.47
+echo   Playnite Account Manager - BUILD 0.9.48
 echo ==================================================
 set "PROJECT=%~dp0src\PlayniteAccountManager\PlayniteAccountManager.csproj"
 if not exist "%PROJECT%" (
@@ -19,19 +19,14 @@ if "%MSBUILD%"=="" (
   exit /b 1
 )
 echo.
-echo [1/4] Clean plugin
+echo [1/3] Clean plugin
 echo.
 "%MSBUILD%" "%PROJECT%" /t:Clean /p:Configuration=Release
 if errorlevel 1 goto :fail
 echo.
-echo [2/4] Restore + Build plugin
+echo [2/3] Restore + Build plugin
 echo.
 "%MSBUILD%" "%PROJECT%" /restore /t:Build /p:Configuration=Release
-if errorlevel 1 goto :fail
-echo.
-echo [3/4] Build EA helper
-echo.
-"%MSBUILD%" "%HELPER_PROJECT%" /restore /t:Build /p:Configuration=Release
 if errorlevel 1 goto :fail
 echo.
 echo [3/3] Package + install
@@ -46,7 +41,7 @@ copy /y "%BIN%\PlayniteAccountManager.dll" "%EXT%\PlayniteAccountManager.dll" >n
 copy /y "%~dp0src\PlayniteAccountManager\extension.yaml" "%EXT%\extension.yaml" >nul
 echo.
 echo ==================================================
-echo   BUILD 0.9.47 ZAKONCZONY
+echo   BUILD 0.9.48 ZAKONCZONY
 echo ==================================================
 echo   Zainstalowano do:
 echo   %EXT%
