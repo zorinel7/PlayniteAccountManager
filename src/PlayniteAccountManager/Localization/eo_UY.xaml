@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Konto-Administrilo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Administru lanĉilajn kontojn kaj atribuu ilin al ludoj</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ALDONI KONTON</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">KONSERVITAJ KONTOJ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nova konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Lanĉilo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Kontonomo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Ensaluto / retpoŝto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Pasvorto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">KONSERVI KONTON</sys:String>
+</ResourceDictionary>
