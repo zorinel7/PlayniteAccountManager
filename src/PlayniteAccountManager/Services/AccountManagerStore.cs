@@ -41,16 +41,6 @@ namespace PlayniteAccountManager.Services
         }
 
 
-        public AccountRecord GetPrimaryEAAccount()
-        {
-            return settings.Accounts.FirstOrDefault(x => x.Launcher == LauncherType.EAApp && x.IsPrimary);
-        }
-
-        public AccountRecord GetPrimaryEpicAccount()
-        {
-            return settings.Accounts.FirstOrDefault(x => x.Launcher == LauncherType.EpicGames && x.IsPrimary);
-        }
-
         public AccountRecord EnsurePrimaryEpicAccount()
         {
             var primary = GetPrimaryEpicAccount();
