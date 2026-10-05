@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
+<sys:String x:Key="LOCPlayniteAccountManagerTitle">Bainisteoir Cuntas</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Bainistigh cuntais lainseálaithe agus sann iad do chluichí</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  CUIR CUNTAS LEIS</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">CUNTAIS SHÁBHÁILTE</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Cuntas nua</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Lainseálaí</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Ainm an chuntais</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Logáil isteach / ríomhphost</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerPassword">Focal faire</sys:String>
+<sys:String x:Key="LOCPlayniteAccountManagerSave">SÁBHÁIL CUNTAS</sys:String>
+</ResourceDictionary>
