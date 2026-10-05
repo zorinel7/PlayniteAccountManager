@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.44 - Epic Games manual per-game login
+- Fixed the Epic Games account registry path used when clearing the active session.
+- Epic Games launcher discovery now also checks the running launcher before it is closed.
+- Fixed the account manager test button so Epic Games manual login is actually available for Epic accounts.
+- Assigned Epic Games games clear the current Epic session before the manual login window is shown.
+- Unassigned Epic Games games leave the current Epic Games session untouched.
+- Login and password fields in the manual login window copy to the clipboard when clicked, allowing Ctrl+V in Epic Games Launcher.
+
 - Steam and Ubisoft Connect code kept from the stable baseline.
 - Project structure prepared for additional launchers.
 
