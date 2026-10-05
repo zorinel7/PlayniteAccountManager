@@ -220,7 +220,7 @@ namespace PlayniteAccountManager.Services
 
         private static void AddFromUninstallKey(List<string> candidates, RegistryKey baseKey)
         {
-            using (RegistryKey uninstall = baseKey.OpenSubKey(@"SOFTWAREMicrosoftWindowsCurrentVersionUninstall"))
+            using (RegistryKey uninstall = baseKey.OpenSubKey(@"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"))
             {
                 if (uninstall == null)
                     return;
@@ -265,7 +265,7 @@ namespace PlayniteAccountManager.Services
         private static void AddFromAppPaths(List<string> candidates, RegistryKey baseKey, string executableName)
         {
             using (RegistryKey key = baseKey.OpenSubKey(
-                @"SOFTWAREMicrosoftWindowsCurrentVersionApp Paths" + executableName))
+                @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + executableName))
             {
                 if (key == null)
                     return;
