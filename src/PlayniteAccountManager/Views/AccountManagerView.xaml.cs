@@ -147,7 +147,7 @@ namespace PlayniteAccountManager.Views
                 UpdateStatus(
                     ok
                         ? string.Format(L("LOCPlayniteAccountManagerAutoSuccess"), model.Launcher.GetDisplayName())
-                        : "Nie udało się zalogować automatycznie.");
+                        : L("LOCPlayniteAccountManagerAutoFail"));
 
                 if (!ok && !string.IsNullOrWhiteSpace(error))
                 {
