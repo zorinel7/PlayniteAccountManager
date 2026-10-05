@@ -165,9 +165,14 @@ namespace PlayniteAccountManager
                     return ubisoft.PrepareAndLogin(account, password, out error);
                 case LauncherType.Steam:
                     return steam.PrepareAndLogin(account, password, out error);
-                case LauncherType.EAApp:
                 case LauncherType.EpicGames:
-                    error = "EA App i Epic Games używają ręcznego logowania przy uruchamianiu gry.";
+                    if (account.EpicLoginMode == EpicLoginMode.Automatic)
+                        return epic.PrepareAndLogin(account, password, out error);
+
+                    error = "To konto Epic Games jest ustawione na logowanie ręczne.";
+                    return false;
+                case LauncherType.EAApp:
+                    error = "To konto EA App używa ręcznego logowania.";
                     return false;
                 default:
                     error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
@@ -187,7 +192,8 @@ namespace PlayniteAccountManager
 
                 bool manualLauncher =
                     account.Launcher == LauncherType.EAApp ||
-                    account.Launcher == LauncherType.EpicGames;
+                    (account.Launcher == LauncherType.EpicGames &&
+                     account.EpicLoginMode == EpicLoginMode.Manual);
 
                 bool runAssignedFlow = assignment.AutoLogin || manualLauncher;
 
@@ -210,6 +216,9 @@ namespace PlayniteAccountManager
                     {
                         if (account.Launcher == LauncherType.UbisoftConnect)
                             ok = ubisoft.PrepareAndLogin(account, password, out error);
+                        else if (account.Launcher == LauncherType.EpicGames &&
+                                 account.EpicLoginMode == EpicLoginMode.Automatic)
+                            ok = epic.PrepareAndLogin(account, password, out error);
                         else if (manualLauncher)
                             ok = PrepareManualLauncherLogin(account, args.Game.Name, out error);
                         else
