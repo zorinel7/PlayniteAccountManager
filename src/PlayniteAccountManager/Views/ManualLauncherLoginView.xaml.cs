@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using Playnite.SDK;
 
 namespace PlayniteAccountManager.Views
 {
@@ -23,10 +24,8 @@ namespace PlayniteAccountManager.Views
         {
             InitializeComponent();
 
-            TitleText.Text = "Logowanie — " + launcherName;
-            GameText.Text = "Gra: " + gameName +
-                            "\n\nZaloguj się ręcznie na poniższe konto w " +
-                            launcherName + ".";
+            TitleText.Text = string.Format(ResourceProvider.GetString("LOCPlayniteAccountManagerLoginTitle"), launcherName);
+            GameText.Text = string.Format(ResourceProvider.GetString("LOCPlayniteAccountManagerLoginGameInstruction"), gameName, launcherName);
             LoginBox.Text = username ?? string.Empty;
             PasswordBox.Text = string.IsNullOrEmpty(password) ? string.Empty : Mask;
 
@@ -38,7 +37,7 @@ namespace PlayniteAccountManager.Views
         private void LoginBox_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             copyLogin?.Invoke();
-            StatusText.Text = "Login skopiowany do schowka. Wklej go w launcherze przez Ctrl+V.";
+            StatusText.Text = ResourceProvider.GetString("LOCPlayniteAccountManagerLoginCopied");
             LoginBox.SelectAll();
             e.Handled = true;
         }
@@ -46,7 +45,7 @@ namespace PlayniteAccountManager.Views
         private void PasswordBox_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             copyPassword?.Invoke();
-            StatusText.Text = "Hasło skopiowane do schowka. Wklej je w launcherze przez Ctrl+V.";
+            StatusText.Text = ResourceProvider.GetString("LOCPlayniteAccountManagerPasswordCopied");
             PasswordBox.SelectAll();
             e.Handled = true;
         }
