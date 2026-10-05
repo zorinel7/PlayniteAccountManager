@@ -11,6 +11,8 @@ namespace PlayniteAccountManager.Views
 {
     public partial class AccountManagerView : UserControl
     {
+        private static string L(string key) => ResourceProvider.GetString(key);
+
         private readonly PlayniteAccountManagerPlugin plugin;
         private readonly AccountManagerStore store;
         private readonly AccountManagerViewModel vm;
@@ -39,7 +41,7 @@ namespace PlayniteAccountManager.Views
             LogoutCheck.IsChecked = true;
             PrimaryAccountCheck.IsChecked = false;
             EpicLoginModeCombo.SelectedValue = EpicLoginMode.Manual;
-            EditorStatusText.Text = "Nowe konto";
+            EditorStatusText.Text = L("LOCPlayniteAccountManagerNewAccount");
             UpdateButtons();
             UpdateStatus();
         }
@@ -70,13 +72,13 @@ namespace PlayniteAccountManager.Views
             string error;
             if (!vm.SaveCurrent(out error))
             {
-                MessageBox.Show(error, "Menadżer Kont", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(error, L("LOCPlayniteAccountManagerTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             PasswordBox.Password = string.Empty;
             vm.Refresh();
             UpdateButtons();
-            UpdateStatus("Konto zapisane.");
+            UpdateStatus(L("LOCPlayniteAccountManagerAccountSaved"));
         }
 
         private async void TestLoginButton_Click(object sender, RoutedEventArgs e)
@@ -84,7 +86,7 @@ namespace PlayniteAccountManager.Views
             var account = vm.SelectedAccount;
             if (account == null)
             {
-                MessageBox.Show("Najpierw wybierz zapisane konto.", "Menadżer Kont", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(L("LOCPlayniteAccountManagerSelectAccountFirst"), L("LOCPlayniteAccountManagerTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -103,8 +105,8 @@ namespace PlayniteAccountManager.Views
             if (model == null || (!manualLauncher && !automaticLauncher))
             {
                 MessageBox.Show(
-                    "Automatyczne logowanie nie jest jeszcze dostępne dla tego launchera.",
-                    "Menadżer Kont",
+                    L("LOCPlayniteAccountManagerAutoUnavailable"),
+                    L("LOCPlayniteAccountManagerTitle"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -116,8 +118,8 @@ namespace PlayniteAccountManager.Views
                 bool manualOk = plugin.ShowManualLoginForTest(model.Id, out manualError);
 
                 UpdateStatus(manualOk
-                    ? "Dane logowania zostały wyświetlone."
-                    : "Nie udało się otworzyć danych logowania.");
+                    ? L("LOCPlayniteAccountManagerManualDataShown")
+                    : L("LOCPlayniteAccountManagerManualDataFail"));
 
                 if (!manualOk && !string.IsNullOrWhiteSpace(manualError))
                 {
@@ -134,8 +136,7 @@ namespace PlayniteAccountManager.Views
 
             TestLoginButton.IsEnabled = false;
             UpdateStatus(
-                "Uruchamiam " + model.Launcher.GetDisplayName() +
-                " i automatycznie wprowadzam dane logowania...");
+                string.Format(L("LOCPlayniteAccountManagerAutoRunning"), model.Launcher.GetDisplayName()));
 
             try
             {
@@ -145,9 +146,7 @@ namespace PlayniteAccountManager.Views
 
                 UpdateStatus(
                     ok
-                        ? "Automatyczne logowanie " +
-                          model.Launcher.GetDisplayName() +
-                          " zakończone pomyślnie."
+                        ? string.Format(L("LOCPlayniteAccountManagerAutoSuccess"), model.Launcher.GetDisplayName())
                         : "Nie udało się zalogować automatycznie.");
 
                 if (!ok && !string.IsNullOrWhiteSpace(error))
@@ -172,7 +171,7 @@ namespace PlayniteAccountManager.Views
                 return;
 
             var answer = MessageBox.Show(
-                "Usunąć konto „" + account.DisplayText + "”?\n\nPrzypisania tego konta do gier również zostaną usunięte.",
+                string.Format(L("LOCPlayniteAccountManagerDeleteConfirm"), account.DisplayText),
                 "Usuń konto",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -184,9 +183,9 @@ namespace PlayniteAccountManager.Views
             vm.Refresh();
             vm.BeginNewAccount();
             PasswordBox.Password = string.Empty;
-            EditorStatusText.Text = "Nowe konto";
+            EditorStatusText.Text = L("LOCPlayniteAccountManagerNewAccount");
             UpdateButtons();
-            UpdateStatus("Konto usunięte.");
+            UpdateStatus(L("LOCPlayniteAccountManagerAccountDeleted"));
         }
 
         private void AssignButton_Click(object sender, RoutedEventArgs e)
@@ -199,8 +198,8 @@ namespace PlayniteAccountManager.Views
             if (games.Count == 0)
             {
                 MessageBox.Show(
-                    "Najpierw zaznacz co najmniej jedną grę w Playnite.",
-                    "Menadżer Kont",
+                    L("LOCPlayniteAccountManagerSelectGamesFirst"),
+                    L("LOCPlayniteAccountManagerTitle"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -214,8 +213,7 @@ namespace PlayniteAccountManager.Views
                     vm.EditLogoutAfterGame);
 
             UpdateStatus(
-                "Konto „" + account.Name + "” przypisano do " +
-                games.Count + " gier.");
+                string.Format(L("LOCPlayniteAccountManagerAccountAssigned"), account.Name, games.Count));
         }
 
         private void UpdateButtons()
@@ -241,8 +239,8 @@ namespace PlayniteAccountManager.Views
                 (selectedModel.Launcher == LauncherType.EAApp ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
                   selectedModel.EpicLoginMode == EpicLoginMode.Manual))
-                    ? "POKAŻ DANE LOGOWANIA"
-                    : "TESTUJ AUTOMATYCZNE LOGOWANIE";
+                    ? L("LOCPlayniteAccountManagerTestManual")
+                    : L("LOCPlayniteAccountManagerTestAuto");
 
             EmptyAccountsText.Visibility =
                 vm.Accounts != null && vm.Accounts.Count > 0
@@ -260,8 +258,8 @@ namespace PlayniteAccountManager.Views
 
             var count = vm.ContextGames.Count;
             StatusText.Text = count > 0
-                ? "Zaznaczone gry w Playnite: " + count + "."
-                : "Zaznacz grę lub gry w Playnite, aby przypisać konto.";
+                ? string.Format(L("LOCPlayniteAccountManagerSelectedGames"), count)
+                : L("LOCPlayniteAccountManagerSelectGames");
         }
     }
 
@@ -291,8 +289,8 @@ namespace PlayniteAccountManager.Views
         {
             Value = value;
             DisplayName = value == EpicLoginMode.Automatic
-                ? "Automatyczne logowanie"
-                : "Manualne logowanie";
+                ? ResourceProvider.GetString("LOCPlayniteAccountManagerAutomaticLogin")
+                : ResourceProvider.GetString("LOCPlayniteAccountManagerManualLogin");
         }
 
         public override string ToString()
@@ -318,13 +316,13 @@ namespace PlayniteAccountManager.Views
             DisplayLauncher =
                 record.Launcher.GetDisplayName() +
                 ((record.Launcher == LauncherType.Steam) && record.IsPrimary
-                    ? "  •  GŁÓWNE"
+                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerPrimarySteamShort")
                     : "");
 
             if (record.Launcher == LauncherType.EpicGames)
                 DisplayLauncher += record.EpicLoginMode == EpicLoginMode.Automatic
-                    ? "  •  AUTO"
-                    : "  •  MANUAL";
+                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
+                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
