@@ -202,7 +202,8 @@ namespace PlayniteAccountManager
                     account.EpicLoginMode == EpicLoginMode.Automatic;
 
                 bool runAssignedFlow =
-                    assignment.AutoLogin || manualLauncher || automaticEpic;
+                    assignment.AutoLogin || manualLauncher || automaticEpic ||
+                    (account.Launcher == LauncherType.EAApp && account.EALoginMode == (EALoginMode)1);
 
                 if (runAssignedFlow)
                 {
