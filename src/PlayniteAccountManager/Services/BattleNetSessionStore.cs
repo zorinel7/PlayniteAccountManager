@@ -300,7 +300,7 @@ namespace PlayniteAccountManager.Services
                         return false;
 
                     string replacement = replacementMode == "string"
-                        ? """"
+                        ? "\"\""
                         : PreserveScalarType(json.Substring(valueStart, valueEnd - valueStart + 1), replacementMode);
 
                     updated =
