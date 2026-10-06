@@ -9,8 +9,6 @@
 - Added GOG Galaxy manual login to the Account Manager test flow.
 - Existing Steam, Ubisoft Connect, EA App and Epic Games behavior remains unchanged.
 
-# Changelog
-
 ## 0.9.56 - Ubisoft Connect manual/automatic login mode
 - Added a per-account Ubisoft Connect login mode: Manual or Automatic.
 - Added the same manual login flow for Ubisoft Connect that is already used by EA App and Epic Games.
