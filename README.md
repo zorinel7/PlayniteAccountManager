@@ -1,6 +1,7 @@
 # Playnite Account Manager
 
 > 0.9.56 build verification
+> GitHub Actions artifact check
 
 ## Test environment
 
