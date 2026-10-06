@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Win32;
 
 namespace PlayniteAccountManager.Services
 {
@@ -20,7 +21,8 @@ namespace PlayniteAccountManager.Services
             try
             {
                 bool cachedDataRemoved = RemoveCachedData();
-                bool savedAccountsCleared = ClearSavedAccountNames();
+                bool savedAccountStateCleared = ClearSavedAccountState();
+                bool registryStateCleared = ClearRegistryAuthenticationState();
 
                 RemoveCacheDirectory(
                     Path.Combine(
@@ -53,10 +55,10 @@ namespace PlayniteAccountManager.Services
                         "Battle.net",
                         "Cache"));
 
-                if (!cachedDataRemoved && !savedAccountsCleared)
+                if (!cachedDataRemoved && !savedAccountStateCleared && !registryStateCleared)
                     log("Battle.net: nie znaleziono lokalnego stanu logowania do wyczyszczenia; kontynuuję uruchomienie launchera.");
                 else
-                    log("Battle.net: lokalny stan logowania został wyczyszczony.");
+                    log("Battle.net: lokalny stan logowania i zapamiętanego konta został wyczyszczony.");
 
                 return true;
             }
@@ -94,7 +96,7 @@ namespace PlayniteAccountManager.Services
             return removed;
         }
 
-        private bool ClearSavedAccountNames()
+        private bool ClearSavedAccountState()
         {
             string configPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -102,15 +104,49 @@ namespace PlayniteAccountManager.Services
                 "Battle.net.config");
 
             if (!File.Exists(configPath))
+            {
+                log("Battle.net: nie znaleziono Battle.net.config do wyczyszczenia zapamiętanego konta.");
                 return false;
+            }
 
             try
             {
                 string json = File.ReadAllText(configPath);
-                string updated;
-                if (!TryClearJsonArrayProperty(json, "SavedAccountNames", out updated))
+                string updated = json;
+                bool changed = false;
+
+                string result;
+                if (TryReplaceJsonValue(updated, "SavedAccountNames", "string", out result))
                 {
-                    log("Battle.net: nie znaleziono pola SavedAccountNames w Battle.net.config.");
+                    updated = result;
+                    changed = true;
+                    log("Battle.net: SavedAccountNames ustawiono na pustą wartość.");
+                }
+
+                if (TryReplaceJsonValue(updated, "RememberAccountName", "false", out result))
+                {
+                    updated = result;
+                    changed = true;
+                    log("Battle.net: RememberAccountName ustawiono na false.");
+                }
+
+                if (TryReplaceJsonValue(updated, "AutoLogin", "false", out result))
+                {
+                    updated = result;
+                    changed = true;
+                    log("Battle.net: AutoLogin ustawiono na false.");
+                }
+
+                if (TryReplaceJsonValue(updated, "AutoLoginCN", "false", out result))
+                {
+                    updated = result;
+                    changed = true;
+                    log("Battle.net: AutoLoginCN ustawiono na false.");
+                }
+
+                if (!changed)
+                {
+                    log("Battle.net: nie znaleziono pól sesji/zapamiętanego konta w Battle.net.config.");
                     return false;
                 }
 
@@ -118,21 +154,107 @@ namespace PlayniteAccountManager.Services
                 File.WriteAllText(tempPath, updated);
 
                 File.SetAttributes(configPath, FileAttributes.Normal);
-                File.Replace(tempPath, configPath, null);
 
-                log("Battle.net: wyczyszczono listę zapamiętanych kont w Battle.net.config.");
+                if (File.Exists(configPath))
+                    File.Replace(tempPath, configPath, null);
+                else
+                    File.Move(tempPath, configPath);
+
+                log("Battle.net: zapisano wyczyszczony Battle.net.config.");
                 return true;
             }
             catch (Exception ex)
             {
-                log("Battle.net: nie udało się wyczyścić SavedAccountNames: " + ex.Message);
+                log("Battle.net: nie udało się wyczyścić Battle.net.config: " + ex.Message);
                 return false;
             }
         }
 
-        private static bool TryClearJsonArrayProperty(
+        private bool ClearRegistryAuthenticationState()
+        {
+            bool changed = false;
+
+            foreach (RegistryView view in new[] { RegistryView.Registry64, RegistryView.Registry32, RegistryView.Default })
+            {
+                try
+                {
+                    using (RegistryKey baseKey = RegistryKey.OpenBaseKey(
+                        RegistryHive.CurrentUser, view))
+                    using (RegistryKey battleNet = baseKey.OpenSubKey(
+                        @"SOFTWARE\Blizzard Entertainment\Battle.net", true))
+                    {
+                        if (battleNet == null)
+                            continue;
+
+                        changed |= DeleteSubKeyTree(battleNet, "Identity");
+                        changed |= DeleteSubKeyTree(battleNet, "Authenticator");
+
+                        using (RegistryKey launchOptions = battleNet.OpenSubKey("Launch Options", true))
+                        {
+                            if (launchOptions != null)
+                            {
+                                foreach (string childName in launchOptions.GetSubKeyNames())
+                                {
+                                    using (RegistryKey child = launchOptions.OpenSubKey(childName, true))
+                                    {
+                                        if (child == null)
+                                            continue;
+
+                                        changed |= DeleteValue(child, "WEB_TOKEN");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log("Battle.net: pominięto część czyszczenia rejestru: " + ex.Message);
+                }
+            }
+
+            if (changed)
+                log("Battle.net: wyczyszczono registry state powiązany z uwierzytelnieniem.");
+
+            return changed;
+        }
+
+        private static bool DeleteSubKeyTree(RegistryKey parent, string name)
+        {
+            try
+            {
+                if (parent.OpenSubKey(name) == null)
+                    return false;
+
+                parent.DeleteSubKeyTree(name, false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool DeleteValue(RegistryKey key, string name)
+        {
+            try
+            {
+                if (key.GetValue(name) == null)
+                    return false;
+
+                key.DeleteValue(name, false);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool TryReplaceJsonValue(
             string json,
             string propertyName,
+            string replacementMode,
             out string updated)
         {
             updated = null;
@@ -140,16 +262,23 @@ namespace PlayniteAccountManager.Services
             if (string.IsNullOrWhiteSpace(json) || string.IsNullOrWhiteSpace(propertyName))
                 return false;
 
-            string quotedName = "\"" + propertyName + "\"";
+            string quotedName = """ + propertyName + """;
             int searchStart = 0;
 
             while (searchStart < json.Length)
             {
-                int propertyIndex = json.IndexOf(quotedName, searchStart, StringComparison.Ordinal);
+                int propertyIndex = json.IndexOf(
+                    quotedName,
+                    searchStart,
+                    StringComparison.Ordinal);
+
                 if (propertyIndex < 0)
                     return false;
 
-                int colon = SkipWhitespace(json, propertyIndex + quotedName.Length);
+                int colon = SkipWhitespace(
+                    json,
+                    propertyIndex + quotedName.Length);
+
                 if (colon >= json.Length || json[colon] != ':')
                 {
                     searchStart = propertyIndex + quotedName.Length;
@@ -157,24 +286,76 @@ namespace PlayniteAccountManager.Services
                 }
 
                 int valueStart = SkipWhitespace(json, colon + 1);
-                if (valueStart >= json.Length || json[valueStart] != '[')
+
+                if (valueStart >= json.Length)
+                    return false;
+
+                char valueChar = json[valueStart];
+
+                int valueEnd;
+                if (valueChar == '"')
                 {
-                    searchStart = propertyIndex + quotedName.Length;
-                    continue;
+                    valueEnd = FindJsonStringEnd(json, valueStart);
+                    if (valueEnd < 0)
+                        return false;
+
+                    string replacement = replacementMode == "string"
+                        ? """"
+                        : PreserveScalarType(json.Substring(valueStart, valueEnd - valueStart + 1), replacementMode);
+
+                    updated =
+                        json.Substring(0, valueStart) +
+                        replacement +
+                        json.Substring(valueEnd + 1);
+
+                    return true;
                 }
 
-                int valueEnd = FindJsonValueEnd(json, valueStart);
-                if (valueEnd <= valueStart || json[valueEnd] != ']')
+                if (valueChar == '[')
                 {
-                    searchStart = propertyIndex + quotedName.Length;
-                    continue;
+                    valueEnd = FindJsonValueEnd(json, valueStart);
+                    if (valueEnd < 0)
+                        return false;
+
+                    string replacement = replacementMode == "string"
+                        ? """"
+                        : "[]";
+
+                    updated =
+                        json.Substring(0, valueStart) +
+                        replacement +
+                        json.Substring(valueEnd + 1);
+
+                    return true;
                 }
 
-                updated = json.Substring(0, valueStart) + "[]" + json.Substring(valueEnd + 1);
+                valueEnd = FindJsonScalarEnd(json, valueStart);
+                if (valueEnd < 0)
+                    return false;
+
+                updated =
+                    json.Substring(0, valueStart) +
+                    replacementMode +
+                    json.Substring(valueEnd);
+
                 return true;
             }
 
             return false;
+        }
+
+        private static string PreserveScalarType(
+            string original,
+            string replacement)
+        {
+            if (original.Length >= 2 &&
+                original[0] == '"' &&
+                original[original.Length - 1] == '"')
+            {
+                return """ + replacement + """;
+            }
+
+            return replacement;
         }
 
         private static int SkipWhitespace(string value, int index)
@@ -183,6 +364,33 @@ namespace PlayniteAccountManager.Services
                 index++;
 
             return index;
+        }
+
+        private static int FindJsonStringEnd(string json, int start)
+        {
+            bool escaped = false;
+
+            for (int i = start + 1; i < json.Length; i++)
+            {
+                char ch = json[i];
+
+                if (escaped)
+                {
+                    escaped = false;
+                    continue;
+                }
+
+                if (ch == '\\')
+                {
+                    escaped = true;
+                    continue;
+                }
+
+                if (ch == '"')
+                    return i;
+            }
+
+            return -1;
         }
 
         private static int FindJsonValueEnd(string json, int start)
@@ -234,6 +442,21 @@ namespace PlayniteAccountManager.Services
             }
 
             return -1;
+        }
+
+        private static int FindJsonScalarEnd(string json, int start)
+        {
+            int i = start;
+
+            while (i < json.Length &&
+                   json[i] != ',' &&
+                   json[i] != '}' &&
+                   !char.IsWhiteSpace(json[i]))
+            {
+                i++;
+            }
+
+            return i;
         }
 
         private void RemoveCacheDirectory(string directory)
