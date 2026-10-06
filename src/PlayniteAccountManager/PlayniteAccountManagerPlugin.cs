@@ -127,7 +127,8 @@ namespace PlayniteAccountManager
             }
 
             if (account.Launcher != LauncherType.EAApp &&
-                account.Launcher != LauncherType.EpicGames)
+                account.Launcher != LauncherType.EpicGames &&
+                account.Launcher != LauncherType.UbisoftConnect)
             {
                 error = "To konto nie korzysta z ręcznego logowania.";
                 return false;
@@ -386,6 +387,11 @@ namespace PlayniteAccountManager
                 if (account.Launcher == LauncherType.EAApp)
                 {
                     if (!ea.PrepareForManualLogin(out error))
+                        return false;
+                }
+                else if (account.Launcher == LauncherType.UbisoftConnect)
+                {
+                    if (!ubisoft.PrepareForManualLogin(out error))
                         return false;
                 }
                 else if (account.Launcher == LauncherType.EpicGames)
