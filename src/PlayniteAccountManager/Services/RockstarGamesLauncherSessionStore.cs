@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace PlayniteAccountManager.Services
 {
@@ -54,42 +55,16 @@ namespace PlayniteAccountManager.Services
             if (!Directory.Exists(directory))
                 return;
 
-            foreach (string file in SafeEnumerateFiles(directory))
+            foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly).ToList())
             {
                 try { File.SetAttributes(file, FileAttributes.Normal); } catch { }
                 File.Delete(file);
             }
 
-            foreach (string child in SafeEnumerateDirectories(directory))
+            foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly).ToList())
             {
                 ClearReadOnlyAttributes(child);
                 Directory.Delete(child, true);
-            }
-        }
-
-        private static IEnumerable<string> SafeEnumerateFiles(string directory)
-        {
-            try
-            {
-                foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly))
-                    yield return file;
-            }
-            catch
-            {
-                yield break;
-            }
-        }
-
-        private static IEnumerable<string> SafeEnumerateDirectories(string directory)
-        {
-            try
-            {
-                foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly))
-                    yield return child;
-            }
-            catch
-            {
-                yield break;
             }
         }
 
