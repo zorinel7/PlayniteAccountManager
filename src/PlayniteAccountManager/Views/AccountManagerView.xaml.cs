@@ -385,6 +385,10 @@ namespace PlayniteAccountManager.Views
                     ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
                     : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
+            if (record.Launcher == LauncherType.GOGGalaxy)
+                DisplayLauncher += "  •  " +
+                                   ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
         }
