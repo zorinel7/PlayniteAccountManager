@@ -211,13 +211,6 @@ namespace PlayniteAccountManager
                     account.Launcher == LauncherType.EAApp &&
                     account.EALoginMode == EALoginMode.Automatic;
 
-                // Keep the existing Ubisoft automatic-login behavior tied to the
-                // assignment AutoLogin checkbox; manual mode works like EA/Epic.
-                bool automaticUbisoft =
-                    account.Launcher == LauncherType.UbisoftConnect &&
-                    account.UbisoftLoginMode == UbisoftLoginMode.Automatic &&
-                    assignment.AutoLogin;
-
                 bool runAssignedFlow =
                     assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA;
 
