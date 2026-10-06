@@ -32,7 +32,7 @@ Current release highlights:
 - Battle.net supports manual login per assigned account.
 - Battle.net manual login now clears the remembered account and local authentication state more completely.
 - Rockstar Games Launcher supports manual login per assigned account.
-- Rockstar manual cleanup now removes remembered-account profile files from normal and OneDrive-redirected Documents locations and repeats the Rockstar process sweep before cleanup.
+- Rockstar manual cleanup removes remembered-account profile files from normal and OneDrive-redirected Documents locations and repeats the Rockstar process sweep before cleanup.
 - EA App automatic login reproduces a tested AutoHotkey keyboard sequence without requiring AutoHotkey.
 - EA App is detected without depending on a versioned installation folder.
 - Ubisoft Connect executable detection searches multiple Windows installation sources instead of relying on one fixed path.
@@ -94,7 +94,6 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | **EA App** | Stable | Manual or automatic |
 | **GOG Galaxy** | Stable | Manual only |
 | Xbox App | Experimental / paused | Not implemented |
-| Rockstar Games Launcher | Account model available | Automatic login not implemented |
 | **Battle.net** | Stable | Manual only |
 | **Rockstar Games Launcher** | Stable | Manual only |
 | Other | Account model available | Launcher-specific integration not implemented |
@@ -162,7 +161,7 @@ Rockstar Games Launcher supports manual login for an assigned account.
 - The shared manual login window is shown.
 - Login and password can be copied to the clipboard and pasted with Ctrl+V.
 
-The cleanup follows Rockstar's documented local-profile reset locations, explicitly removes remembered-account profile data such as `autosignin.dat` / `signintransfer.dat`, checks normal and OneDrive-redirected Documents locations, and performs an additional RockstarService.exe process sweep. Installed game folders are left untouched.
+The cleanup explicitly covers remembered-account profile data such as `autosignin.dat` / `signintransfer.dat`, checks normal and OneDrive-redirected Documents locations, and performs an additional `RockstarService.exe` process sweep. Installed game folders are left untouched.
 
 ## Battle.net
 
@@ -306,7 +305,7 @@ Current session cleanup targets the relevant current-user application state. It 
 
 ## Manual login window
 
-The shared manual login dialog is used by EA App, Epic Games, Ubisoft Connect, GOG Galaxy and Battle.net.
+The shared manual login dialog is used by EA App, Epic Games, Ubisoft Connect, GOG Galaxy, Battle.net and Rockstar Games Launcher.
 
 The password is not shown as plain text. The visible value is masked:
 
@@ -345,6 +344,7 @@ The account editor provides the following fields and options:
 - EA App login mode.
 - GOG Galaxy manual login.
 - Battle.net manual login.
+- Rockstar Games Launcher manual login.
 
 For Epic Games and EA App, the launcher-specific Manual / Automatic selector is separate from the older assignment checkbox.
 
@@ -417,6 +417,13 @@ Each Ubisoft Connect account now has its own **Manual / Automatic** login mode.
 2. Enter and save the login and password.
 3. Assign the account to the required game.
 4. Use the test button to verify launcher detection and show the manual credential window.
+
+### Rockstar Games Launcher
+1. Add a Rockstar Games Launcher account.
+2. Enter and save the login and password.
+3. Assign the account to the required game.
+4. Use the manual-login test button or start the assigned game.
+5. The plugin closes Rockstar processes, clears local remembered-account/profile state, restarts the detected launcher and shows the shared manual login window.
 
 ### EA App
 1. Add an EA App account.
