@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.58 - Battle.net manual login
+- Added manual Battle.net login for assigned games.
+- Battle.net executable detection checks running launcher processes, standard Program Files locations, Windows uninstall entries, App Paths, Start Menu shortcuts and likely Battle.net installation roots.
+- Manual Battle.net login closes Battle.net, Battle.net Launcher and Agent processes before clearing local authentication/session state.
+- Session cleanup clears Battle.net CachedData.db files, local cache folders and the saved account-name list in Battle.net.config without deleting installed-game data.
+- The detected Battle.net launcher is started again and the shared masked credential window is shown, with click-to-copy login and password.
+- Added Battle.net manual login to the Account Manager test flow.
+- Existing Steam, Ubisoft Connect, GOG Galaxy, EA App and Epic Games behavior remains unchanged.
+
 ## 0.9.57 - GOG Galaxy manual login
 - Added manual GOG Galaxy login for assigned games.
 - GOG Galaxy executable detection checks running Galaxy processes, standard Program Files locations, the GOG Galaxy / GalaxyClient registry path, Windows uninstall entries, App Paths, Start Menu shortcuts and likely installation roots.
