@@ -23,17 +23,18 @@ The project is designed for a console-like Playnite setup where several launcher
 
 ## Current version
 
-**0.9.57**
+**0.9.58**
 
 Current release highlights:
 - EA App supports Manual and Automatic login per account.
 - Ubisoft Connect supports Manual and Automatic login per account.
 - GOG Galaxy supports manual login per assigned account.
+- Battle.net supports manual login per assigned account.
 - EA App automatic login reproduces a tested AutoHotkey keyboard sequence without requiring AutoHotkey.
 - EA App is detected without depending on a versioned installation folder.
 - Ubisoft Connect executable detection searches multiple Windows installation sources instead of relying on one fixed path.
 - Epic Games supports Manual and Automatic login per account.
-- Manual EA App / Epic Games / Ubisoft Connect login uses a masked password and click-to-copy credentials.
+- Manual EA App / Epic Games / Ubisoft Connect / GOG Galaxy / Battle.net login uses a masked password and click-to-copy credentials.
 - Steam and Ubisoft Connect account switching remain available.
 - The Account Manager uses Playnite localization resources.
 
@@ -91,7 +92,7 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | **GOG Galaxy** | Stable | Manual only |
 | Xbox App | Experimental / paused | Not implemented |
 | Rockstar Games Launcher | Account model available | Automatic login not implemented |
-| Battle.net | Account model available | Automatic login not implemented |
+| **Battle.net** | Stable | Manual only |
 | Other | Account model available | Launcher-specific integration not implemented |
 
 The launcher selector contains additional future integration targets. Saving an account for one of those launchers does not mean that automatic login is already implemented.
@@ -143,6 +144,20 @@ GOG Galaxy supports manual login for an assigned account.
 - Login and password can be copied to the clipboard and pasted into GOG Galaxy with Ctrl+V.
 
 The session cleanup removes the local authentication token/lock state used by Galaxy without deleting the installed-game database. GOG documents the Galaxy launcher executable and its ProgramData paths, and the client also uses a local refreshToken value for authentication.
+
+## Battle.net
+
+Battle.net supports manual login for an assigned account.
+
+### Manual login
+- Battle.net is detected automatically.
+- The current Battle.net and Agent processes are closed before session cleanup.
+- Local Battle.net authentication/session state is cleared without deleting installed-game data.
+- The detected Battle.net launcher is started again.
+- The shared manual login window is shown.
+- Login and password can be copied to the clipboard and pasted into Battle.net with Ctrl+V.
+
+The integration accepts both `Battle.net Launcher.exe` and `Battle.net.exe` and searches standard Windows locations, registry entries, running processes, Start Menu shortcuts and likely Battle.net installation roots.
 
 ## Epic Games
 
@@ -270,7 +285,7 @@ Current session cleanup targets the relevant current-user application state. It 
 
 ## Manual login window
 
-The shared manual login dialog is used by EA App, Epic Games, Ubisoft Connect and GOG Galaxy.
+The shared manual login dialog is used by EA App, Epic Games, Ubisoft Connect, GOG Galaxy and Battle.net.
 
 The password is not shown as plain text. The visible value is masked:
 
@@ -308,6 +323,7 @@ The account editor provides the following fields and options:
 - Epic Games login mode.
 - EA App login mode.
 - GOG Galaxy manual login.
+- Battle.net manual login.
 
 For Epic Games and EA App, the launcher-specific Manual / Automatic selector is separate from the older assignment checkbox.
 
@@ -371,6 +387,12 @@ Each Ubisoft Connect account now has its own **Manual / Automatic** login mode.
 
 ### GOG Galaxy
 1. Add a GOG Galaxy account.
+2. Enter and save the login and password.
+3. Assign the account to the required game.
+4. Use the test button to verify launcher detection and show the manual credential window.
+
+### Battle.net
+1. Add a Battle.net account.
 2. Enter and save the login and password.
 3. Assign the account to the required game.
 4. Use the test button to verify launcher detection and show the manual credential window.
@@ -533,7 +555,7 @@ Build and package:
 The generated package is:
 
 ```text
-PlayniteAccountManager_0.9.57.pext
+PlayniteAccountManager_0.9.58.pext
 ```
 
 ### GitHub Actions
@@ -579,6 +601,7 @@ Future launcher integrations can follow the same adapter-based design without ch
 See CHANGELOG.md for the complete history.
 
 Recent releases:
+- **0.9.58** — Battle.net manual login and launcher/session detection.
 - **0.9.57** — GOG Galaxy manual login and launcher/session detection.
 - **0.9.56** — Ubisoft Connect Manual / Automatic login mode and expanded launcher detection.
 - **0.9.55** — EA App automatic login and version-independent launcher detection.
