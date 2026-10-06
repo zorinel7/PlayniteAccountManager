@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.57 - GOG Galaxy manual login
+- Added manual GOG Galaxy login for assigned games.
+- GOG Galaxy executable detection checks running Galaxy processes, standard Program Files locations, the GOG Galaxy / GalaxyClient registry path, Windows uninstall entries, App Paths, Start Menu shortcuts and likely installation roots.
+- Manual GOG Galaxy login closes GalaxyClient, GalaxyClientService and GalaxyCommunication before clearing the local authentication/session state.
+- Session cleanup removes GOG Galaxy authentication token/lock state without deleting the local installed-game database.
+- After session preparation the detected GalaxyClient.exe is started and the shared masked credential window is shown, with click-to-copy login and password.
+- Added GOG Galaxy manual login to the Account Manager test flow.
+- Existing Steam, Ubisoft Connect, EA App and Epic Games behavior remains unchanged.
+
+# Changelog
+
 ## 0.9.56 - Ubisoft Connect manual/automatic login mode
 - Added a per-account Ubisoft Connect login mode: Manual or Automatic.
 - Added the same manual login flow for Ubisoft Connect that is already used by EA App and Epic Games.
