@@ -379,6 +379,11 @@ namespace PlayniteAccountManager.Views
                     ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
                     : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
+            if (record.Launcher == LauncherType.UbisoftConnect)
+                DisplayLauncher += record.UbisoftLoginMode == UbisoftLoginMode.Automatic
+                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
+                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
         }
