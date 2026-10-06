@@ -248,6 +248,7 @@ namespace PlayniteAccountManager.Views
             TestLoginButton.Content =
                 selectedModel != null &&
                 ((selectedModel.Launcher == LauncherType.GOGGalaxy) ||
+                 (selectedModel.Launcher == LauncherType.BattleNet) ||
                  (selectedModel.Launcher == LauncherType.UbisoftConnect &&
                   selectedModel.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
@@ -388,6 +389,10 @@ namespace PlayniteAccountManager.Views
                     : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
             if (record.Launcher == LauncherType.GOGGalaxy)
+                DisplayLauncher += "  •  " +
+                                   ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+
+            if (record.Launcher == LauncherType.BattleNet)
                 DisplayLauncher += "  •  " +
                                    ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
