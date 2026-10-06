@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.9.56 - Ubisoft Connect manual/automatic login mode
+- Release package build verification is tracked by the GitHub Actions pipeline.
 - Added a per-account Ubisoft Connect login mode: Manual or Automatic.
 - Added the same manual login flow for Ubisoft Connect that is already used by EA App and Epic Games.
 - Manual Ubisoft Connect login prepares the launcher, clears the existing local Ubisoft launcher state, starts the detected launcher and then displays the shared credential window.
