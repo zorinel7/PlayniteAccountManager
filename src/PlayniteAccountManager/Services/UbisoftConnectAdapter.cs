@@ -38,6 +38,49 @@ namespace PlayniteAccountManager.Services
             uiAutomation = new UbisoftConnectUiAutomation(this.log);
         }
 
+        public bool PrepareForManualLogin(out string error)
+        {
+            error = null;
+
+            try
+            {
+                string launcherPath = FindLauncherExecutable();
+                if (string.IsNullOrWhiteSpace(launcherPath) || !File.Exists(launcherPath))
+                {
+                    error = "Nie znaleziono programu Ubisoft Connect na tym komputerze. Przeszukano standardowe lokalizacje, rejestr, skróty Start Menu i katalogi instalacyjne.";
+                    return false;
+                }
+
+                log("Ubisoft Connect: wykryto launcher pod ścieżką: " + launcherPath);
+                StopLauncherProcesses();
+                TryClearLocalStateNonBlocking();
+                Thread.Sleep(800);
+
+                Process launcher = Process.Start(new ProcessStartInfo
+                {
+                    FileName = launcherPath,
+                    WorkingDirectory = Path.GetDirectoryName(launcherPath),
+                    UseShellExecute = true,
+                    WindowStyle = ProcessWindowStyle.Normal
+                });
+
+                if (launcher == null)
+                {
+                    error = "Windows nie uruchomił Ubisoft Connect.";
+                    return false;
+                }
+
+                launcher.Dispose();
+                log("Ubisoft Connect: sesja została przygotowana i launcher uruchomiony do ręcznego logowania.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                error = "Nie udało się przygotować Ubisoft Connect do ręcznego logowania: " + ex.Message;
+                return false;
+            }
+        }
+
         public bool PrepareAndLogin(AccountRecord account, string password, out string error)
         {
             error = null;
