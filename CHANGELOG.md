@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.60 - Rockstar Games Launcher manual login
+- Added manual Rockstar Games Launcher login for assigned games.
+- Rockstar Games Launcher executable detection checks standard installation locations, registry installation entries and running launcher processes.
+- Manual Rockstar login closes Rockstar launcher processes before clearing local current-user launcher/profile state.
+- The session cleanup targets Rockstar local launcher and Social Club profile data without touching installed game directories such as the game folders under Documents.
+- The detected launcher is started again and the existing shared masked credential window is shown, with click-to-copy login and password.
+- Added Rockstar Games Launcher to the Account Manager manual-login test flow.
+- Existing Steam, Ubisoft Connect, Epic Games, EA App, GOG Galaxy and Battle.net integrations remain unchanged.
+
+
 ## 0.9.59 - Battle.net session cleanup fix
 - Fixed Battle.net manual login cleanup when `Client.SavedAccountNames` is stored as a JSON string instead of an array.
 - The remembered Battle.net account is now explicitly cleared from `%APPDATA%\\Battle.net\\Battle.net.config`.

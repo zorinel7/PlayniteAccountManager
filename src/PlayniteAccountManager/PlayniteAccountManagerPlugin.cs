@@ -25,6 +25,7 @@ namespace PlayniteAccountManager
         private EpicGamesAdapter epic;
         private GOGGalaxyAdapter gog;
         private BattleNetAdapter battleNet;
+        private RockstarGamesLauncherAdapter rockstar;
         private Guid activeAccountId;
         private Guid activeGameId;
         private LauncherType activeLauncher;
@@ -40,6 +41,7 @@ namespace PlayniteAccountManager
             epic = new EpicGamesAdapter(message => logger.Info(message));
             gog = new GOGGalaxyAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             battleNet = new BattleNetAdapter(GetPluginUserDataPath(), message => logger.Info(message));
+            rockstar = new RockstarGamesLauncherAdapter(GetPluginUserDataPath(), message => logger.Info(message));
         }
 
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
@@ -134,7 +136,8 @@ namespace PlayniteAccountManager
                 account.Launcher != LauncherType.EpicGames &&
                 account.Launcher != LauncherType.UbisoftConnect &&
                 account.Launcher != LauncherType.GOGGalaxy &&
-                account.Launcher != LauncherType.BattleNet)
+                account.Launcher != LauncherType.BattleNet &&
+                account.Launcher != LauncherType.RockstarGamesLauncher)
             {
                 error = "To konto nie korzysta z ręcznego logowania.";
                 return false;
@@ -163,6 +166,15 @@ namespace PlayniteAccountManager
             {
                 string prepareError;
                 if (!battleNet.PrepareForManualLogin(out prepareError))
+                {
+                    error = prepareError;
+                    return false;
+                }
+            }
+            else if (account.Launcher == LauncherType.RockstarGamesLauncher)
+            {
+                string prepareError;
+                if (!rockstar.PrepareForManualLogin(out prepareError))
                 {
                     error = prepareError;
                     return false;
@@ -223,6 +235,7 @@ namespace PlayniteAccountManager
                 bool manualLauncher =
                     account.Launcher == LauncherType.GOGGalaxy ||
                     account.Launcher == LauncherType.BattleNet ||
+                    account.Launcher == LauncherType.RockstarGamesLauncher ||
                     (account.Launcher == LauncherType.UbisoftConnect &&
                      account.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                     (account.Launcher == LauncherType.EAApp &&
@@ -274,6 +287,9 @@ namespace PlayniteAccountManager
                                      assignment.AutoLogin + ".");
                     else if (account.Launcher == LauncherType.BattleNet)
                         logger.Info("Battle.net: ręczne logowanie, AutoLogin przypisania = " +
+                                     assignment.AutoLogin + ".");
+                    else if (account.Launcher == LauncherType.RockstarGamesLauncher)
+                        logger.Info("Rockstar Games Launcher: ręczne logowanie, AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
 
                     string password = Store.Credentials.Get(account.Id);
@@ -459,6 +475,11 @@ namespace PlayniteAccountManager
                     if (!battleNet.PrepareForManualLogin(out error))
                         return false;
                 }
+                else if (account.Launcher == LauncherType.RockstarGamesLauncher)
+                {
+                    if (!rockstar.PrepareForManualLogin(out error))
+                        return false;
+                }
                 else
                 {
                     error = "Nieobsługiwany launcher.";
@@ -604,6 +625,12 @@ namespace PlayniteAccountManager
                 {
                     string error;
                     if (!battleNet.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
+                        logger.Error(error);
+                }
+                else if (activeLauncher == LauncherType.RockstarGamesLauncher)
+                {
+                    string error;
+                    if (!rockstar.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
                         logger.Error(error);
                 }
             }
