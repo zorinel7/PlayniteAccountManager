@@ -1,5 +1,7 @@
 # Playnite Account Manager
 
+> 0.9.57 build verification
+
 ## Test environment
 
 The current version of Playnite Account Manager has been tested on the following PC configuration:
