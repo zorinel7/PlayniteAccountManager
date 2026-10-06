@@ -382,8 +382,8 @@ namespace PlayniteAccountManager.Services
 
             string path = value.Trim();
 
-            if (path.StartsWith(""", StringComparison.Ordinal) &&
-                path.EndsWith(""", StringComparison.Ordinal))
+            if (path.StartsWith("\"", StringComparison.Ordinal) &&
+                path.EndsWith("\"", StringComparison.Ordinal))
             {
                 path = path.Substring(1, path.Length - 2);
             }
