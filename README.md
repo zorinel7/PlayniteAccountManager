@@ -132,7 +132,7 @@ The launcher account can be assigned to individual games in the same way as Stea
 
 ## GOG Galaxy
 
- GOG Galaxy supports manual login for an assigned account.
+GOG Galaxy supports manual login for an assigned account.
 
 ### Manual login
 - GOG Galaxy is detected automatically.
