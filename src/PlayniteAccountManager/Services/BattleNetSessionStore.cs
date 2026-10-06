@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Web.Script.Serialization;
 
 namespace PlayniteAccountManager.Services
 {
     internal sealed class BattleNetSessionStore
     {
         private readonly Action<string> log;
-        private static readonly JavaScriptSerializer Json = new JavaScriptSerializer();
 
         public BattleNetSessionStore(Action<string> log)
         {
@@ -56,13 +54,9 @@ namespace PlayniteAccountManager.Services
                         "Cache"));
 
                 if (!cachedDataRemoved && !savedAccountsCleared)
-                {
                     log("Battle.net: nie znaleziono lokalnego stanu logowania do wyczyszczenia; kontynuuję uruchomienie launchera.");
-                }
                 else
-                {
                     log("Battle.net: lokalny stan logowania został wyczyszczony.");
-                }
 
                 return true;
             }
@@ -112,46 +106,20 @@ namespace PlayniteAccountManager.Services
 
             try
             {
-                Dictionary<string, object> root;
-
-                using (var reader = new StreamReader(configPath))
+                string json = File.ReadAllText(configPath);
+                string updated;
+                if (!TryClearJsonArrayProperty(json, "SavedAccountNames", out updated))
                 {
-                    object parsed = Json.DeserializeObject(reader.ReadToEnd());
-                    root = parsed as Dictionary<string, object>;
-                }
-
-                if (root == null)
-                {
-                    log("Battle.net: nie udało się odczytać Battle.net.config jako JSON.");
+                    log("Battle.net: nie znaleziono pola SavedAccountNames w Battle.net.config.");
                     return false;
                 }
 
-                Dictionary<string, object> client;
-                if (root.ContainsKey("Client"))
-                    client = root["Client"] as Dictionary<string, object>;
-                else
-                    client = null;
-
-                if (client == null)
-                {
-                    client = new Dictionary<string, object>();
-                    root["Client"] = client;
-                }
-
-                client["SavedAccountNames"] = new object[0];
-
-                string json = Json.Serialize(root);
                 string tempPath = configPath + ".playnite-temp";
+                File.WriteAllText(tempPath, updated);
 
-                using (var writer = new StreamWriter(tempPath, false))
-                {
-                    writer.Write(json);
-                }
-
-                if (File.Exists(configPath))
-                    File.SetAttributes(configPath, FileAttributes.Normal);
-
+                File.SetAttributes(configPath, FileAttributes.Normal);
                 File.Replace(tempPath, configPath, null);
+
                 log("Battle.net: wyczyszczono listę zapamiętanych kont w Battle.net.config.");
                 return true;
             }
@@ -160,6 +128,112 @@ namespace PlayniteAccountManager.Services
                 log("Battle.net: nie udało się wyczyścić SavedAccountNames: " + ex.Message);
                 return false;
             }
+        }
+
+        private static bool TryClearJsonArrayProperty(
+            string json,
+            string propertyName,
+            out string updated)
+        {
+            updated = null;
+
+            if (string.IsNullOrWhiteSpace(json) || string.IsNullOrWhiteSpace(propertyName))
+                return false;
+
+            string quotedName = "\"" + propertyName + "\"";
+            int searchStart = 0;
+
+            while (searchStart < json.Length)
+            {
+                int propertyIndex = json.IndexOf(quotedName, searchStart, StringComparison.Ordinal);
+                if (propertyIndex < 0)
+                    return false;
+
+                int colon = SkipWhitespace(json, propertyIndex + quotedName.Length);
+                if (colon >= json.Length || json[colon] != ':')
+                {
+                    searchStart = propertyIndex + quotedName.Length;
+                    continue;
+                }
+
+                int valueStart = SkipWhitespace(json, colon + 1);
+                if (valueStart >= json.Length || json[valueStart] != '[')
+                {
+                    searchStart = propertyIndex + quotedName.Length;
+                    continue;
+                }
+
+                int valueEnd = FindJsonValueEnd(json, valueStart);
+                if (valueEnd <= valueStart || json[valueEnd] != ']')
+                {
+                    searchStart = propertyIndex + quotedName.Length;
+                    continue;
+                }
+
+                updated = json.Substring(0, valueStart) + "[]" + json.Substring(valueEnd + 1);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static int SkipWhitespace(string value, int index)
+        {
+            while (index < value.Length && char.IsWhiteSpace(value[index]))
+                index++;
+
+            return index;
+        }
+
+        private static int FindJsonValueEnd(string json, int start)
+        {
+            int depth = 0;
+            bool inString = false;
+            bool escaped = false;
+
+            for (int i = start; i < json.Length; i++)
+            {
+                char ch = json[i];
+
+                if (inString)
+                {
+                    if (escaped)
+                    {
+                        escaped = false;
+                    }
+                    else if (ch == '\\')
+                    {
+                        escaped = true;
+                    }
+                    else if (ch == '"')
+                    {
+                        inString = false;
+                    }
+
+                    continue;
+                }
+
+                if (ch == '"')
+                {
+                    inString = true;
+                    continue;
+                }
+
+                if (ch == '[')
+                {
+                    depth++;
+                    continue;
+                }
+
+                if (ch == ']')
+                {
+                    depth--;
+                    if (depth == 0)
+                        return i;
+                }
+            }
+
+            return -1;
         }
 
         private void RemoveCacheDirectory(string directory)
