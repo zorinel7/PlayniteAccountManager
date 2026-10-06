@@ -245,7 +245,8 @@ namespace PlayniteAccountManager.Views
 
             TestLoginButton.Content =
                 selectedModel != null &&
-                (selectedModel.Launcher == LauncherType.EAApp ||
+                ((selectedModel.Launcher == LauncherType.UbisoftConnect &&
+                  selectedModel.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
                   selectedModel.EpicLoginMode == EpicLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EAApp &&
