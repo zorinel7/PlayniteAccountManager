@@ -26,11 +26,12 @@ The project is designed for a console-like Playnite setup where several launcher
 
 Current release highlights:
 - EA App supports Manual and Automatic login per account.
+- Ubisoft Connect supports Manual and Automatic login per account.
 - EA App automatic login reproduces a tested AutoHotkey keyboard sequence without requiring AutoHotkey.
 - EA App is detected without depending on a versioned installation folder.
 - Ubisoft Connect executable detection searches multiple Windows installation sources instead of relying on one fixed path.
 - Epic Games supports Manual and Automatic login per account.
-- Manual EA App / Epic Games login uses a masked password and click-to-copy credentials.
+- Manual EA App / Epic Games / Ubisoft Connect login uses a masked password and click-to-copy credentials.
 - Steam and Ubisoft Connect account switching remain available.
 - The Account Manager uses Playnite localization resources.
 
