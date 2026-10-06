@@ -1,5 +1,7 @@
 # Playnite Account Manager
 
+> 0.9.59 build verification
+
 
 ## Test environment
 
