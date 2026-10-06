@@ -97,6 +97,7 @@ namespace PlayniteAccountManager.Views
             var model = store.GetAccount(account.Id);
             bool manualLauncher = model != null &&
                                   (model.Launcher == LauncherType.GOGGalaxy ||
+                                   model.Launcher == LauncherType.BattleNet ||
                                    (model.Launcher == LauncherType.UbisoftConnect &&
                                     model.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                                    (model.Launcher == LauncherType.EpicGames &&
@@ -241,13 +242,15 @@ namespace PlayniteAccountManager.Views
                               selectedModel.Launcher == LauncherType.Steam ||
                               selectedModel.Launcher == LauncherType.EAApp ||
                               selectedModel.Launcher == LauncherType.EpicGames ||
-                              selectedModel.Launcher == LauncherType.GOGGalaxy);
+                              selectedModel.Launcher == LauncherType.GOGGalaxy ||
+                              selectedModel.Launcher == LauncherType.BattleNet);
 
             TestLoginButton.IsEnabled = supported;
 
             TestLoginButton.Content =
                 selectedModel != null &&
                 ((selectedModel.Launcher == LauncherType.GOGGalaxy) ||
+                 (selectedModel.Launcher == LauncherType.BattleNet) ||
                  (selectedModel.Launcher == LauncherType.UbisoftConnect &&
                   selectedModel.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
@@ -388,6 +391,10 @@ namespace PlayniteAccountManager.Views
                     : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
             if (record.Launcher == LauncherType.GOGGalaxy)
+                DisplayLauncher += "  •  " +
+                                   ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+
+            if (record.Launcher == LauncherType.BattleNet)
                 DisplayLauncher += "  •  " +
                                    ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
