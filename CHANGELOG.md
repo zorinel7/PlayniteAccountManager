@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.61 - Fix Rockstar remembered-account and session cleanup
+- Fixed Rockstar Games Launcher manual session cleanup not reliably removing the remembered account/local profile.
+- Added explicit coverage for Rockstar profile data under `Documents\Rockstar Games\Social Club\Profiles`, including remembered-account files such as `autosignin.dat` and `signintransfer.dat`.
+- Documents cleanup now checks the normal Windows Documents path as well as OneDrive-redirected Documents locations.
+- Added `RockstarService.exe` to the Rockstar process shutdown sweep and repeat the sweep immediately before local profile cleanup.
+- The cleanup still does not touch installed game folders.
+- Existing Steam, Ubisoft Connect, Epic Games, EA App, GOG Galaxy and Battle.net integrations remain unchanged.
+
 ## 0.9.60 - Rockstar Games Launcher manual login
 - Added manual Rockstar Games Launcher login for assigned games.
 - Rockstar Games Launcher executable detection checks standard installation locations, registry installation entries and running launcher processes.
