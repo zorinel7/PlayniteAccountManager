@@ -24,6 +24,7 @@ namespace PlayniteAccountManager
         private EAAppAdapter ea;
         private EpicGamesAdapter epic;
         private GOGGalaxyAdapter gog;
+        private BattleNetAdapter battleNet;
         private Guid activeAccountId;
         private Guid activeGameId;
         private LauncherType activeLauncher;
@@ -38,6 +39,7 @@ namespace PlayniteAccountManager
             ea = new EAAppAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             epic = new EpicGamesAdapter(message => logger.Info(message));
             gog = new GOGGalaxyAdapter(GetPluginUserDataPath(), message => logger.Info(message));
+            battleNet = new BattleNetAdapter(GetPluginUserDataPath(), message => logger.Info(message));
         }
 
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
@@ -131,7 +133,8 @@ namespace PlayniteAccountManager
             if (account.Launcher != LauncherType.EAApp &&
                 account.Launcher != LauncherType.EpicGames &&
                 account.Launcher != LauncherType.UbisoftConnect &&
-                account.Launcher != LauncherType.GOGGalaxy)
+                account.Launcher != LauncherType.GOGGalaxy &&
+                account.Launcher != LauncherType.BattleNet)
             {
                 error = "To konto nie korzysta z ręcznego logowania.";
                 return false;
@@ -151,6 +154,15 @@ namespace PlayniteAccountManager
             {
                 string prepareError;
                 if (!gog.PrepareForManualLogin(out prepareError))
+                {
+                    error = prepareError;
+                    return false;
+                }
+            }
+            else if (account.Launcher == LauncherType.BattleNet)
+            {
+                string prepareError;
+                if (!battleNet.PrepareForManualLogin(out prepareError))
                 {
                     error = prepareError;
                     return false;
@@ -210,6 +222,7 @@ namespace PlayniteAccountManager
 
                 bool manualLauncher =
                     account.Launcher == LauncherType.GOGGalaxy ||
+                    account.Launcher == LauncherType.BattleNet ||
                     (account.Launcher == LauncherType.UbisoftConnect &&
                      account.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                     (account.Launcher == LauncherType.EAApp &&
@@ -258,6 +271,9 @@ namespace PlayniteAccountManager
                                      assignment.AutoLogin + ".");
                     else if (account.Launcher == LauncherType.GOGGalaxy)
                         logger.Info("GOG Galaxy: ręczne logowanie, AutoLogin przypisania = " +
+                                     assignment.AutoLogin + ".");
+                    else if (account.Launcher == LauncherType.BattleNet)
+                        logger.Info("Battle.net: ręczne logowanie, AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
 
                     string password = Store.Credentials.Get(account.Id);
@@ -438,6 +454,11 @@ namespace PlayniteAccountManager
                     if (!gog.PrepareForManualLogin(out error))
                         return false;
                 }
+                else if (account.Launcher == LauncherType.BattleNet)
+                {
+                    if (!battleNet.PrepareForManualLogin(out error))
+                        return false;
+                }
                 else
                 {
                     error = "Nieobsługiwany launcher.";
@@ -577,6 +598,12 @@ namespace PlayniteAccountManager
                 {
                     string error;
                     if (!gog.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
+                        logger.Error(error);
+                }
+                else if (activeLauncher == LauncherType.BattleNet)
+                {
+                    string error;
+                    if (!battleNet.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
                         logger.Error(error);
                 }
             }
