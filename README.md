@@ -23,13 +23,14 @@ The project is designed for a console-like Playnite setup where several launcher
 
 ## Current version
 
-**0.9.58**
+**0.9.59**
 
 Current release highlights:
 - EA App supports Manual and Automatic login per account.
 - Ubisoft Connect supports Manual and Automatic login per account.
 - GOG Galaxy supports manual login per assigned account.
 - Battle.net supports manual login per assigned account.
+- Battle.net manual login now clears the remembered account and local authentication state more completely.
 - EA App automatic login reproduces a tested AutoHotkey keyboard sequence without requiring AutoHotkey.
 - EA App is detected without depending on a versioned installation folder.
 - Ubisoft Connect executable detection searches multiple Windows installation sources instead of relying on one fixed path.
@@ -153,6 +154,8 @@ Battle.net supports manual login for an assigned account.
 - Battle.net is detected automatically.
 - The current Battle.net and Agent processes are closed before session cleanup.
 - Local Battle.net authentication/session state is cleared without deleting installed-game data.
+- The remembered account is removed from `%APPDATA%\\Battle.net\\Battle.net.config` and automatic-login flags are disabled.
+- Known Battle.net authentication registry state is cleared before the launcher is restarted.
 - The detected Battle.net launcher is started again.
 - The shared manual login window is shown.
 - Login and password can be copied to the clipboard and pasted into Battle.net with Ctrl+V.
@@ -601,6 +604,7 @@ Future launcher integrations can follow the same adapter-based design without ch
 See CHANGELOG.md for the complete history.
 
 Recent releases:
+- **0.9.59** — Fix Battle.net remembered-account and session cleanup.
 - **0.9.58** — Battle.net manual login and launcher/session detection.
 - **0.9.57** — GOG Galaxy manual login and launcher/session detection.
 - **0.9.56** — Ubisoft Connect Manual / Automatic login mode and expanded launcher detection.

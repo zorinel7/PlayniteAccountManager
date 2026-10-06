@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.9.59 - Battle.net session cleanup fix
+- Fixed Battle.net manual login cleanup when `Client.SavedAccountNames` is stored as a JSON string instead of an array.
+- The remembered Battle.net account is now explicitly cleared from `%APPDATA%\\Battle.net\\Battle.net.config`.
+- Battle.net `RememberAccountName`, `AutoLogin` and `AutoLoginCN` values are disabled during manual account switching while preserving the existing value type used by the config.
+- Added cleanup of known current-user Battle.net authentication registry state (`Identity`, `Authenticator` and `WEB_TOKEN` values).
+- Existing Battle.net cached-data and cache cleanup remains in place.
+- Existing Steam, Ubisoft Connect, GOG Galaxy, EA App and Epic Games integrations remain unchanged.
+
 ## 0.9.58 - Battle.net manual login
 - Added manual Battle.net login for assigned games.
 - Battle.net executable detection checks running launcher processes, standard Program Files locations, Windows uninstall entries, App Paths, Start Menu shortcuts and likely Battle.net installation roots.
