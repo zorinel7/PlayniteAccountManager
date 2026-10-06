@@ -96,7 +96,8 @@ namespace PlayniteAccountManager.Views
 
             var model = store.GetAccount(account.Id);
             bool manualLauncher = model != null &&
-                                  ((model.Launcher == LauncherType.UbisoftConnect &&
+                                  (model.Launcher == LauncherType.GOGGalaxy ||
+                                   (model.Launcher == LauncherType.UbisoftConnect &&
                                     model.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                                    (model.Launcher == LauncherType.EpicGames &&
                                     model.EpicLoginMode == EpicLoginMode.Manual) ||
@@ -239,13 +240,15 @@ namespace PlayniteAccountManager.Views
                              (selectedModel.Launcher == LauncherType.UbisoftConnect ||
                               selectedModel.Launcher == LauncherType.Steam ||
                               selectedModel.Launcher == LauncherType.EAApp ||
-                              selectedModel.Launcher == LauncherType.EpicGames);
+                              selectedModel.Launcher == LauncherType.EpicGames ||
+                              selectedModel.Launcher == LauncherType.GOGGalaxy);
 
             TestLoginButton.IsEnabled = supported;
 
             TestLoginButton.Content =
                 selectedModel != null &&
-                ((selectedModel.Launcher == LauncherType.UbisoftConnect &&
+                ((selectedModel.Launcher == LauncherType.GOGGalaxy) ||
+                 (selectedModel.Launcher == LauncherType.UbisoftConnect &&
                   selectedModel.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
                   selectedModel.EpicLoginMode == EpicLoginMode.Manual) ||
@@ -383,6 +386,10 @@ namespace PlayniteAccountManager.Views
                 DisplayLauncher += record.UbisoftLoginMode == UbisoftLoginMode.Automatic
                     ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
                     : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+
+            if (record.Launcher == LauncherType.GOGGalaxy)
+                DisplayLauncher += "  •  " +
+                                   ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;
