@@ -22,6 +22,7 @@ namespace PlayniteAccountManager.Views
         private bool editIsPrimary;
         private EpicLoginMode editEpicLoginMode = EpicLoginMode.Manual;
         private EALoginMode editEALoginMode = EALoginMode.Manual;
+        private UbisoftLoginMode editUbisoftLoginMode = UbisoftLoginMode.Automatic;
         private bool editingExisting;
 
         public ObservableCollection<AccountListItem> Accounts { get; private set; }
@@ -29,6 +30,7 @@ namespace PlayniteAccountManager.Views
         public List<Game> ContextGames { get; private set; }
         public ObservableCollection<EpicLoginModeOption> EpicLoginModes { get; private set; }
         public ObservableCollection<EALoginModeOption> EALoginModes { get; private set; }
+        public ObservableCollection<UbisoftLoginModeOption> UbisoftLoginModes { get; private set; }
 
         public AccountListItem SelectedAccount
         {
@@ -53,6 +55,7 @@ namespace PlayniteAccountManager.Views
                 OnPropertyChanged(nameof(IsPrimaryEligibleLauncher));
                 OnPropertyChanged(nameof(IsEpicGamesLauncher));
                 OnPropertyChanged(nameof(IsEAAppLauncher));
+                OnPropertyChanged(nameof(IsUbisoftConnectLauncher));
             }
         }
         public bool EditAutoLogin { get => editAutoLogin; set => SetValue(ref editAutoLogin, value); }
@@ -62,8 +65,10 @@ namespace PlayniteAccountManager.Views
         public bool IsPrimaryEligibleLauncher => EditLauncher == LauncherType.Steam;
         public bool IsEpicGamesLauncher => EditLauncher == LauncherType.EpicGames;
         public bool IsEAAppLauncher => EditLauncher == LauncherType.EAApp;
+        public bool IsUbisoftConnectLauncher => EditLauncher == LauncherType.UbisoftConnect;
         public EpicLoginMode EditEpicLoginMode { get => editEpicLoginMode; set => SetValue(ref editEpicLoginMode, value); }
         public EALoginMode EditEALoginMode { get => editEALoginMode; set => SetValue(ref editEALoginMode, value); }
+        public UbisoftLoginMode EditUbisoftLoginMode { get => editUbisoftLoginMode; set => SetValue(ref editUbisoftLoginMode, value); }
 
         internal AccountManagerViewModel(AccountManagerStore store)
         {
@@ -72,6 +77,7 @@ namespace PlayniteAccountManager.Views
             Launchers = new ObservableCollection<LauncherOption>(Enum.GetValues(typeof(LauncherType)).Cast<LauncherType>().Select(x => new LauncherOption(x)));
             EpicLoginModes = new ObservableCollection<EpicLoginModeOption>(Enum.GetValues(typeof(EpicLoginMode)).Cast<EpicLoginMode>().Select(x => new EpicLoginModeOption(x)));
             EALoginModes = new ObservableCollection<EALoginModeOption>(Enum.GetValues(typeof(EALoginMode)).Cast<EALoginMode>().Select(x => new EALoginModeOption(x)));
+            UbisoftLoginModes = new ObservableCollection<UbisoftLoginModeOption>(Enum.GetValues(typeof(UbisoftLoginMode)).Cast<UbisoftLoginMode>().Select(x => new UbisoftLoginModeOption(x)));
             Refresh();
             BeginNewAccount();
         }
@@ -101,6 +107,7 @@ namespace PlayniteAccountManager.Views
             EditIsPrimary = false;
             EditEpicLoginMode = EpicLoginMode.Manual;
             EditEALoginMode = EALoginMode.Manual;
+            EditUbisoftLoginMode = UbisoftLoginMode.Automatic;
         }
 
         public void LoadSelectedAccount()
@@ -116,6 +123,7 @@ namespace PlayniteAccountManager.Views
             EditLauncher = model.Launcher;
             EditEpicLoginMode = model.EpicLoginMode;
             EditEALoginMode = model.EALoginMode;
+            EditUbisoftLoginMode = model.UbisoftLoginMode;
             EditIsPrimary = model.IsPrimary;
 
             var assignment = ContextGames.Count == 1 ? store.GetAssignment(ContextGames[0].Id) : null;
@@ -162,6 +170,9 @@ namespace PlayniteAccountManager.Views
             record.EALoginMode = record.Launcher == LauncherType.EAApp
                 ? EditEALoginMode
                 : EALoginMode.Manual;
+            record.UbisoftLoginMode = record.Launcher == LauncherType.UbisoftConnect
+                ? EditUbisoftLoginMode
+                : UbisoftLoginMode.Automatic;
             record.IsPrimary = IsPrimaryEligibleLauncher && EditIsPrimary;
 
             if (record.Launcher == LauncherType.Steam && record.IsPrimary)
