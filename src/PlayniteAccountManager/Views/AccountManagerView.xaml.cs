@@ -240,13 +240,15 @@ namespace PlayniteAccountManager.Views
                              (selectedModel.Launcher == LauncherType.UbisoftConnect ||
                               selectedModel.Launcher == LauncherType.Steam ||
                               selectedModel.Launcher == LauncherType.EAApp ||
-                              selectedModel.Launcher == LauncherType.EpicGames);
+                              selectedModel.Launcher == LauncherType.EpicGames ||
+                              selectedModel.Launcher == LauncherType.GOGGalaxy);
 
             TestLoginButton.IsEnabled = supported;
 
             TestLoginButton.Content =
                 selectedModel != null &&
-                ((selectedModel.Launcher == LauncherType.UbisoftConnect &&
+                ((selectedModel.Launcher == LauncherType.GOGGalaxy) ||
+                 (selectedModel.Launcher == LauncherType.UbisoftConnect &&
                   selectedModel.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
                   selectedModel.EpicLoginMode == EpicLoginMode.Manual) ||
