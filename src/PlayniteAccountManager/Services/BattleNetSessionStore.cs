@@ -262,7 +262,7 @@ namespace PlayniteAccountManager.Services
             if (string.IsNullOrWhiteSpace(json) || string.IsNullOrWhiteSpace(propertyName))
                 return false;
 
-            string quotedName = """ + propertyName + """;
+            string quotedName = "\"" + propertyName + "\"";
             int searchStart = 0;
 
             while (searchStart < json.Length)
@@ -318,7 +318,7 @@ namespace PlayniteAccountManager.Services
                         return false;
 
                     string replacement = replacementMode == "string"
-                        ? """"
+                        ? "\"\""
                         : "[]";
 
                     updated =
@@ -352,7 +352,7 @@ namespace PlayniteAccountManager.Services
                 original[0] == '"' &&
                 original[original.Length - 1] == '"')
             {
-                return """ + replacement + """;
+                return "\"" + replacement + "\"";
             }
 
             return replacement;
