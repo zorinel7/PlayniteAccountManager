@@ -91,7 +91,6 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | Xbox App | Experimental / paused | Not implemented |
 | Rockstar Games Launcher | Account model available | Automatic login not implemented |
 | Battle.net | Account model available | Automatic login not implemented |
-| GOG Galaxy | Account model available | Automatic login not implemented |
 | Other | Account model available | Launcher-specific integration not implemented |
 
 The launcher selector contains additional future integration targets. Saving an account for one of those launchers does not mean that automatic login is already implemented.
