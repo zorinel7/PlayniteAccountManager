@@ -22,11 +22,12 @@ The project is designed for a console-like Playnite setup where several launcher
 
 ## Current version
 
-**0.9.56**
+**0.9.57**
 
 Current release highlights:
 - EA App supports Manual and Automatic login per account.
 - Ubisoft Connect supports Manual and Automatic login per account.
+- GOG Galaxy supports manual login per assigned account.
 - EA App automatic login reproduces a tested AutoHotkey keyboard sequence without requiring AutoHotkey.
 - EA App is detected without depending on a versioned installation folder.
 - Ubisoft Connect executable detection searches multiple Windows installation sources instead of relying on one fixed path.
@@ -86,6 +87,7 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | **Ubisoft Connect** | Stable | Manual or automatic |
 | **Epic Games** | Stable | Manual or automatic |
 | **EA App** | Stable | Manual or automatic |
+| **GOG Galaxy** | Stable | Manual only |
 | Xbox App | Experimental / paused | Not implemented |
 | Rockstar Games Launcher | Account model available | Automatic login not implemented |
 | Battle.net | Account model available | Automatic login not implemented |
@@ -127,6 +129,20 @@ This makes it possible to keep one everyday Steam account and only switch profil
 Ubisoft Connect keeps the existing automatic login flow based on native keyboard input.
 
 The launcher account can be assigned to individual games in the same way as Steam and the other supported launchers.
+
+## GOG Galaxy
+
+ GOG Galaxy supports manual login for an assigned account.
+
+### Manual login
+- GOG Galaxy is detected automatically.
+- The current Galaxy processes are closed.
+- Only local authentication/session state is cleared; the GOG game database is not removed.
+- GOG Galaxy is started again using the detected executable.
+- The shared manual login window is shown.
+- Login and password can be copied to the clipboard and pasted into GOG Galaxy with Ctrl+V.
+
+The session cleanup removes the local authentication token/lock state used by Galaxy without deleting the installed-game database. GOG documents the Galaxy launcher executable and its ProgramData paths, and the client also uses a local refreshToken value for authentication.
 
 ## Epic Games
 
@@ -254,7 +270,7 @@ Current session cleanup targets the relevant current-user application state. It 
 
 ## Manual login window
 
-The shared manual login dialog is used by EA App and Epic Games.
+The shared manual login dialog is used by EA App, Epic Games, Ubisoft Connect and GOG Galaxy.
 
 The password is not shown as plain text. The visible value is masked:
 
@@ -291,6 +307,7 @@ The account editor provides the following fields and options:
 - Primary Steam account.
 - Epic Games login mode.
 - EA App login mode.
+- GOG Galaxy manual login.
 
 For Epic Games and EA App, the launcher-specific Manual / Automatic selector is separate from the older assignment checkbox.
 
@@ -351,6 +368,12 @@ Each Ubisoft Connect account now has its own **Manual / Automatic** login mode.
 4. Save the account.
 5. Assign the account to the required game.
 6. Use the automatic-login test button when automatic mode is selected.
+
+### GOG Galaxy
+1. Add a GOG Galaxy account.
+2. Enter and save the login and password.
+3. Assign the account to the required game.
+4. Use the test button to verify launcher detection and show the manual credential window.
 
 ### EA App
 1. Add an EA App account.
@@ -510,7 +533,7 @@ Build and package:
 The generated package is:
 
 ```text
-PlayniteAccountManager_0.9.55.pext
+PlayniteAccountManager_0.9.57.pext
 ```
 
 ### GitHub Actions
@@ -556,6 +579,7 @@ Future launcher integrations can follow the same adapter-based design without ch
 See CHANGELOG.md for the complete history.
 
 Recent releases:
+- **0.9.57** — GOG Galaxy manual login and launcher/session detection.
 - **0.9.56** — Ubisoft Connect Manual / Automatic login mode and expanded launcher detection.
 - **0.9.55** — EA App automatic login and version-independent launcher detection.
 - **0.9.54** — Playnite localization resources.
