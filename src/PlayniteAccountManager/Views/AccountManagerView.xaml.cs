@@ -42,6 +42,7 @@ namespace PlayniteAccountManager.Views
             PrimaryAccountCheck.IsChecked = false;
             EpicLoginModeCombo.SelectedValue = EpicLoginMode.Manual;
             EALoginModeCombo.SelectedValue = EALoginMode.Manual;
+            UbisoftLoginModeCombo.SelectedValue = UbisoftLoginMode.Automatic;
             EditorStatusText.Text = L("LOCPlayniteAccountManagerNewAccount");
             UpdateButtons();
             UpdateStatus();
@@ -58,6 +59,7 @@ namespace PlayniteAccountManager.Views
                 PrimaryAccountCheck.IsChecked = vm.EditIsPrimary;
                 EpicLoginModeCombo.SelectedValue = vm.EditEpicLoginMode;
                 EALoginModeCombo.SelectedValue = vm.EditEALoginMode;
+                UbisoftLoginModeCombo.SelectedValue = vm.EditUbisoftLoginMode;
                 EditorStatusText.Text = string.Format(L("LOCPlayniteAccountManagerEditAccount"), vm.EditName);
             }
             UpdateButtons();
@@ -94,10 +96,12 @@ namespace PlayniteAccountManager.Views
 
             var model = store.GetAccount(account.Id);
             bool manualLauncher = model != null &&
-                                  ((model.Launcher == LauncherType.EpicGames &&
+                                  ((model.Launcher == LauncherType.UbisoftConnect &&
+                                    model.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
+                                   (model.Launcher == LauncherType.EpicGames &&
                                     model.EpicLoginMode == EpicLoginMode.Manual) ||
                                    (model.Launcher == LauncherType.EAApp &&
-                                    model.EALoginMode == (EALoginMode)0));
+                                    model.EALoginMode == EALoginMode.Manual));
 
             bool automaticLauncher = model != null &&
                                      (model.Launcher == LauncherType.UbisoftConnect ||
@@ -315,6 +319,25 @@ namespace PlayniteAccountManager.Views
         {
             Value = value;
             DisplayName = value == EALoginMode.Automatic
+                ? ResourceProvider.GetString("LOCPlayniteAccountManagerAutomaticLogin")
+                : ResourceProvider.GetString("LOCPlayniteAccountManagerManualLogin");
+        }
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
+    }
+
+    public sealed class UbisoftLoginModeOption
+    {
+        public UbisoftLoginMode Value { get; }
+        public string DisplayName { get; }
+
+        public UbisoftLoginModeOption(UbisoftLoginMode value)
+        {
+            Value = value;
+            DisplayName = value == UbisoftLoginMode.Automatic
                 ? ResourceProvider.GetString("LOCPlayniteAccountManagerAutomaticLogin")
                 : ResourceProvider.GetString("LOCPlayniteAccountManagerManualLogin");
         }
