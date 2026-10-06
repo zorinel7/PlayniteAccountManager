@@ -22,6 +22,7 @@ namespace PlayniteAccountManager.Services
         {
             "Battle.net",
             "Battle.net Launcher",
+            "Battle.net Helper",
             "Agent"
         };
 
