@@ -390,7 +390,7 @@ namespace PlayniteAccountManager.Services
         private IEnumerable<string> FindFromUninstallRegistry()
         {
             var results = new List<string>();
-            const string subKey = @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+            const string subKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
 
             foreach (RegistryHive hive in new[] { RegistryHive.LocalMachine, RegistryHive.CurrentUser })
             foreach (RegistryView view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
@@ -458,7 +458,7 @@ namespace PlayniteAccountManager.Services
                     foreach (string executableName in new[] { "UbisoftConnect.exe", "upc.exe" })
                     {
                         using (RegistryKey key = baseKey.OpenSubKey(
-                            @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + executableName))
+                            @"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\" + executableName))
                         {
                             if (key == null)
                                 continue;
