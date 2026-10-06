@@ -23,7 +23,7 @@ The project is designed for a console-like Playnite setup where several launcher
 
 ## Current version
 
-**0.9.60**
+**0.9.61**
 
 Current release highlights:
 - EA App supports Manual and Automatic login per account.
@@ -32,6 +32,7 @@ Current release highlights:
 - Battle.net supports manual login per assigned account.
 - Battle.net manual login now clears the remembered account and local authentication state more completely.
 - Rockstar Games Launcher supports manual login per assigned account.
+- Rockstar manual cleanup now removes remembered-account profile files from normal and OneDrive-redirected Documents locations and repeats the Rockstar process sweep before cleanup.
 - EA App automatic login reproduces a tested AutoHotkey keyboard sequence without requiring AutoHotkey.
 - EA App is detected without depending on a versioned installation folder.
 - Ubisoft Connect executable detection searches multiple Windows installation sources instead of relying on one fixed path.
@@ -161,7 +162,7 @@ Rockstar Games Launcher supports manual login for an assigned account.
 - The shared manual login window is shown.
 - Login and password can be copied to the clipboard and pasted with Ctrl+V.
 
-The cleanup follows Rockstar's documented local-profile reset locations and is limited to launcher/profile data rather than installed game folders.
+The cleanup follows Rockstar's documented local-profile reset locations, explicitly removes remembered-account profile data such as `autosignin.dat` / `signintransfer.dat`, checks normal and OneDrive-redirected Documents locations, and performs an additional RockstarService.exe process sweep. Installed game folders are left untouched.
 
 ## Battle.net
 
@@ -575,7 +576,7 @@ Build and package:
 The generated package is:
 
 ```text
-PlayniteAccountManager_0.9.60.pext
+PlayniteAccountManager_0.9.61.pext
 ```
 
 ### GitHub Actions
@@ -621,6 +622,7 @@ Future launcher integrations can follow the same adapter-based design without ch
 See CHANGELOG.md for the complete history.
 
 Recent releases:
+- **0.9.61** — Fix Rockstar remembered-account and local profile cleanup.
 - **0.9.60** — Add Rockstar Games Launcher manual login.
 - **0.9.59** — Fix Battle.net remembered-account and session cleanup.
 - **0.9.58** — Battle.net manual login and launcher/session detection.
