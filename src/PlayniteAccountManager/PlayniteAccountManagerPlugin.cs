@@ -127,7 +127,8 @@ namespace PlayniteAccountManager
             }
 
             if (account.Launcher != LauncherType.EAApp &&
-                account.Launcher != LauncherType.EpicGames)
+                account.Launcher != LauncherType.EpicGames &&
+                account.Launcher != LauncherType.UbisoftConnect)
             {
                 error = "To konto nie korzysta z ręcznego logowania.";
                 return false;
@@ -195,6 +196,8 @@ namespace PlayniteAccountManager
                     return;
 
                 bool manualLauncher =
+                    (account.Launcher == LauncherType.UbisoftConnect &&
+                     account.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                     (account.Launcher == LauncherType.EAApp &&
                      account.EALoginMode == EALoginMode.Manual) ||
                     (account.Launcher == LauncherType.EpicGames &&
@@ -204,9 +207,12 @@ namespace PlayniteAccountManager
                     account.Launcher == LauncherType.EpicGames &&
                     account.EpicLoginMode == EpicLoginMode.Automatic;
 
+                bool automaticEA =
+                    account.Launcher == LauncherType.EAApp &&
+                    account.EALoginMode == EALoginMode.Automatic;
+
                 bool runAssignedFlow =
-                    assignment.AutoLogin || manualLauncher || automaticEpic ||
-                    (account.Launcher == LauncherType.EAApp && account.EALoginMode == (EALoginMode)1);
+                    assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA;
 
                 if (runAssignedFlow)
                 {
@@ -214,7 +220,7 @@ namespace PlayniteAccountManager
                         account.Launcher != LauncherType.Steam &&
                         !manualLauncher &&
                         !automaticEpic &&
-                        !(account.Launcher == LauncherType.EAApp && account.EALoginMode == (EALoginMode)1))
+                        !automaticEA)
                         return;
 
                     logger.Info(account.Launcher.GetDisplayName() +
@@ -226,6 +232,16 @@ namespace PlayniteAccountManager
                                      account.EpicLoginMode +
                                      ", AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
+                    else if (account.Launcher == LauncherType.EAApp)
+                        logger.Info("EA App: zapisany tryb logowania = " +
+                                     account.EALoginMode +
+                                     ", AutoLogin przypisania = " +
+                                     assignment.AutoLogin + ".");
+                    else if (account.Launcher == LauncherType.UbisoftConnect)
+                        logger.Info("Ubisoft Connect: zapisany tryb logowania = " +
+                                     account.UbisoftLoginMode +
+                                     ", AutoLogin przypisania = " +
+                                     assignment.AutoLogin + ".");
 
                     string password = Store.Credentials.Get(account.Id);
                     string error;
@@ -234,7 +250,9 @@ namespace PlayniteAccountManager
                     try
                     {
                         if (account.Launcher == LauncherType.UbisoftConnect)
-                            ok = ubisoft.PrepareAndLogin(account, password, out error);
+                            ok = account.UbisoftLoginMode == UbisoftLoginMode.Automatic
+                                ? ubisoft.PrepareAndLogin(account, password, out error)
+                                : PrepareManualLauncherLogin(account, args.Game.Name, out error);
                         else if (account.Launcher == LauncherType.EpicGames &&
                                  account.EpicLoginMode == EpicLoginMode.Automatic)
                             ok = epic.PrepareAndLogin(account, password, out error);
@@ -386,6 +404,11 @@ namespace PlayniteAccountManager
                 if (account.Launcher == LauncherType.EAApp)
                 {
                     if (!ea.PrepareForManualLogin(out error))
+                        return false;
+                }
+                else if (account.Launcher == LauncherType.UbisoftConnect)
+                {
+                    if (!ubisoft.PrepareForManualLogin(out error))
                         return false;
                 }
                 else if (account.Launcher == LauncherType.EpicGames)

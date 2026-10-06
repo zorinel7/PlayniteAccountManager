@@ -81,7 +81,7 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | Launcher | Status | Login support |
 |---|---|---|
 | **Steam** | Stable | Account switching + primary account |
-| **Ubisoft Connect** | Stable | Automatic login |
+| **Ubisoft Connect** | Stable | Manual or automatic |
 | **Epic Games** | Stable | Manual or automatic |
 | **EA App** | Stable | Manual or automatic |
 | Xbox App | Experimental / paused | Not implemented |
@@ -187,6 +187,22 @@ ENTER
 ```
 
 No external AutoHotkey process is required.
+
+## Ubisoft Connect executable detection
+
+Ubisoft Connect is no longer dependent on a single hard-coded executable location.
+
+The plugin searches for the launcher using:
+1. standard Program Files locations;
+2. Program Files (x86);
+3. ProgramW6432;
+4. Windows uninstall registry entries;
+5. Windows App Paths registry entries;
+6. the executable path of a running Ubisoft launcher process;
+7. Ubisoft installation roots searched recursively for UbisoftConnect.exe / upc.exe;
+8. Ubisoft Start Menu shortcuts.
+
+This allows the launcher to be found after installation changes without changing the plugin configuration.
 
 ## EA App executable detection
 
@@ -310,6 +326,22 @@ The intended behavior is for the extension language to follow the language selec
 
 ## Basic setup
 
+### Ubisoft Connect
+
+Each Ubisoft Connect account now has its own **Manual / Automatic** login mode.
+
+**Manual**
+- Ubisoft Connect is detected automatically.
+- The existing Ubisoft local launcher state is cleared in the same preparation flow used for the account switch.
+- Ubisoft Connect is restarted.
+- The shared manual login window is shown.
+- Login and password can be copied to the clipboard.
+
+**Automatic**
+- The existing automatic Ubisoft Connect login flow is kept unchanged.
+- The selected account still uses the existing native keyboard automation and launcher preparation.
+- Only the account mode selection and launcher detection were extended.
+
 ### Epic Games
 1. Add an Epic Games account.
 2. Enter and save the login and password.
@@ -333,11 +365,19 @@ The intended behavior is for the extension language to follow the language selec
 
 ### Ubisoft Connect
 1. Add the Ubisoft account.
-2. Save the login information.
-3. Assign the account to the required games.
-4. Use the launcher test function when needed.
+2. Enter and save the login and password.
+3. Select **Manualne logowanie** or **Automatyczne logowanie**.
+4. Save the account.
+5. Assign the account to the required game.
+6. Use the test button for the selected login mode when needed.
 
 ## Troubleshooting
+
+### Ubisoft Connect was not found
+
+Make sure UbisoftConnect.exe or upc.exe exists and that Ubisoft Connect can start normally.
+
+The plugin checks standard Windows locations, registry information, running processes, Start Menu shortcuts and likely Ubisoft installation roots.
 
 ### EA App was not found
 
@@ -514,6 +554,7 @@ Future launcher integrations can follow the same adapter-based design without ch
 See CHANGELOG.md for the complete history.
 
 Recent releases:
+- **0.9.56** — Ubisoft Connect Manual / Automatic login mode and expanded launcher detection.
 - **0.9.55** — EA App automatic login and version-independent launcher detection.
 - **0.9.54** — Playnite localization resources.
 - **0.9.53** — Larger Account Manager and manual login windows.

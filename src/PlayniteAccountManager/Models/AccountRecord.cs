@@ -11,6 +11,7 @@ namespace PlayniteAccountManager.Models
         public bool IsPrimary { get; set; }
         public EpicLoginMode EpicLoginMode { get; set; }
         public EALoginMode EALoginMode { get; set; }
+        public UbisoftLoginMode UbisoftLoginMode { get; set; }
 
         public AccountRecord()
         {
@@ -20,6 +21,7 @@ namespace PlayniteAccountManager.Models
             IsPrimary = false;
             EpicLoginMode = EpicLoginMode.Manual;
             EALoginMode = EALoginMode.Manual;
+            UbisoftLoginMode = UbisoftLoginMode.Automatic;
             Launcher = LauncherType.UbisoftConnect;
         }
     }

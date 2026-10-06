@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.56 - Ubisoft Connect manual/automatic login mode
+- Added a per-account Ubisoft Connect login mode: Manual or Automatic.
+- Added the same manual login flow for Ubisoft Connect that is already used by EA App and Epic Games.
+- Manual Ubisoft Connect login prepares the launcher, clears the existing local Ubisoft launcher state, starts the detected launcher and then displays the shared credential window.
+- Automatic Ubisoft Connect login behavior remains unchanged; the existing automatic keyboard automation is still used when Automatic mode is selected.
+- Ubisoft Connect executable discovery was expanded to cover Program Files, Program Files (x86), ProgramW6432, Windows uninstall registry entries, App Paths, running launcher processes, Start Menu shortcuts and recursive searches in likely Ubisoft installation roots.
+- Fixed the Ubisoft uninstall registry path used by launcher detection.
+- Added Ubisoft login mode selection and localization strings to the Account Manager.
+- Existing Steam, EA App and Epic Games behavior remains available.
 ## 0.9.55 - EA App automatic login integration
 - Added per-account EA App login mode selection: Manual or Automatic.
 - Added automatic EA App login using the same keyboard sequence as the supplied AHK script, implemented internally without requiring AutoHotkey.
