@@ -23,7 +23,7 @@ The project is designed for a console-like Playnite setup where several launcher
 
 ## Current version
 
-**0.9.59**
+**0.9.60**
 
 Current release highlights:
 - EA App supports Manual and Automatic login per account.
@@ -31,6 +31,7 @@ Current release highlights:
 - GOG Galaxy supports manual login per assigned account.
 - Battle.net supports manual login per assigned account.
 - Battle.net manual login now clears the remembered account and local authentication state more completely.
+- Rockstar Games Launcher supports manual login per assigned account.
 - EA App automatic login reproduces a tested AutoHotkey keyboard sequence without requiring AutoHotkey.
 - EA App is detected without depending on a versioned installation folder.
 - Ubisoft Connect executable detection searches multiple Windows installation sources instead of relying on one fixed path.
@@ -94,6 +95,7 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | Xbox App | Experimental / paused | Not implemented |
 | Rockstar Games Launcher | Account model available | Automatic login not implemented |
 | **Battle.net** | Stable | Manual only |
+| **Rockstar Games Launcher** | Stable | Manual only |
 | Other | Account model available | Launcher-specific integration not implemented |
 
 The launcher selector contains additional future integration targets. Saving an account for one of those launchers does not mean that automatic login is already implemented.
@@ -145,6 +147,21 @@ GOG Galaxy supports manual login for an assigned account.
 - Login and password can be copied to the clipboard and pasted into GOG Galaxy with Ctrl+V.
 
 The session cleanup removes the local authentication token/lock state used by Galaxy without deleting the installed-game database. GOG documents the Galaxy launcher executable and its ProgramData paths, and the client also uses a local refreshToken value for authentication.
+
+## Rockstar Games Launcher
+
+Rockstar Games Launcher supports manual login for an assigned account.
+
+### Manual login
+- Rockstar Games Launcher is detected automatically.
+- Current Rockstar launcher processes are closed before session cleanup.
+- Local Rockstar launcher and Social Club profile/session data is cleared.
+- Installed game folders are left untouched.
+- The detected launcher is started again.
+- The shared manual login window is shown.
+- Login and password can be copied to the clipboard and pasted with Ctrl+V.
+
+The cleanup follows Rockstar's documented local-profile reset locations and is limited to launcher/profile data rather than installed game folders.
 
 ## Battle.net
 
@@ -558,7 +575,7 @@ Build and package:
 The generated package is:
 
 ```text
-PlayniteAccountManager_0.9.58.pext
+PlayniteAccountManager_0.9.60.pext
 ```
 
 ### GitHub Actions
@@ -604,6 +621,7 @@ Future launcher integrations can follow the same adapter-based design without ch
 See CHANGELOG.md for the complete history.
 
 Recent releases:
+- **0.9.60** — Add Rockstar Games Launcher manual login.
 - **0.9.59** — Fix Battle.net remembered-account and session cleanup.
 - **0.9.58** — Battle.net manual login and launcher/session detection.
 - **0.9.57** — GOG Galaxy manual login and launcher/session detection.
