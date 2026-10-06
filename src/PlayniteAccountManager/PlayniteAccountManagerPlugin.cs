@@ -23,6 +23,7 @@ namespace PlayniteAccountManager
         private SteamAdapter steam;
         private EAAppAdapter ea;
         private EpicGamesAdapter epic;
+        private GOGGalaxyAdapter gog;
         private Guid activeAccountId;
         private Guid activeGameId;
         private LauncherType activeLauncher;
@@ -36,6 +37,7 @@ namespace PlayniteAccountManager
             steam = new SteamAdapter(message => logger.Info(message));
             ea = new EAAppAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             epic = new EpicGamesAdapter(message => logger.Info(message));
+            gog = new GOGGalaxyAdapter(GetPluginUserDataPath(), message => logger.Info(message));
         }
 
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
@@ -128,7 +130,8 @@ namespace PlayniteAccountManager
 
             if (account.Launcher != LauncherType.EAApp &&
                 account.Launcher != LauncherType.EpicGames &&
-                account.Launcher != LauncherType.UbisoftConnect)
+                account.Launcher != LauncherType.UbisoftConnect &&
+                account.Launcher != LauncherType.GOGGalaxy)
             {
                 error = "To konto nie korzysta z ręcznego logowania.";
                 return false;
@@ -142,6 +145,16 @@ namespace PlayniteAccountManager
                 error = "Konto „" + account.Name +
                         "” nie ma zapisanych danych logowania.";
                 return false;
+            }
+
+            if (account.Launcher == LauncherType.GOGGalaxy)
+            {
+                string prepareError;
+                if (!gog.PrepareForManualLogin(out prepareError))
+                {
+                    error = prepareError;
+                    return false;
+                }
             }
 
             return ShowManualLoginWindow(
@@ -196,6 +209,7 @@ namespace PlayniteAccountManager
                     return;
 
                 bool manualLauncher =
+                    account.Launcher == LauncherType.GOGGalaxy ||
                     (account.Launcher == LauncherType.UbisoftConnect &&
                      account.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                     (account.Launcher == LauncherType.EAApp &&
@@ -241,6 +255,9 @@ namespace PlayniteAccountManager
                         logger.Info("Ubisoft Connect: zapisany tryb logowania = " +
                                      account.UbisoftLoginMode +
                                      ", AutoLogin przypisania = " +
+                                     assignment.AutoLogin + ".");
+                    else if (account.Launcher == LauncherType.GOGGalaxy)
+                        logger.Info("GOG Galaxy: ręczne logowanie, AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
 
                     string password = Store.Credentials.Get(account.Id);
@@ -416,6 +433,11 @@ namespace PlayniteAccountManager
                     if (!epic.PrepareForManualLogin(out error))
                         return false;
                 }
+                else if (account.Launcher == LauncherType.GOGGalaxy)
+                {
+                    if (!gog.PrepareForManualLogin(out error))
+                        return false;
+                }
                 else
                 {
                     error = "Nieobsługiwany launcher.";
@@ -549,6 +571,12 @@ namespace PlayniteAccountManager
                 {
                     string error;
                     if (!epic.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
+                        logger.Error(error);
+                }
+                else if (activeLauncher == LauncherType.GOGGalaxy)
+                {
+                    string error;
+                    if (!gog.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
                         logger.Error(error);
                 }
             }
