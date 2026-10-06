@@ -22,6 +22,7 @@ namespace PlayniteAccountManager.Services
             "Rockstar-Games-Launcher",
             "LauncherPatcher",
             "SocialClubHelper",
+            "RockstarService",
             "RockstarErrorHandler"
         };
 
@@ -57,7 +58,12 @@ namespace PlayniteAccountManager.Services
                 log("Rockstar Games Launcher: zamykam aktualne procesy launchera.");
                 StopProcesses();
 
-                System.Threading.Thread.Sleep(1000);
+                // RockstarService is installed as a Windows service and may briefly
+                // respawn launcher components after Launcher.exe exits. Repeat the
+                // process sweep immediately before deleting the profile state.
+                System.Threading.Thread.Sleep(700);
+                StopProcesses();
+                System.Threading.Thread.Sleep(500);
 
                 if (!sessionStore.ClearLiveState(out error))
                     return false;
@@ -80,6 +86,8 @@ namespace PlayniteAccountManager.Services
         {
             try
             {
+                StopProcesses();
+                System.Threading.Thread.Sleep(700);
                 StopProcesses();
                 return sessionStore.ClearLiveState(out error);
             }
