@@ -257,13 +257,20 @@ namespace PlayniteAccountManager.Services
 
             string pf86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
             string pf = Environment.GetEnvironmentVariable("ProgramFiles");
+            string pf64 = Environment.GetEnvironmentVariable("ProgramW6432");
             string local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
             AddInstallCandidates(candidates, pf86);
             AddInstallCandidates(candidates, pf);
+            AddInstallCandidates(candidates, pf64);
             AddInstallCandidates(candidates, local);
             candidates.AddRange(FindFromUninstallRegistry());
+            candidates.AddRange(FindFromAppPaths());
             candidates.AddRange(FindFromStartMenuShortcuts());
+            AddRecursiveCandidates(candidates, Path.Combine(pf ?? string.Empty, "Ubisoft", "Ubisoft Game Launcher"));
+            AddRecursiveCandidates(candidates, Path.Combine(pf86 ?? string.Empty, "Ubisoft", "Ubisoft Game Launcher"));
+            AddRecursiveCandidates(candidates, Path.Combine(pf64 ?? string.Empty, "Ubisoft", "Ubisoft Game Launcher"));
+            AddRecursiveCandidates(candidates, Path.Combine(local ?? string.Empty, "Ubisoft Game Launcher"));
 
             foreach (string candidate in candidates.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase))
             {
@@ -383,7 +390,7 @@ namespace PlayniteAccountManager.Services
         private IEnumerable<string> FindFromUninstallRegistry()
         {
             var results = new List<string>();
-            const string subKey = @"SOFTWAREMicrosoftWindowsCurrentVersionUninstall";
+            const string subKey = @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
 
             foreach (RegistryHive hive in new[] { RegistryHive.LocalMachine, RegistryHive.CurrentUser })
             foreach (RegistryView view in new[] { RegistryView.Registry64, RegistryView.Registry32 })
@@ -435,6 +442,88 @@ namespace PlayniteAccountManager.Services
             }
 
             return results;
+        }
+
+        private IEnumerable<string> FindFromAppPaths()
+        {
+            var results = new List<string>();
+
+            foreach (RegistryHive hive in new[] { RegistryHive.LocalMachine, RegistryHive.CurrentUser })
+            foreach (RegistryView view in new[] { RegistryView.Registry64, RegistryView.Registry32, RegistryView.Default })
+            {
+                RegistryKey baseKey = null;
+                try
+                {
+                    baseKey = RegistryKey.OpenBaseKey(hive, view);
+                    foreach (string executableName in new[] { "UbisoftConnect.exe", "upc.exe" })
+                    {
+                        using (RegistryKey key = baseKey.OpenSubKey(
+                            @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\" + executableName))
+                        {
+                            if (key == null)
+                                continue;
+
+                            string value = key.GetValue(string.Empty) as string;
+                            AddRegistryExecutable(results, value);
+                            string path = key.GetValue("Path") as string;
+                            AddRegistryDirectory(results, path);
+                        }
+                    }
+                }
+                catch { }
+                finally
+                {
+                    if (baseKey != null)
+                        baseKey.Dispose();
+                }
+            }
+
+            return results;
+        }
+
+        private static void AddRegistryExecutable(List<string> results, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+            string path = value.Trim().Trim('"');
+            int comma = path.IndexOf(',');
+            if (comma > 0)
+                path = path.Substring(0, comma).Trim().Trim('"');
+
+            if (path.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                results.Add(path);
+        }
+
+        private static void AddRegistryDirectory(List<string> results, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return;
+
+            string path = value.Trim().Trim('"');
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                results.Add(Path.Combine(path, "UbisoftConnect.exe"));
+                results.Add(Path.Combine(path, "upc.exe"));
+            }
+        }
+
+        private static void AddRecursiveCandidates(List<string> results, string root)
+        {
+            if (string.IsNullOrWhiteSpace(root) || !Directory.Exists(root))
+                return;
+
+            try
+            {
+                foreach (string file in Directory.EnumerateFiles(root, "*.exe", SearchOption.AllDirectories))
+                {
+                    string name = Path.GetFileName(file);
+                    if (string.Equals(name, "UbisoftConnect.exe", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(name, "upc.exe", StringComparison.OrdinalIgnoreCase))
+                        results.Add(file);
+                }
+            }
+            catch { }
         }
 
         private void StopLauncherProcesses()
