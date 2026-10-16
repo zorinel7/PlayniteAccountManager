@@ -255,7 +255,6 @@ namespace PlayniteAccountManager.Views
                 selectedModel != null &&
                 ((selectedModel.Launcher == LauncherType.GOGGalaxy) ||
                  (selectedModel.Launcher == LauncherType.BattleNet) ||
-                 (selectedModel.Launcher == LauncherType.RockstarGamesLauncher) ||
                  (selectedModel.Launcher == LauncherType.UbisoftConnect &&
                   selectedModel.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
@@ -405,7 +404,7 @@ namespace PlayniteAccountManager.Views
 
             if (record.Launcher == LauncherType.RockstarGamesLauncher)
                 DisplayLauncher += "  •  " +
-                                   ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+                                   ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort");
 
             if (record.Launcher == LauncherType.XboxApp)
                 DisplayLauncher += "  •  " +

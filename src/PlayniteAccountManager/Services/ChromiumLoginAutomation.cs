@@ -55,6 +55,13 @@ namespace PlayniteAccountManager.Services
         /// </summary>
         public TimeSpan SuccessWhenFormGoneFor = TimeSpan.Zero;
 
+        /// <summary>
+        /// The page answers MSAA calls slowly (Rockstar Games Launcher): read only
+        /// text fields and buttons in detail, skip text/graphics/links subtrees and
+        /// do not re-read the page while waiting for the login window to close.
+        /// </summary>
+        public bool SlowAccessibility;
+
         public TimeSpan WindowTimeout = TimeSpan.FromSeconds(60);
         public TimeSpan FieldsTimeout = TimeSpan.FromSeconds(30);
         public TimeSpan StepTimeout = TimeSpan.FromSeconds(20);
@@ -79,10 +86,14 @@ namespace PlayniteAccountManager.Services
     {
         private const string RenderWidgetClass = "Chrome_RenderWidgetHostHWND";
 
+        private const int RoleLink = 30;
+        private const int RoleGraphic = 40;
+        private const int RoleStaticText = 41;
         private const int RoleText = 42;
         private const int RolePushButton = 43;
 
         private const int StateFocused = 0x4;
+        private const int StateDefault = 0x100;
         private const int StateInvisible = 0x8000;
         private const int StateOffscreen = 0x10000;
         private const int StateFocusable = 0x100000;
@@ -425,7 +436,9 @@ namespace PlayniteAccountManager.Services
                     return MsaaLoginResult.Success;
                 }
 
-                last = ReadScreen(window);
+                // Slow pages are not re-read while waiting for the window to close.
+                if (!options.SlowAccessibility || options.SuccessWhenFormGoneFor > TimeSpan.Zero)
+                    last = ReadScreen(window);
 
                 if (options.SuccessWhenFormGoneFor > TimeSpan.Zero)
                 {
@@ -448,6 +461,10 @@ namespace PlayniteAccountManager.Services
 
                 Thread.Sleep(PollInterval);
             }
+
+            // A slow page is inspected once at the end, to explain the failure.
+            if (options.SlowAccessibility && options.SuccessWhenFormGoneFor == TimeSpan.Zero && IsWindow(window))
+                last = ReadScreen(window);
 
             if (last.PasswordField != null)
                 error = options.LauncherName + " nie zaakceptował logowania (sprawdź zapisane hasło). Dokończ logowanie w oknie launchera.";
@@ -555,7 +572,7 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private static Screen ReadScreen(IntPtr window)
+        private Screen ReadScreen(IntPtr window)
         {
             IntPtr render = FindRenderWidget(window);
             if (render == IntPtr.Zero)
@@ -566,7 +583,7 @@ namespace PlayniteAccountManager.Services
                 return Screen.Empty;
 
             var nodes = new List<Node>();
-            Collect(root, 0, nodes);
+            Collect(root, 0, nodes, options.SlowAccessibility);
 
             Node password = null;
             foreach (Node node in nodes)
@@ -604,27 +621,37 @@ namespace PlayniteAccountManager.Services
                 return screen;
 
             Node submit = null;
+            Node defaultSubmit = null;
             Node back = null;
             foreach (Node node in nodes)
             {
                 if (node.Role != RolePushButton || !node.IsVisible)
                     continue;
 
+                bool belowForm = node.Y >= last.Bottom && node.Y - last.Bottom <= MaxSubmitDistance;
+
                 // Primary action: first (nearly) full-width button below the form,
                 // left-aligned with the field and close to it. Skips "show password"
                 // inside the field and small links such as "Can't log in?".
-                if (node.Y >= last.Bottom && node.Y - last.Bottom <= MaxSubmitDistance &&
+                if (belowForm &&
                     Math.Abs(node.X - last.X) <= MaxSubmitOffset &&
                     node.Width >= last.Width * 0.8 &&
                     (submit == null || node.Y < submit.Y))
                     submit = node;
+
+                // Otherwise: the page's default button aligned with the right edge of
+                // the field (Rockstar Games "Sign in" sits on the right of the form).
+                if (belowForm && (node.State & StateDefault) != 0 &&
+                    Math.Abs((node.X + node.Width) - (last.X + last.Width)) <= MaxSubmitOffset &&
+                    (defaultSubmit == null || node.Y < defaultSubmit.Y))
+                    defaultSubmit = node;
 
                 // Back: top-most button above the form.
                 if (node.Bottom <= top.Y && (back == null || node.Y < back.Y))
                     back = node;
             }
 
-            screen.SubmitButton = submit?.Acc;
+            screen.SubmitButton = (submit ?? defaultSubmit)?.Acc;
             screen.BackButton = back?.Acc;
             return screen;
         }
@@ -635,15 +662,26 @@ namespace PlayniteAccountManager.Services
                    node.DefaultAction.StartsWith("click", StringComparison.OrdinalIgnoreCase);
         }
 
-        private static void Collect(IAccessible acc, int depth, List<Node> nodes)
+        private static void Collect(IAccessible acc, int depth, List<Node> nodes, bool slow)
         {
             if (acc == null || depth > 60 || nodes.Count >= MaxNodes)
                 return;
 
-            var node = new Node { Acc = acc, Role = GetRole(acc), State = GetState(acc) };
-            try { node.DefaultAction = acc.get_accDefaultAction(0); } catch { }
-            try { acc.accLocation(out node.X, out node.Y, out node.Width, out node.Height, 0); } catch { }
+            // Every MSAA call is a cross-process round trip. On slow pages
+            // (~15 ms per call in Rockstar Games Launcher) only text fields and
+            // buttons are inspected in detail.
+            var node = new Node { Acc = acc, Role = GetRole(acc) };
+            if (!slow || node.Role == RoleText || node.Role == RolePushButton)
+            {
+                node.State = GetState(acc);
+                try { node.DefaultAction = acc.get_accDefaultAction(0); } catch { }
+                try { acc.accLocation(out node.X, out node.Y, out node.Width, out node.Height, 0); } catch { }
+            }
             nodes.Add(node);
+
+            // Static text, graphics and links never contain form fields.
+            if (slow && (node.Role == RoleStaticText || node.Role == RoleGraphic || node.Role == RoleLink))
+                return;
 
             int count = 0;
             try { count = acc.accChildCount; } catch { }
@@ -656,7 +694,7 @@ namespace PlayniteAccountManager.Services
                 return;
 
             for (int i = 0; i < obtained; i++)
-                Collect(children[i] as IAccessible, depth + 1, nodes);
+                Collect(children[i] as IAccessible, depth + 1, nodes, slow);
         }
 
         private static bool Press(IAccessible button)

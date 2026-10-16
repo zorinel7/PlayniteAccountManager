@@ -181,6 +181,9 @@ namespace PlayniteAccountManager
                     error = prepareError;
                     return false;
                 }
+
+                if (TryRockstarAutomaticLogin(username, password))
+                    return true;
             }
 
             return ShowManualLoginWindow(
@@ -188,6 +191,29 @@ namespace PlayniteAccountManager
                 "ręczny test logowania",
                 username,
                 password);
+        }
+
+        /// <summary>
+        /// Rockstar Games Launcher: after the session was prepared, fills the sign-in
+        /// window through its accessibility tree. Returns false (and notifies) when the
+        /// caller should fall back to the manual login window.
+        /// </summary>
+        private bool TryRockstarAutomaticLogin(string username, string password)
+        {
+            string error;
+            MsaaLoginResult result = new RockstarMsaaLogin(message => logger.Info(message))
+                .Login(username, password, out error);
+
+            if (result == MsaaLoginResult.Success)
+                return true;
+
+            logger.Warn("Rockstar Games Launcher: automatyczne logowanie nie powiodło się: " + error +
+                        " Pokazuję okno ręcznego logowania.");
+            PlayniteApi.Notifications.Add(new NotificationMessage(
+                "PlayniteAccountManager-Rockstar",
+                error,
+                NotificationType.Info));
+            return false;
         }
 
         internal bool TryTestLogin(Guid accountId, out string error)
@@ -488,6 +514,9 @@ namespace PlayniteAccountManager
                 {
                     if (!rockstar.PrepareForManualLogin(out error))
                         return false;
+
+                    if (TryRockstarAutomaticLogin(username, password))
+                        return true;
                 }
                 else
                 {

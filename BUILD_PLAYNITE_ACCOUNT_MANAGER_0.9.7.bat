@@ -2,7 +2,7 @@
 setlocal
 cd /d "%~dp0"
 echo ==================================================
-echo   Playnite Account Manager - BUILD 0.9.62
+echo   Playnite Account Manager - BUILD 0.9.63
 echo ==================================================
 set "PROJECT=%~dp0src\PlayniteAccountManager\PlayniteAccountManager.csproj"
 if not exist "%PROJECT%" (
@@ -42,7 +42,7 @@ copy /y "%~dp0src\PlayniteAccountManager\extension.yaml" "%EXT%\extension.yaml" 
 copy /y "%~dp0src\PlayniteAccountManager\icon.png" "%EXT%\icon.png" >nul
 echo.
 echo ==================================================
-echo   BUILD 0.9.62 ZAKONCZONY
+echo   BUILD 0.9.63 ZAKONCZONY
 echo ==================================================
 echo   Zainstalowano do:
 echo   %EXT%

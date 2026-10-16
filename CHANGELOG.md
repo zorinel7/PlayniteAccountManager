@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.63 - Rockstar Games Launcher automatic login
+- Rockstar Games Launcher signs in automatically: after the local session is cleared and the launcher restarts, its sign-in window ("Rockstar Games Authentication", Chromium) is filled through the accessibility tree (MSAA) and success is detected when the window closes. Any failure (fields not found, 2FA, rejected password) shows a notification and the existing manual login window.
+- The MSAA engine recognises a default "Sign in" button aligned with the right edge of the form when the page has no full-width submit button.
+- Slow pages (Rockstar answers each MSAA call in ~15 ms) can opt into fewer accessibility calls; EA App and Ubisoft Connect behaviour is unchanged.
+
 ## 0.9.62 - MSAA logins, Epic session switching, Xbox App, security hardening
 - EA App automatic login now locates the e-mail and password fields through the login page accessibility tree (MSAA) instead of a fixed 15 s wait and TAB counting. Works independently of the EA App language, ignores hidden honeypot inputs, goes back from a remembered-account password step, and reports wrong password / additional verification. The previous TAB sequence remains as a fallback when the fields cannot be found.
 - Ubisoft Connect automatic login uses the same accessibility-tree engine (`ChromiumLoginAutomation`): e-mail and password are found on the single login page, "Log in" is pressed, and success is detected when the login form disappears. The previous keyboard sequence remains as a fallback. A minimized launcher window is restored automatically. Typed fields are verified by length (values are never read); when a field stays empty (Ubisoft Connect controller navigation only highlights it), the field is activated (MSAA default action, then ENTER while still empty) and typed again.
