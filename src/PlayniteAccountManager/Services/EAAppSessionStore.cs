@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace PlayniteAccountManager.Services
 {
@@ -47,43 +48,60 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private static void ClearDirectoryContents(string directory)
+        private void ClearDirectoryContents(string directory)
         {
             if (!Directory.Exists(directory))
                 return;
 
             foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly).ToList())
-            {
-                try { File.SetAttributes(file, FileAttributes.Normal); } catch { }
-                File.Delete(file);
-            }
+                DeleteFile(file);
 
             foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly).ToList())
             {
-                ClearReadOnlyAttributes(child);
-                Directory.Delete(child, true);
+                ClearDirectoryContents(child);
+
+                try { File.SetAttributes(child, FileAttributes.Normal); } catch { }
+                try { Directory.Delete(child, false); }
+                catch (IOException)
+                {
+                    // Not empty: it still holds a skipped, locked log file.
+                }
             }
         }
 
-        private static void ClearReadOnlyAttributes(string directory)
+        private void DeleteFile(string file)
         {
-            try
+            for (int attempt = 1; ; attempt++)
             {
-                foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
+                try
                 {
                     try { File.SetAttributes(file, FileAttributes.Normal); } catch { }
+                    File.Delete(file);
+                    return;
                 }
-
-                foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.AllDirectories))
+                catch (IOException) when (attempt < 4)
                 {
-                    try { File.SetAttributes(child, FileAttributes.Normal); } catch { }
+                    // A just-closed EA process can release its handles with a delay.
+                    Thread.Sleep(250);
                 }
+                catch (IOException ex) when (IsLogFile(file))
+                {
+                    // Diagnostic logs are not session state; never block the game start on them.
+                    log("EA App: pominięto zablokowany plik logu: " + Path.GetFileName(file) + " (" + ex.Message + ")");
+                    return;
+                }
+            }
+        }
 
-                try { File.SetAttributes(directory, FileAttributes.Normal); } catch { }
-            }
-            catch
-            {
-            }
+        private static bool IsLogFile(string file)
+        {
+            string extension = Path.GetExtension(file);
+            if (string.Equals(extension, ".log", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(extension, ".txt", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            string parent = Path.GetFileName(Path.GetDirectoryName(file) ?? string.Empty);
+            return string.Equals(parent, "Logs", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

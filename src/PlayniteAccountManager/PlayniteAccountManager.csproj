@@ -16,8 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Accessibility" />
     <Reference Include="System.Security" />
     <Reference Include="System.Management" />
     <None Include="extension.yaml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="icon.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

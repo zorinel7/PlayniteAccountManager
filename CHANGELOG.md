@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.62 - MSAA logins, Epic session switching, Xbox App, security hardening
+- EA App automatic login now locates the e-mail and password fields through the login page accessibility tree (MSAA) instead of a fixed 15 s wait and TAB counting. Works independently of the EA App language, ignores hidden honeypot inputs, goes back from a remembered-account password step, and reports wrong password / additional verification. The previous TAB sequence remains as a fallback when the fields cannot be found.
+- Ubisoft Connect automatic login uses the same accessibility-tree engine (`ChromiumLoginAutomation`): e-mail and password are found on the single login page, "Log in" is pressed, and success is detected when the login form disappears. The previous keyboard sequence remains as a fallback. A minimized launcher window is restored automatically. Typed fields are verified by length (values are never read); when a field stays empty (Ubisoft Connect controller navigation only highlights it), the field is activated (MSAA default action, then ENTER while still empty) and typed again.
+- The shared engine only accepts a real login form (a password field, or an e-mail field with its own aligned submit button), so a search box in an already signed-in launcher is never treated as a login field; EA App is limited to its sign-in window.
+- Epic Games automatic login switches accounts with saved sessions: the launcher "Remember me" state (RememberMe/Offline ini sections and AccountId) is stored per account, encrypted with DPAPI and restricted to the current user. Restoring a session signs in within ~5 s without typing; the result and the Epic AccountId are verified in the launcher log, and the refreshed token is saved right after login and again before switching away. The keyboard sequence remains the fallback and creates the first snapshot of an account.
+- Added Xbox App account switching. The Xbox app is signed out and signed in again with the assigned Microsoft account selected in the Windows account picker (no password typed; the account must be added in Windows Settings → Accounts → Email & accounts). The Gaming Services confirmation is checked against the account e-mail, and the resulting gamertag is verified and remembered so an already active account is not switched again. Any failure falls back to the shared manual login window. The password of Xbox accounts is optional.
+- EA App session cleanup also stops `EALocalHostSvc`, retries files that are briefly locked and skips locked log files instead of cancelling the game start.
+- Copied logins/passwords are excluded from Windows clipboard history (Win+V), cloud clipboard and clipboard monitors, and are cleared automatically after 60 seconds or when the manual login window closes (only if the clipboard still holds the copied value).
+- Automatic keyboard login now types credentials only while a launcher window has keyboard focus and aborts immediately if the focus moves to another application.
+- Stored passwords use DPAPI with plugin-specific entropy (`v2:` format). Existing entries are migrated transparently on first read. Note: versions <= 0.9.61 cannot read migrated entries after a downgrade.
+- `credentials.dat` is restricted to the current Windows user and SYSTEM (inherited permissions removed).
+- Steam login names are masked in the Playnite log.
+- Secret scan fails when `credentials.dat` or certificate/key files are present in the repository.
+- Extension author set to zorinel; added extension icon (`icon.png`), included in the .pext package.
+- `package.ps1` also works in Windows PowerShell 5.1.
+
 ## 0.9.61 - Fix Rockstar remembered-account and session cleanup
 - Fixed Rockstar Games Launcher manual session cleanup not reliably removing the remembered account/local profile.
 - Added explicit coverage for Rockstar profile data under `Documents\Rockstar Games\Social Club\Profiles`, including remembered-account files such as `autosignin.dat` and `signintransfer.dat`.

@@ -77,16 +77,40 @@ namespace PlayniteAccountManager.Services
         [DllImport("user32.dll")]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
 
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
         public static bool TypeText(string text, IntPtr targetWindowHandle, Action<string> log = null)
         {
             if (string.IsNullOrEmpty(text))
                 return true;
+
+            // Credentials are typed as global keyboard events. Never type them
+            // unless a launcher window owns the keyboard focus, and stop as soon
+            // as the focus moves, otherwise a login/password could end up in
+            // another application (browser address bar, chat window, ...).
+            IntPtr focusedWindow = GetForegroundWindow();
+            if (!IsLauncherWindow(focusedWindow, targetWindowHandle))
+            {
+                log?.Invoke("INPUT: aktywne okno nie należy do launchera. Przerywam wpisywanie danych logowania.");
+                return false;
+            }
 
             IntPtr hkl = GetTargetKeyboardLayout(targetWindowHandle);
             int sentCharacters = 0;
 
             foreach (char ch in text)
             {
+                if (GetForegroundWindow() != focusedWindow)
+                {
+                    log?.Invoke("INPUT: aktywne okno zmieniło się podczas wpisywania (po " + sentCharacters +
+                                " znakach). Przerywam, aby dane logowania nie trafiły do innej aplikacji.");
+                    return false;
+                }
+
                 if (!SendMappedCharacter(ch, hkl, log))
                     return false;
                 sentCharacters++;
@@ -95,6 +119,66 @@ namespace PlayniteAccountManager.Services
 
             log?.Invoke("INPUT: wysłano " + sentCharacters + " znaków przez mapowanie klawiatury Windows.");
             return true;
+        }
+
+        // Launchers render their login UI through helper processes, so the
+        // focused window can belong to a sibling process of the target window.
+        private static readonly string[] LauncherProcessNames =
+        {
+            "steam", "steamwebhelper",
+            "EpicGamesLauncher", "EpicWebHelper",
+            "upc", "UbisoftConnect", "UplayWebCore",
+            "EADesktop", "EALauncher", "QtWebEngineProcess"
+        };
+
+        private static bool IsLauncherWindow(IntPtr focusedWindow, IntPtr targetWindow)
+        {
+            uint focusedPid = GetWindowProcessId(focusedWindow);
+            uint targetPid = GetWindowProcessId(targetWindow);
+            if (focusedPid == 0 || targetPid == 0)
+                return false;
+
+            if (focusedPid == targetPid)
+                return true;
+
+            return IsLauncherProcess(focusedPid) && IsLauncherProcess(targetPid);
+        }
+
+        private static bool IsLauncherProcess(uint processId)
+        {
+            try
+            {
+                using (var process = System.Diagnostics.Process.GetProcessById((int)processId))
+                {
+                    foreach (string name in LauncherProcessNames)
+                    {
+                        if (string.Equals(process.ProcessName, name, StringComparison.OrdinalIgnoreCase))
+                            return true;
+                    }
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        private static uint GetWindowProcessId(IntPtr hwnd)
+        {
+            if (hwnd == IntPtr.Zero)
+                return 0;
+
+            try
+            {
+                uint processId;
+                GetWindowThreadProcessId(hwnd, out processId);
+                return processId;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         private static IntPtr GetTargetKeyboardLayout(IntPtr hwnd)
@@ -221,6 +305,20 @@ namespace PlayniteAccountManager.Services
 
         public static bool SendEnter(Action<string> log = null) => Key(VK_RETURN, log);
         public static bool SendTab(Action<string> log = null) => Key(VK_TAB, log);
+
+        public static bool SendSelectAll(Action<string> log = null)
+        {
+            const ushort VK_A = 0x41;
+            INPUT[] inputs =
+            {
+                CreateVirtualKeyInput(VK_CONTROL, false),
+                CreateVirtualKeyInput(VK_A, false),
+                CreateVirtualKeyInput(VK_A, true),
+                CreateVirtualKeyInput(VK_CONTROL, true)
+            };
+
+            return SendInputs(inputs, log);
+        }
 
         public static bool SendShiftTab(Action<string> log = null)
         {

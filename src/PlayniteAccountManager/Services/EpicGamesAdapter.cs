@@ -16,15 +16,22 @@ namespace PlayniteAccountManager.Services
             "EpicWebHelper"
         };
 
+        private static readonly TimeSpan SessionLoginTimeout = TimeSpan.FromSeconds(45);
+        private static readonly TimeSpan KeyboardLoginConfirmTimeout = TimeSpan.FromSeconds(20);
+        private static readonly TimeSpan CaptureTimeout = TimeSpan.FromSeconds(6);
+
         private readonly Action<string> log;
         private readonly EpicGamesSessionStore sessionStore;
         private readonly EpicGamesUiAutomation uiAutomation;
+        private readonly EpicSessionVault vault;
+        private readonly EpicLauncherLog launcherLog = new EpicLauncherLog();
 
-        public EpicGamesAdapter(Action<string> log)
+        public EpicGamesAdapter(string pluginUserDataPath, Action<string> log)
         {
             this.log = log ?? (_ => { });
             sessionStore = new EpicGamesSessionStore(this.log);
             uiAutomation = new EpicGamesUiAutomation(this.log);
+            vault = new EpicSessionVault(pluginUserDataPath);
         }
 
         public bool PrepareForManualLogin(out string error)
@@ -43,19 +50,13 @@ namespace PlayniteAccountManager.Services
                 }
 
                 StopProcesses();
+                SaveActiveSession();
 
                 if (!sessionStore.ClearLiveState(out error))
                     return false;
 
-                using (var process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = exe,
-                    WorkingDirectory = Path.GetDirectoryName(exe),
-                    UseShellExecute = true,
-                    WindowStyle = ProcessWindowStyle.Normal
-                }))
-                {
-                }
+                SetActiveAccount(Guid.Empty);
+                Start(exe);
 
                 log("Epic Games: active session cleared and launcher started for manual login.");
                 return true;
@@ -101,26 +102,54 @@ namespace PlayniteAccountManager.Services
                 log("Epic Games: automatyczne logowanie dla konta „" + account.Name + "”.");
                 log("Epic Games: zamykam poprzednią sesję i launcher.");
                 StopProcesses();
+                SaveActiveSession();
 
-                // Twoja sekwencja AHK ma 2 sekundy między zamknięciem launchera
-                // a jego ponownym uruchomieniem.
+                // Preferred: restore the saved session of this account (no typing).
+                EpicSessionSnapshot snapshot;
+                if (vault.TryLoad(account.Id, out snapshot))
+                {
+                    string sessionError;
+                    if (TryLoginWithSnapshot(exe, account, snapshot, out sessionError))
+                        return true;
+
+                    log("Epic Games: " + sessionError + " Przechodzę na automatyczne logowanie (TAB).");
+                    StopProcesses();
+                }
+                else
+                {
+                    log("Epic Games: brak zapisanej sesji dla tego konta, używam automatycznego logowania (TAB).");
+                }
+
+                // Fallback: keyboard sequence. Twoja sekwencja AHK ma 2 sekundy
+                // między zamknięciem launchera a jego ponownym uruchomieniem.
                 Thread.Sleep(2000);
 
                 if (!sessionStore.ClearLiveState(out error))
                     return false;
 
-                using (var process = Process.Start(new ProcessStartInfo
-                {
-                    FileName = exe,
-                    WorkingDirectory = Path.GetDirectoryName(exe),
-                    UseShellExecute = true,
-                    WindowStyle = ProcessWindowStyle.Normal
-                }))
-                {
-                }
+                SetActiveAccount(Guid.Empty);
+                DateTime startedUtc = DateTime.UtcNow;
+                Start(exe);
 
                 log("Epic Games: launcher uruchomiony — odtwarzam sekwencję automatycznego logowania z AHK.");
-                return uiAutomation.Login(account.UserName, password, out error);
+                if (!uiAutomation.Login(account.UserName, password, out error))
+                    return false;
+
+                // Bind the new session to this account so the next switch can
+                // restore it without typing.
+                string epicAccountId;
+                string confirmError;
+                if (launcherLog.WaitForLogin(startedUtc, KeyboardLoginConfirmTimeout, out epicAccountId, out confirmError))
+                {
+                    SetActiveAccount(account.Id);
+                    CaptureAfterLogin(account, epicAccountId, null);
+                }
+                else
+                {
+                    log("Epic Games: logowanie nie zostało potwierdzone w logu launchera (" + confirmError + "). Sesja nie zostanie zapisana.");
+                }
+
+                return true;
             }
             catch (Exception ex)
             {
@@ -134,12 +163,133 @@ namespace PlayniteAccountManager.Services
             try
             {
                 StopProcesses();
+                SaveActiveSession();
+                SetActiveAccount(Guid.Empty);
                 return sessionStore.ClearLiveState(out error);
             }
             catch (Exception ex)
             {
                 error = "Nie udało się wyczyścić sesji Epic Games: " + ex.Message;
                 return false;
+            }
+        }
+
+        private bool TryLoginWithSnapshot(string exe, AccountRecord account, EpicSessionSnapshot snapshot, out string error)
+        {
+            if (!sessionStore.ClearLiveState(out error))
+                return false;
+
+            if (!sessionStore.RestoreSession(snapshot, out error))
+                return false;
+
+            SetActiveAccount(Guid.Empty);
+            DateTime startedUtc = DateTime.UtcNow;
+            Start(exe);
+            log("Epic Games: uruchomiono launcher z zapisaną sesją, czekam na potwierdzenie logowania.");
+
+            string epicAccountId;
+            if (!launcherLog.WaitForLogin(startedUtc, SessionLoginTimeout, out epicAccountId, out error))
+                return false;
+
+            if (!string.Equals(epicAccountId, snapshot.AccountId, StringComparison.OrdinalIgnoreCase))
+            {
+                // Never keep a snapshot that signs in a different Epic account.
+                vault.Delete(account.Id);
+                error = "zapisana sesja zalogowała inne konto Epic niż przypisane – usunięto ją.";
+                return false;
+            }
+
+            SetActiveAccount(account.Id);
+            CaptureAfterLogin(account, epicAccountId, snapshot.RememberMeData);
+            log("Epic Games: zalogowano z zapisanej sesji (bez wpisywania hasła).");
+            return true;
+        }
+
+        /// <summary>
+        /// After a sign-in the launcher writes a new (rotated) refresh token to its
+        /// configuration. Save it right away, but only when the live session belongs
+        /// to the Epic account that just signed in.
+        /// </summary>
+        private void CaptureAfterLogin(AccountRecord account, string epicAccountId, string previousData)
+        {
+            DateTime deadline = DateTime.UtcNow + CaptureTimeout;
+            EpicSessionSnapshot live = null;
+
+            while (DateTime.UtcNow < deadline)
+            {
+                live = sessionStore.CaptureLiveSession();
+                if (live != null && live.IsComplete &&
+                    (epicAccountId == null || string.Equals(live.AccountId, epicAccountId, StringComparison.OrdinalIgnoreCase)) &&
+                    !string.Equals(live.RememberMeData, previousData, StringComparison.Ordinal))
+                    break;
+
+                Thread.Sleep(500);
+            }
+
+            if (live == null || !live.IsComplete ||
+                (epicAccountId != null && !string.Equals(live.AccountId, epicAccountId, StringComparison.OrdinalIgnoreCase)))
+            {
+                log("Epic Games: launcher nie zapisał sesji „Zapamiętaj mnie” – snapshot nie został utworzony.");
+                return;
+            }
+
+            TrySave(account.Id, live, "Epic Games: zapisano sesję konta „" + account.Name + "” do szybkiego przełączania.");
+        }
+
+        /// <summary>
+        /// Stores the latest session of the account that was live before the launcher
+        /// was closed. Skipped when the live session belongs to another Epic account
+        /// (e.g. somebody signed in manually outside the plugin).
+        /// </summary>
+        private void SaveActiveSession()
+        {
+            Guid active = vault.GetActiveAccount();
+            if (active == Guid.Empty)
+                return;
+
+            EpicSessionSnapshot live = sessionStore.CaptureLiveSession();
+            if (live == null || !live.IsComplete)
+                return;
+
+            string bound = vault.GetBoundAccountId(active);
+            if (!string.Equals(bound, live.AccountId, StringComparison.OrdinalIgnoreCase))
+            {
+                log("Epic Games: aktywna sesja należy do innego konta Epic niż zapisane – nie aktualizuję snapshotu.");
+                return;
+            }
+
+            TrySave(active, live, "Epic Games: zaktualizowano zapisaną sesję poprzedniego konta.");
+        }
+
+        private void TrySave(Guid accountId, EpicSessionSnapshot snapshot, string message)
+        {
+            try
+            {
+                vault.Save(accountId, snapshot);
+                log(message);
+            }
+            catch (Exception ex)
+            {
+                log("Epic Games: nie udało się zapisać snapshotu sesji: " + ex.Message);
+            }
+        }
+
+        private void SetActiveAccount(Guid accountId)
+        {
+            try { vault.SetActiveAccount(accountId); }
+            catch (Exception ex) { log("Epic Games: nie udało się zapisać znacznika aktywnego konta: " + ex.Message); }
+        }
+
+        private static void Start(string exe)
+        {
+            using (Process.Start(new ProcessStartInfo
+            {
+                FileName = exe,
+                WorkingDirectory = Path.GetDirectoryName(exe),
+                UseShellExecute = true,
+                WindowStyle = ProcessWindowStyle.Normal
+            }))
+            {
             }
         }
 

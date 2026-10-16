@@ -71,6 +71,36 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
+            // Preferred: locate the e-mail/password fields through the accessibility
+            // tree of the login page (no fixed delays, no TAB counting).
+            var started = System.Diagnostics.Stopwatch.StartNew();
+            string msaaError;
+            MsaaLoginResult msaaResult = new UbisoftConnectMsaaLogin(log).Login(username, password, out msaaError);
+            if (msaaResult == MsaaLoginResult.Success)
+                return true;
+
+            if (msaaResult == MsaaLoginResult.Failed)
+            {
+                error = msaaError;
+                return false;
+            }
+
+            log("Ubisoft INPUT: " + msaaError + " Przechodzę na zapasową sekwencję klawiatury.");
+
+            // Fallback: the original keyboard sequence. The MSAA attempt already
+            // waited for the launcher, so only the remainder of the 15 s is waited.
+            return LoginWithKeyboardSequence(
+                username,
+                password,
+                timeoutSeconds,
+                Math.Max(0, 15000 - (int)started.ElapsedMilliseconds),
+                out error);
+        }
+
+        private bool LoginWithKeyboardSequence(string username, string password, int timeoutSeconds, int activationWaitMs, out string error)
+        {
+            error = null;
+
             DateTime windowDeadline = DateTime.UtcNow.AddSeconds(Math.Max(10, timeoutSeconds));
             IntPtr hwnd = IntPtr.Zero;
 
@@ -97,8 +127,8 @@ namespace PlayniteAccountManager.Services
                 log("Ubisoft INPUT: WinActivate nie dał pełnej pewności o aktywnym oknie, ale kontynuuję jak AHK.");
             }
 
-            log("Ubisoft INPUT: WinActivate wykonane. Czekam 15 s jak w działającym AHK...");
-            Thread.Sleep(15000);
+            log("Ubisoft INPUT: WinActivate wykonane. Czekam " + activationWaitMs / 1000 + " s jak w działającym AHK...");
+            Thread.Sleep(activationWaitMs);
 
             // Reproduce the supplied AHK sequence literally.
             EnsureWindowForeground(hwnd);

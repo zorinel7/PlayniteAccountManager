@@ -23,9 +23,14 @@ The project is designed for a console-like Playnite setup where several launcher
 
 ## Current version
 
-**0.9.61**
+**0.9.62**
 
 Current release highlights:
+- EA App and Ubisoft Connect automatic login find the login fields through the page accessibility tree (MSAA) instead of fixed waits and TAB counting; the keyboard sequence remains as a fallback.
+- Epic Games automatic login switches accounts with saved, DPAPI-encrypted sessions (~5 s, no typing), with the keyboard sequence as a fallback.
+- Xbox App account switching through the Windows account picker, without a password, with a manual fallback.
+- Security hardening: clipboard history exclusion and auto-clear, focus guard for typed credentials, DPAPI entropy and owner-only credential files.
+- Extension icon; author set to zorinel.
 - EA App supports Manual and Automatic login per account.
 - Ubisoft Connect supports Manual and Automatic login per account.
 - GOG Galaxy supports manual login per assigned account.
@@ -93,7 +98,7 @@ For Epic Games and EA App, the account-specific Manual / Automatic login mode is
 | **Epic Games** | Stable | Manual or automatic |
 | **EA App** | Stable | Manual or automatic |
 | **GOG Galaxy** | Stable | Manual only |
-| Xbox App | Experimental / paused | Not implemented |
+| **Xbox App** | Stable | Automatic (Windows account picker, no password) + manual fallback |
 | **Battle.net** | Stable | Manual only |
 | **Rockstar Games Launcher** | Stable | Manual only |
 | Other | Account model available | Launcher-specific integration not implemented |
@@ -192,13 +197,53 @@ Each Epic Games account has its own login mode:
 - The user can paste the credentials into Epic Games with Ctrl+V.
 
 ### Automatic login
-- The previous Epic Games launcher/session state is cleared.
-- Epic Games is started again.
-- The plugin verifies the Epic foreground window before sending input.
-- The tested keyboard sequence is reproduced internally.
-- AutoHotkey is not required.
+
+The Epic Games Launcher draws its login page inside Unreal Engine, so it exposes no accessibility tree. Automatic login therefore switches accounts with saved sessions instead of typing whenever possible:
+
+```text
+close Epic Games → save the session of the previously active account
+    ↓
+saved session for the assigned account?
+    ├─ yes → restore it → start Epic → launcher log confirms the same Epic account (~5 s)
+    │        → the refreshed session is saved again immediately
+    └─ no / expired → keyboard sequence (TAB) → after a confirmed login the session is saved
+```
+
+- A session snapshot is the launcher "Remember me" state (`[RememberMe]` and `[Offline]` in `GameUserSettings.ini` and the `AccountId` registry value). It contains a refresh token and is stored per account in `epic-sessions\` inside the plugin data folder, encrypted with DPAPI (current Windows user + plugin-specific entropy) and readable only by the current user.
+- The login result is read from the launcher log (`FAccountService::OnLoginComplete`). A snapshot that signs in a different Epic account is deleted. A session is only updated when it belongs to the Epic account bound to that plugin account, so a manual login with another account never overwrites it.
+- The first automatic login of each account uses the keyboard sequence; later switches use the saved session. Leave "Remember me" enabled in Epic Games so the launcher keeps the session.
+- The keyboard sequence (AutoHotkey not required) remains the fallback when no valid session is available.
 
 For assigned games, the Epic account login mode determines whether the flow is manual or automatic.
+
+## Xbox App
+
+The Xbox app account is switched without typing a password, through the Windows account picker.
+
+### One-time setup per account
+1. Add the Microsoft account to Windows: **Settings → Accounts → Email & accounts → Add a Microsoft account** (choose the option for Microsoft apps only, so it does not become a Windows sign-in).
+2. In the Account Manager create an **Xbox App** account and enter the Microsoft account **e-mail** as the login. The password is optional; it is only shown in the manual fallback window.
+
+### What happens when a game starts
+```text
+start / find the Xbox app
+    ↓
+already signed in with this account (remembered gamertag)? → done (~0.1 s)
+    ↓
+profile menu → Sign out → Sign in
+    ↓
+Windows account picker → select the tile with the account e-mail → Continue
+    ↓
+Gaming Services confirmation shows the same e-mail → "Let's play"
+    ↓
+the Xbox app shows the gamertag → done (~8 s)
+```
+
+- Everything uses UI Automation with stable identifiers of the Xbox app and the Windows picker; no screen coordinates and no TAB counting.
+- If the account is not added to Windows, the confirmation shows a different account, or any step fails, the plugin shows a notification and the shared manual login window.
+- The gamertag seen after a successful switch is remembered (`xbox-gamertags.txt`, not secret) to skip unnecessary switches.
+- "Logout after game" does not sign out the Xbox app; the next game switches only when a different account is assigned.
+- The Xbox app and the Microsoft Store can use different accounts. If the Xbox app shows "Account mismatch", Game Pass titles may need the same account in the Microsoft Store.
 
 ## EA App
 
@@ -213,7 +258,25 @@ EA App now follows the same overall model as Epic Games: each account can be con
 
 ### Automatic login
 
-The automatic flow reproduces the tested AHK sequence supplied during development:
+The automatic flow reads the EA App login page through its accessibility tree (MSAA) instead of counting TAB presses:
+
+```text
+start EA App
+    ↓
+wait for the login window (no fixed delay, typically ~3 s)
+    ↓
+password step for a remembered account? → press Back
+    ↓
+focus the e-mail field → type login → press the button below the field
+    ↓
+wait for the password field → type password → press the button below the field
+    ↓
+login window closes → success
+```
+
+Fields are recognised by role and state (editable field, protected password field), not by caption, so the flow does not depend on the EA App language. Hidden off-screen inputs on the page are ignored. If EA App asks for additional verification (2FA code, CAPTCHA) or rejects the password, the plugin stops and asks you to finish the login in the EA App window.
+
+If the accessibility tree does not expose the fields, the plugin falls back to the original keyboard sequence below (only when nothing has been typed yet):
 
 ```text
 close EADesktop.exe
@@ -394,9 +457,9 @@ Each Ubisoft Connect account now has its own **Manual / Automatic** login mode.
 - Login and password can be copied to the clipboard.
 
 **Automatic**
-- The existing automatic Ubisoft Connect login flow is kept unchanged.
-- The selected account still uses the existing native keyboard automation and launcher preparation.
-- Only the account mode selection and launcher detection were extended.
+- The login page is read through its accessibility tree (MSAA), like EA App: the e-mail and password fields are found on the page, filled and "Log in" is pressed. No fixed 15-second wait and no TAB counting.
+- Success is detected when the login form disappears; a rejected password or an additional verification step stops the flow with a message.
+- If the fields cannot be found, the previous keyboard sequence is used as a fallback.
 
 ### Epic Games
 1. Add an Epic Games account.
@@ -583,7 +646,7 @@ Build and package:
 The generated package is:
 
 ```text
-PlayniteAccountManager_0.9.61.pext
+PlayniteAccountManager_0.9.62.pext
 ```
 
 ### GitHub Actions
@@ -629,6 +692,7 @@ Future launcher integrations can follow the same adapter-based design without ch
 See CHANGELOG.md for the complete history.
 
 Recent releases:
+- **0.9.62** — EA App and Ubisoft Connect login through the accessibility tree (MSAA), Epic Games session switching, Xbox App account switching, security hardening, extension icon.
 - **0.9.61** — Fix Rockstar remembered-account and local profile cleanup.
 - **0.9.60** — Add Rockstar Games Launcher manual login.
 - **0.9.59** — Fix Battle.net remembered-account and session cleanup.

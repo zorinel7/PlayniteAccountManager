@@ -13,6 +13,7 @@ packages/
 
 # Build output
 PlayniteAccountManager_*.zip
+*.pext
 
 # Local diagnostics / generated data
 EAApp_UIA_Diagnostic_*.txt
@@ -25,5 +26,8 @@ Thumbs.db
 
 # Secrets / credentials
 credentials.dat
+credentials.dat.tmp
+*.pfx
+*.p12
 *.secret
 .env

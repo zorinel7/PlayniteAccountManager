@@ -26,6 +26,7 @@ namespace PlayniteAccountManager
         private GOGGalaxyAdapter gog;
         private BattleNetAdapter battleNet;
         private RockstarGamesLauncherAdapter rockstar;
+        private XboxAppAdapter xbox;
         private Guid activeAccountId;
         private Guid activeGameId;
         private LauncherType activeLauncher;
@@ -38,10 +39,11 @@ namespace PlayniteAccountManager
             ubisoft = new UbisoftConnectAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             steam = new SteamAdapter(message => logger.Info(message));
             ea = new EAAppAdapter(GetPluginUserDataPath(), message => logger.Info(message));
-            epic = new EpicGamesAdapter(message => logger.Info(message));
+            epic = new EpicGamesAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             gog = new GOGGalaxyAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             battleNet = new BattleNetAdapter(GetPluginUserDataPath(), message => logger.Info(message));
             rockstar = new RockstarGamesLauncherAdapter(GetPluginUserDataPath(), message => logger.Info(message));
+            xbox = new XboxAppAdapter(GetPluginUserDataPath(), message => logger.Info(message));
         }
 
         public override IEnumerable<MainMenuItem> GetMainMenuItems(GetMainMenuItemsArgs args)
@@ -216,6 +218,8 @@ namespace PlayniteAccountManager
 
                     error = "To konto EA App jest ustawione na logowanie ręczne.";
                     return false;
+                case LauncherType.XboxApp:
+                    return xbox.PrepareAndLogin(account, out error);
                 default:
                     error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
                     return false;
@@ -251,8 +255,10 @@ namespace PlayniteAccountManager
                     account.Launcher == LauncherType.EAApp &&
                     account.EALoginMode == EALoginMode.Automatic;
 
+                bool xboxApp = account.Launcher == LauncherType.XboxApp;
+
                 bool runAssignedFlow =
-                    assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA;
+                    assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA || xboxApp;
 
                 if (runAssignedFlow)
                 {
@@ -260,7 +266,8 @@ namespace PlayniteAccountManager
                         account.Launcher != LauncherType.Steam &&
                         !manualLauncher &&
                         !automaticEpic &&
-                        !automaticEA)
+                        !automaticEA &&
+                        !xboxApp)
                         return;
 
                     logger.Info(account.Launcher.GetDisplayName() +
@@ -308,6 +315,8 @@ namespace PlayniteAccountManager
                         else if (account.Launcher == LauncherType.EAApp &&
                                  account.EALoginMode == (EALoginMode)1)
                             ok = ea.PrepareAndLogin(account, password, out error);
+                        else if (xboxApp)
+                            ok = PrepareXboxLogin(account, password, args.Game.Name, out error);
                         else if (manualLauncher)
                             ok = PrepareManualLauncherLogin(account, args.Game.Name, out error);
                         else
@@ -354,7 +363,7 @@ namespace PlayniteAccountManager
                     return;
                 }
 
-                logger.Info("Steam: gra „" + args.Game.Name + "” nie ma przypisanego konta. Ustawiam główne konto Steam: „" + mainSteam.UserName + "”.");
+                logger.Info("Steam: gra „" + args.Game.Name + "” nie ma przypisanego konta. Ustawiam główne konto Steam: „" + LogPrivacy.MaskAccount(mainSteam.UserName) + "”.");
 
                 string mainError;
                 bool mainOk;
@@ -500,6 +509,42 @@ namespace PlayniteAccountManager
             }
         }
 
+        /// <summary>
+        /// Xbox app: automatic switch through the Windows account picker; when it
+        /// fails (e.g. the account is not added to Windows) the shared manual login
+        /// window is shown so the user can sign in in the Xbox app.
+        /// </summary>
+        private bool PrepareXboxLogin(AccountRecord account, string password, string gameName, out string error)
+        {
+            if (xbox.PrepareAndLogin(account, out error))
+                return true;
+
+            logger.Warn("Xbox: automatyczne przełączenie konta nie powiodło się: " + error + " Pokazuję okno ręcznego logowania.");
+            PlayniteApi.Notifications.Add(new NotificationMessage(
+                "PlayniteAccountManager-Xbox",
+                error,
+                NotificationType.Info));
+
+            string openError;
+            if (!xbox.EnsureAppOpen(out openError))
+                logger.Warn(openError);
+
+            bool accepted = ShowManualLoginWindow(
+                account.Launcher.GetDisplayName(),
+                gameName,
+                account.UserName ?? string.Empty,
+                password ?? string.Empty);
+
+            if (accepted)
+            {
+                error = null;
+                return true;
+            }
+
+            error = "Logowanie do aplikacji Xbox zostało anulowane.";
+            return false;
+        }
+
         private bool ShowManualLoginWindow(
             string launcherName,
             string gameName,
@@ -513,7 +558,7 @@ namespace PlayniteAccountManager
             {
                 try
                 {
-                    Clipboard.SetText(username ?? string.Empty);
+                    SecureClipboard.SetSensitiveText(username ?? string.Empty);
                     logger.Info(launcherName + ": login copied to clipboard.");
                 }
                 catch (Exception ex)
@@ -526,8 +571,9 @@ namespace PlayniteAccountManager
             {
                 try
                 {
-                    Clipboard.SetText(password ?? string.Empty);
-                    logger.Info(launcherName + ": password copied to clipboard.");
+                    SecureClipboard.SetSensitiveText(password ?? string.Empty);
+                    logger.Info(launcherName + ": password copied to clipboard (excluded from clipboard history, auto-clear in " +
+                                (int)SecureClipboard.DefaultClearDelay.TotalSeconds + " s).");
                 }
                 catch (Exception ex)
                 {
@@ -578,12 +624,17 @@ namespace PlayniteAccountManager
                 if (dispatcher != null && !dispatcher.CheckAccess())
                 {
                     logger.Info(launcherName + ": wyświetlam okno ręcznego logowania przez WPF Dispatcher.");
-                    dispatcher.Invoke(new Action(() => window.ShowDialog()));
+                    dispatcher.Invoke(new Action(() =>
+                    {
+                        window.ShowDialog();
+                        SecureClipboard.ClearIfOwned();
+                    }));
                 }
                 else
                 {
                     logger.Info(launcherName + ": wyświetlam okno ręcznego logowania.");
                     window.ShowDialog();
+                    SecureClipboard.ClearIfOwned();
                 }
 
                 return accepted;
@@ -632,6 +683,12 @@ namespace PlayniteAccountManager
                     string error;
                     if (!rockstar.ClearSession(out error) && !string.IsNullOrWhiteSpace(error))
                         logger.Error(error);
+                }
+                else if (activeLauncher == LauncherType.XboxApp)
+                {
+                    // The Xbox app account stays signed in; the next game switches it
+                    // only when a different account is assigned.
+                    logger.Info("Xbox: konto aplikacji Xbox pozostaje zalogowane po grze.");
                 }
             }
             catch (Exception ex)

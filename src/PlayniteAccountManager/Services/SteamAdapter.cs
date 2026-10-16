@@ -142,7 +142,7 @@ namespace PlayniteAccountManager.Services
                     return false;
                 }
 
-                log("Steam: przełączam zapisany profil na konto „" + account.UserName + "”.");
+                log("Steam: przełączam zapisany profil na konto „" + LogPrivacy.MaskAccount(account.UserName) + "”.");
                 if (!TryWriteTargetAccount(loginUsersPath, target.AccountName, out error))
                     return false;
 
@@ -253,14 +253,14 @@ namespace PlayniteAccountManager.Services
 
                         if (targetIdentityVisible)
                         {
-                            log("Steam: aktywne konto „" + targetAccountName + "” potwierdzone przez interfejs Steam.");
+                            log("Steam: aktywne konto „" + LogPrivacy.MaskAccount(targetAccountName) + "” potwierdzone przez interfejs Steam.");
                             return true;
                         }
 
                         if (steamSeen && targetAutoLoginSeen && shellSeenAt != DateTime.MinValue &&
                             (DateTime.UtcNow - shellSeenAt).TotalSeconds >= 5)
                         {
-                            log("Steam: klient jest zalogowany, AutoLoginUser wskazuje „" + targetAccountName + "”. UI nie ujawnia nazwy konta, więc uznaję przełączenie za zakończone.");
+                            log("Steam: klient jest zalogowany, AutoLoginUser wskazuje „" + LogPrivacy.MaskAccount(targetAccountName) + "”. UI nie ujawnia nazwy konta, więc uznaję przełączenie za zakończone.");
                             return true;
                         }
                     }
@@ -268,7 +268,7 @@ namespace PlayniteAccountManager.Services
                 else if (steamSeen && targetAutoLoginSeen && shellSeenAt != DateTime.MinValue &&
                          (DateTime.UtcNow - shellSeenAt).TotalSeconds >= 12)
                 {
-                    log("Steam: proces klienta działa, AutoLoginUser wskazuje „" + targetAccountName + "” i nie ma już ekranu logowania. Uznaję przełączenie za zakończone.");
+                    log("Steam: proces klienta działa, AutoLoginUser wskazuje „" + LogPrivacy.MaskAccount(targetAccountName) + "” i nie ma już ekranu logowania. Uznaję przełączenie za zakończone.");
                     return true;
                 }
 

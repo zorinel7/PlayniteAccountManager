@@ -16,6 +16,13 @@ namespace PlayniteAccountManager.Services
             "EALauncher"
         };
 
+        // Helper processes of the EA App that keep files under the user's
+        // EA Desktop folder open; they are restarted by EA App on launch.
+        private static readonly string[] HelperProcessNames =
+        {
+            "EALocalHostSvc"
+        };
+
         private static readonly string[] ExecutableNames =
         {
             "EALauncher.exe",
@@ -108,7 +115,7 @@ namespace PlayniteAccountManager.Services
 
                 Start(exe);
 
-                log("EA App: launcher uruchomiony — odtwarzam sekwencję automatycznego logowania z AHK.");
+                log("EA App: launcher uruchomiony — rozpoczynam automatyczne logowanie.");
                 return uiAutomation.Login(account.UserName, password, out error);
             }
             catch (Exception ex)
@@ -147,7 +154,7 @@ namespace PlayniteAccountManager.Services
 
         private static void StopProcesses()
         {
-            foreach (string processName in ProcessNames)
+            foreach (string processName in ProcessNames.Concat(HelperProcessNames))
             foreach (Process p in SafeGetProcesses(processName))
             {
                 try

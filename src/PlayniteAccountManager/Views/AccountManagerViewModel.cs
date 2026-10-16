@@ -144,7 +144,9 @@ namespace PlayniteAccountManager.Views
                 error = "Podaj login lub adres e-mail.";
                 return false;
             }
-            if (!editingExisting && string.IsNullOrEmpty(EditPassword))
+            // Xbox app accounts sign in through the Windows account picker; the
+            // password is optional (only used in the manual fallback window).
+            if (!editingExisting && string.IsNullOrEmpty(EditPassword) && EditLauncher != LauncherType.XboxApp)
             {
                 error = "Podaj hasło dla nowego konta.";
                 return false;

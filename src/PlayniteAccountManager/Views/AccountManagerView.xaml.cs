@@ -112,7 +112,8 @@ namespace PlayniteAccountManager.Views
                                       (model.Launcher == LauncherType.EpicGames &&
                                        model.EpicLoginMode == EpicLoginMode.Automatic) ||
                                       (model.Launcher == LauncherType.EAApp &&
-                                       model.EALoginMode == EALoginMode.Automatic));
+                                       model.EALoginMode == EALoginMode.Automatic) ||
+                                      model.Launcher == LauncherType.XboxApp);
 
             if (model == null || (!manualLauncher && !automaticLauncher))
             {
@@ -245,7 +246,8 @@ namespace PlayniteAccountManager.Views
                               selectedModel.Launcher == LauncherType.EpicGames ||
                               selectedModel.Launcher == LauncherType.GOGGalaxy ||
                               selectedModel.Launcher == LauncherType.BattleNet ||
-                              selectedModel.Launcher == LauncherType.RockstarGamesLauncher);
+                              selectedModel.Launcher == LauncherType.RockstarGamesLauncher ||
+                              selectedModel.Launcher == LauncherType.XboxApp);
 
             TestLoginButton.IsEnabled = supported;
 
@@ -404,6 +406,10 @@ namespace PlayniteAccountManager.Views
             if (record.Launcher == LauncherType.RockstarGamesLauncher)
                 DisplayLauncher += "  •  " +
                                    ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+
+            if (record.Launcher == LauncherType.XboxApp)
+                DisplayLauncher += "  •  " +
+                                   ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort");
 
             if (!string.IsNullOrWhiteSpace(record.UserName))
                 DisplayText += "  •  " + record.UserName;

@@ -31,12 +31,41 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
+            // Preferred: locate the e-mail/password fields through the accessibility
+            // tree of the login page (no fixed delays, no TAB counting).
+            var started = Stopwatch.StartNew();
+            string msaaError;
+            MsaaLoginResult msaaResult = new EAAppMsaaLogin(log).Login(username, password, out msaaError);
+            if (msaaResult == MsaaLoginResult.Success)
+                return true;
+
+            if (msaaResult == MsaaLoginResult.Failed)
+            {
+                error = msaaError;
+                return false;
+            }
+
+            log("EA INPUT: " + msaaError + " Przechodzę na zapasową sekwencję klawiatury (TAB).");
+
+            // Fallback: the original keyboard sequence. The MSAA attempt already
+            // waited for the launcher, so only the remainder of the 15 s is waited.
+            return LoginWithKeyboardSequence(
+                username,
+                password,
+                Math.Max(0, 15000 - (int)started.ElapsedMilliseconds),
+                out error);
+        }
+
+        private bool LoginWithKeyboardSequence(string username, string password, int initialWaitMs, out string error)
+        {
+            error = null;
+
             try
             {
                 // Match the supplied AHK: wait 15 seconds after launching EA App,
                 // then operate on the launcher window.
-                log("EA INPUT: odpowiednik AHK Sleep 15000 — czekam 15 sekund na EA App.");
-                Thread.Sleep(15000);
+                log("EA INPUT: odpowiednik AHK Sleep 15000 — czekam " + initialWaitMs / 1000 + " s na EA App.");
+                Thread.Sleep(initialWaitMs);
 
                 IntPtr hwnd = GetEAForegroundWindow();
                 if (hwnd == IntPtr.Zero)
@@ -208,7 +237,7 @@ namespace PlayniteAccountManager.Services
                 yield return process;
         }
 
-        private static bool EnsureWindowForeground(IntPtr hwnd)
+        internal static bool EnsureWindowForeground(IntPtr hwnd)
         {
             if (hwnd == IntPtr.Zero)
                 return false;

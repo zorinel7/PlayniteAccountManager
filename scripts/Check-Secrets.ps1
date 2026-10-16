@@ -8,6 +8,15 @@ $patterns = @(
   '(?i)password\s*[:=]\s*"[^"]{6,}"',
   '(?i)api[_-]?key\s*[:=]\s*"[^"]{10,}"'
 )
+$forbiddenFiles = Get-ChildItem -Recurse -File -Force | Where-Object {
+  $_.FullName -notmatch '\\.git\\' -and
+  ($_.Name -eq 'credentials.dat' -or $_.Name -eq 'credentials.dat.tmp' -or $_.Extension -in @('.secret','.pfx','.p12','.snk'))
+}
+if ($forbiddenFiles) {
+  $forbiddenFiles | ForEach-Object { Write-Error "Forbidden credential file in repository: $($_.FullName)" -ErrorAction Continue }
+  throw 'Credential files must never be committed.'
+}
+
 $files = Get-ChildItem -Recurse -File | Where-Object {
   $_.FullName -notmatch '\\.git\\' -and
   $_.FullName -notmatch '\\obj\\' -and
