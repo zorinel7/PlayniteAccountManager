@@ -44,6 +44,7 @@ namespace PlayniteAccountManager.Views
             EALoginModeCombo.SelectedValue = EALoginMode.Manual;
             UbisoftLoginModeCombo.SelectedValue = UbisoftLoginMode.Automatic;
             GOGLoginModeCombo.SelectedValue = GOGLoginMode.Manual;
+            BattleNetLoginModeCombo.SelectedValue = BattleNetLoginMode.Manual;
             EditorStatusText.Text = L("LOCPlayniteAccountManagerNewAccount");
             UpdateButtons();
             UpdateStatus();
@@ -62,6 +63,7 @@ namespace PlayniteAccountManager.Views
                 EALoginModeCombo.SelectedValue = vm.EditEALoginMode;
                 UbisoftLoginModeCombo.SelectedValue = vm.EditUbisoftLoginMode;
                 GOGLoginModeCombo.SelectedValue = vm.EditGOGLoginMode;
+                BattleNetLoginModeCombo.SelectedValue = vm.EditBattleNetLoginMode;
                 EditorStatusText.Text = string.Format(L("LOCPlayniteAccountManagerEditAccount"), vm.EditName);
             }
             UpdateButtons();
@@ -100,7 +102,8 @@ namespace PlayniteAccountManager.Views
             bool manualLauncher = model != null &&
                                   ((model.Launcher == LauncherType.GOGGalaxy &&
                                     model.GOGLoginMode == GOGLoginMode.Manual) ||
-                                   model.Launcher == LauncherType.BattleNet ||
+                                   (model.Launcher == LauncherType.BattleNet &&
+                                    model.BattleNetLoginMode == BattleNetLoginMode.Manual) ||
                                    model.Launcher == LauncherType.RockstarGamesLauncher ||
                                    (model.Launcher == LauncherType.UbisoftConnect &&
                                     model.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
@@ -118,6 +121,8 @@ namespace PlayniteAccountManager.Views
                                        model.EALoginMode == EALoginMode.Automatic) ||
                                       (model.Launcher == LauncherType.GOGGalaxy &&
                                        model.GOGLoginMode == GOGLoginMode.Automatic) ||
+                                      (model.Launcher == LauncherType.BattleNet &&
+                                       model.BattleNetLoginMode == BattleNetLoginMode.Automatic) ||
                                       model.Launcher == LauncherType.XboxApp);
 
             if (model == null || (!manualLauncher && !automaticLauncher))
@@ -260,7 +265,8 @@ namespace PlayniteAccountManager.Views
                 selectedModel != null &&
                 ((selectedModel.Launcher == LauncherType.GOGGalaxy &&
                   selectedModel.GOGLoginMode == GOGLoginMode.Manual) ||
-                 (selectedModel.Launcher == LauncherType.BattleNet) ||
+                 (selectedModel.Launcher == LauncherType.BattleNet &&
+                  selectedModel.BattleNetLoginMode == BattleNetLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.UbisoftConnect &&
                   selectedModel.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
                  (selectedModel.Launcher == LauncherType.EpicGames &&
@@ -384,6 +390,25 @@ namespace PlayniteAccountManager.Views
         }
     }
 
+    public sealed class BattleNetLoginModeOption
+    {
+        public BattleNetLoginMode Value { get; }
+        public string DisplayName { get; }
+
+        public BattleNetLoginModeOption(BattleNetLoginMode value)
+        {
+            Value = value;
+            DisplayName = value == BattleNetLoginMode.Automatic
+                ? ResourceProvider.GetString("LOCPlayniteAccountManagerAutomaticLogin")
+                : ResourceProvider.GetString("LOCPlayniteAccountManagerManualLogin");
+        }
+
+        public override string ToString()
+        {
+            return DisplayName;
+        }
+    }
+
     public sealed class AccountListItem
     {
         public Guid Id { get; }
@@ -425,8 +450,9 @@ namespace PlayniteAccountManager.Views
                     : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
             if (record.Launcher == LauncherType.BattleNet)
-                DisplayLauncher += "  •  " +
-                                   ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
+                DisplayLauncher += record.BattleNetLoginMode == BattleNetLoginMode.Automatic
+                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
+                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
 
             if (record.Launcher == LauncherType.RockstarGamesLauncher)
                 DisplayLauncher += "  •  " +

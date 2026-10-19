@@ -13,6 +13,7 @@ namespace PlayniteAccountManager.Models
         public EALoginMode EALoginMode { get; set; }
         public UbisoftLoginMode UbisoftLoginMode { get; set; }
         public GOGLoginMode GOGLoginMode { get; set; }
+        public BattleNetLoginMode BattleNetLoginMode { get; set; }
 
         public AccountRecord()
         {
@@ -24,6 +25,7 @@ namespace PlayniteAccountManager.Models
             EALoginMode = EALoginMode.Manual;
             UbisoftLoginMode = UbisoftLoginMode.Automatic;
             GOGLoginMode = GOGLoginMode.Manual;
+            BattleNetLoginMode = BattleNetLoginMode.Manual;
             Launcher = LauncherType.UbisoftConnect;
         }
     }

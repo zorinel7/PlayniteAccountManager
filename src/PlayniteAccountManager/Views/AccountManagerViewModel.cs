@@ -24,6 +24,7 @@ namespace PlayniteAccountManager.Views
         private EALoginMode editEALoginMode = EALoginMode.Manual;
         private UbisoftLoginMode editUbisoftLoginMode = UbisoftLoginMode.Automatic;
         private GOGLoginMode editGOGLoginMode = GOGLoginMode.Manual;
+        private BattleNetLoginMode editBattleNetLoginMode = BattleNetLoginMode.Manual;
         private bool editingExisting;
 
         public ObservableCollection<AccountListItem> Accounts { get; private set; }
@@ -33,6 +34,7 @@ namespace PlayniteAccountManager.Views
         public ObservableCollection<EALoginModeOption> EALoginModes { get; private set; }
         public ObservableCollection<UbisoftLoginModeOption> UbisoftLoginModes { get; private set; }
         public ObservableCollection<GOGLoginModeOption> GOGLoginModes { get; private set; }
+        public ObservableCollection<BattleNetLoginModeOption> BattleNetLoginModes { get; private set; }
 
         public AccountListItem SelectedAccount
         {
@@ -59,6 +61,7 @@ namespace PlayniteAccountManager.Views
                 OnPropertyChanged(nameof(IsEAAppLauncher));
                 OnPropertyChanged(nameof(IsUbisoftConnectLauncher));
                 OnPropertyChanged(nameof(IsGOGGalaxyLauncher));
+                OnPropertyChanged(nameof(IsBattleNetLauncher));
             }
         }
         public bool EditAutoLogin { get => editAutoLogin; set => SetValue(ref editAutoLogin, value); }
@@ -70,10 +73,12 @@ namespace PlayniteAccountManager.Views
         public bool IsEAAppLauncher => EditLauncher == LauncherType.EAApp;
         public bool IsUbisoftConnectLauncher => EditLauncher == LauncherType.UbisoftConnect;
         public bool IsGOGGalaxyLauncher => EditLauncher == LauncherType.GOGGalaxy;
+        public bool IsBattleNetLauncher => EditLauncher == LauncherType.BattleNet;
         public EpicLoginMode EditEpicLoginMode { get => editEpicLoginMode; set => SetValue(ref editEpicLoginMode, value); }
         public EALoginMode EditEALoginMode { get => editEALoginMode; set => SetValue(ref editEALoginMode, value); }
         public UbisoftLoginMode EditUbisoftLoginMode { get => editUbisoftLoginMode; set => SetValue(ref editUbisoftLoginMode, value); }
         public GOGLoginMode EditGOGLoginMode { get => editGOGLoginMode; set => SetValue(ref editGOGLoginMode, value); }
+        public BattleNetLoginMode EditBattleNetLoginMode { get => editBattleNetLoginMode; set => SetValue(ref editBattleNetLoginMode, value); }
 
         internal AccountManagerViewModel(AccountManagerStore store)
         {
@@ -84,6 +89,7 @@ namespace PlayniteAccountManager.Views
             EALoginModes = new ObservableCollection<EALoginModeOption>(Enum.GetValues(typeof(EALoginMode)).Cast<EALoginMode>().Select(x => new EALoginModeOption(x)));
             UbisoftLoginModes = new ObservableCollection<UbisoftLoginModeOption>(Enum.GetValues(typeof(UbisoftLoginMode)).Cast<UbisoftLoginMode>().Select(x => new UbisoftLoginModeOption(x)));
             GOGLoginModes = new ObservableCollection<GOGLoginModeOption>(Enum.GetValues(typeof(GOGLoginMode)).Cast<GOGLoginMode>().Select(x => new GOGLoginModeOption(x)));
+            BattleNetLoginModes = new ObservableCollection<BattleNetLoginModeOption>(Enum.GetValues(typeof(BattleNetLoginMode)).Cast<BattleNetLoginMode>().Select(x => new BattleNetLoginModeOption(x)));
             Refresh();
             BeginNewAccount();
         }
@@ -115,6 +121,7 @@ namespace PlayniteAccountManager.Views
             EditEALoginMode = EALoginMode.Manual;
             EditUbisoftLoginMode = UbisoftLoginMode.Automatic;
             EditGOGLoginMode = GOGLoginMode.Manual;
+            EditBattleNetLoginMode = BattleNetLoginMode.Manual;
         }
 
         public void LoadSelectedAccount()
@@ -132,6 +139,7 @@ namespace PlayniteAccountManager.Views
             EditEALoginMode = model.EALoginMode;
             EditUbisoftLoginMode = model.UbisoftLoginMode;
             EditGOGLoginMode = model.GOGLoginMode;
+            EditBattleNetLoginMode = model.BattleNetLoginMode;
             EditIsPrimary = model.IsPrimary;
 
             var assignment = ContextGames.Count == 1 ? store.GetAssignment(ContextGames[0].Id) : null;
@@ -186,6 +194,9 @@ namespace PlayniteAccountManager.Views
             record.GOGLoginMode = record.Launcher == LauncherType.GOGGalaxy
                 ? EditGOGLoginMode
                 : GOGLoginMode.Manual;
+            record.BattleNetLoginMode = record.Launcher == LauncherType.BattleNet
+                ? EditBattleNetLoginMode
+                : BattleNetLoginMode.Manual;
             record.IsPrimary = IsPrimaryEligibleLauncher && EditIsPrimary;
 
             if (record.Launcher == LauncherType.Steam && record.IsPrimary)

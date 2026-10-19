@@ -246,6 +246,12 @@ namespace PlayniteAccountManager
                     return false;
                 case LauncherType.XboxApp:
                     return xbox.PrepareAndLogin(account, out error);
+                case LauncherType.BattleNet:
+                    if (account.BattleNetLoginMode == BattleNetLoginMode.Automatic)
+                        return TryBattleNetAutomaticLogin(account, password, out error);
+
+                    error = "To konto Battle.net jest ustawione na logowanie ręczne.";
+                    return false;
                 case LauncherType.GOGGalaxy:
                     if (account.GOGLoginMode == GOGLoginMode.Automatic)
                         return TryGogAutomaticLogin(account, password, out error);
@@ -271,7 +277,8 @@ namespace PlayniteAccountManager
                 bool manualLauncher =
                     (account.Launcher == LauncherType.GOGGalaxy &&
                      account.GOGLoginMode == GOGLoginMode.Manual) ||
-                    account.Launcher == LauncherType.BattleNet ||
+                    (account.Launcher == LauncherType.BattleNet &&
+                     account.BattleNetLoginMode == BattleNetLoginMode.Manual) ||
                     account.Launcher == LauncherType.RockstarGamesLauncher ||
                     (account.Launcher == LauncherType.UbisoftConnect &&
                      account.UbisoftLoginMode == UbisoftLoginMode.Manual) ||
@@ -292,10 +299,14 @@ namespace PlayniteAccountManager
                     account.Launcher == LauncherType.GOGGalaxy &&
                     account.GOGLoginMode == GOGLoginMode.Automatic;
 
+                bool automaticBattleNet =
+                    account.Launcher == LauncherType.BattleNet &&
+                    account.BattleNetLoginMode == BattleNetLoginMode.Automatic;
+
                 bool xboxApp = account.Launcher == LauncherType.XboxApp;
 
                 bool runAssignedFlow =
-                    assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA || automaticGOG || xboxApp;
+                    assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA || automaticGOG || automaticBattleNet || xboxApp;
 
                 if (runAssignedFlow)
                 {
@@ -305,6 +316,7 @@ namespace PlayniteAccountManager
                         !automaticEpic &&
                         !automaticEA &&
                         !automaticGOG &&
+                        !automaticBattleNet &&
                         !xboxApp)
                         return;
 
@@ -333,7 +345,9 @@ namespace PlayniteAccountManager
                                      ", AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
                     else if (account.Launcher == LauncherType.BattleNet)
-                        logger.Info("Battle.net: ręczne logowanie, AutoLogin przypisania = " +
+                        logger.Info("Battle.net: zapisany tryb logowania = " +
+                                     account.BattleNetLoginMode +
+                                     ", AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
                     else if (account.Launcher == LauncherType.RockstarGamesLauncher)
                         logger.Info("Rockstar Games Launcher: ręczne logowanie, AutoLogin przypisania = " +
@@ -355,6 +369,8 @@ namespace PlayniteAccountManager
                         else if (account.Launcher == LauncherType.EAApp &&
                                  account.EALoginMode == (EALoginMode)1)
                             ok = ea.PrepareAndLogin(account, password, out error);
+                        else if (automaticBattleNet)
+                            ok = PrepareBattleNetAutomaticLogin(account, password, args.Game.Name, out error);
                         else if (automaticGOG)
                             ok = PrepareGogAutomaticLogin(account, password, args.Game.Name, out error);
                         else if (xboxApp)
@@ -590,6 +606,63 @@ namespace PlayniteAccountManager
         }
 
         private const string GogPrepareErrorPrefix = "GOG Galaxy (przygotowanie): ";
+        private const string BattleNetPrepareErrorPrefix = "Battle.net (przygotowanie): ";
+
+        /// <summary>
+        /// Battle.net automatic login: the session is cleared and Battle.net restarted as
+        /// for manual login, then the sign-in window is filled through its accessibility
+        /// tree. When that fails the shared manual login window is shown.
+        /// </summary>
+        private bool PrepareBattleNetAutomaticLogin(AccountRecord account, string password, string gameName, out string error)
+        {
+            if (TryBattleNetAutomaticLogin(account, password, out error))
+                return true;
+
+            if (!string.IsNullOrEmpty(error) && error.StartsWith(BattleNetPrepareErrorPrefix, StringComparison.Ordinal))
+                return false;
+
+            logger.Warn("Battle.net: automatyczne logowanie nie powiodło się: " + error + " Pokazuję okno ręcznego logowania.");
+            PlayniteApi.Notifications.Add(new NotificationMessage(
+                "PlayniteAccountManager-BattleNet",
+                error,
+                NotificationType.Info));
+
+            bool accepted = ShowManualLoginWindow(
+                account.Launcher.GetDisplayName(),
+                gameName,
+                account.UserName ?? string.Empty,
+                password ?? string.Empty);
+
+            if (accepted)
+            {
+                error = null;
+                return true;
+            }
+
+            error = "Logowanie do Battle.net zostało anulowane.";
+            return false;
+        }
+
+        private bool TryBattleNetAutomaticLogin(AccountRecord account, string password, out string error)
+        {
+            if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
+            {
+                error = "Konto „" + account.Name + "” nie ma zapisanych danych logowania.";
+                return false;
+            }
+
+            string prepareError;
+            if (!battleNet.PrepareForManualLogin(out prepareError))
+            {
+                error = BattleNetPrepareErrorPrefix + prepareError;
+                return false;
+            }
+
+            MsaaLoginResult result = new BattleNetMsaaLogin(message => logger.Info(message))
+                .Login(account.UserName, password, out error);
+
+            return result == MsaaLoginResult.Success;
+        }
 
         private bool TryGogAutomaticLogin(AccountRecord account, string password, out string error)
         {

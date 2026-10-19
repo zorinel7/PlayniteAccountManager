@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.65 - Battle.net automatic login
+- Battle.net accounts have a per-account **Manual / Automatic** login mode, like EA App, Epic Games, Ubisoft Connect and GOG Galaxy (new and existing accounts default to Manual).
+- Automatic mode clears the local Battle.net session, restarts the launcher and fills its sign-in window (Chromium) through the accessibility tree (MSAA): a remembered account is left with the *Switch account* link, then e-mail → *Continue* and password → *Log in*. Success is the sign-in window closing.
+- The Battle.net password field only accepts input after a real click, so fields are clicked before typing; the form is re-read after the page switches to the password step and before submitting, because the page animates between steps.
+- If the automatic login fails, a notification and the shared manual login window are shown.
+- The MSAA engine no longer presses ENTER to activate an empty field except for Ubisoft Connect, which needs it; on other pages ENTER submitted the empty form.
+
 ## 0.9.64 - GOG Galaxy automatic login
 - GOG Galaxy accounts have a per-account **Manual / Automatic** login mode, like EA App, Epic Games and Ubisoft Connect (new and existing accounts default to Manual).
 - Automatic mode clears the local Galaxy session, restarts GOG Galaxy and fills its sign-in window. The page runs in QtWebEngine and exposes no accessibility tree, so the plugin waits for `GalaxyClient.log` to report the loaded login page, clicks the e-mail and password fields at fixed positions of the fixed-size sign-in window and types the credentials (keyboard input only while the Galaxy window has focus). Success is the sign-in window closing or the login redirect in the log.

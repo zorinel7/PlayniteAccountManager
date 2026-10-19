@@ -66,6 +66,8 @@ Assignments of this account to games will also be removed.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Password copied to clipboard. Paste it in the launcher with Ctrl+V.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">EA App login mode</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manual: shows credentials to copy. Automatic: Account Manager launches EA App and enters the saved login and password.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Battle.net login mode</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Manual: shows credentials to copy. Automatic: Account Manager restarts Battle.net and enters the saved login and password; if that fails, the manual window is shown.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">GOG Galaxy login mode</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Manual: shows credentials to copy. Automatic: Account Manager restarts GOG Galaxy and enters the saved login and password; if that fails, the manual window is shown.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Ubisoft Connect login mode</sys:String>

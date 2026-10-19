@@ -129,7 +129,7 @@ namespace PlayniteAccountManager.Services
             "EpicGamesLauncher", "EpicWebHelper",
             "upc", "UbisoftConnect", "UplayWebCore",
             "EADesktop", "EALauncher", "QtWebEngineProcess",
-            "SocialClubHelper", "Launcher", "GalaxyClient"
+            "SocialClubHelper", "Launcher", "GalaxyClient", "Battle.net"
         };
 
         private static bool IsLauncherWindow(IntPtr focusedWindow, IntPtr targetWindow)

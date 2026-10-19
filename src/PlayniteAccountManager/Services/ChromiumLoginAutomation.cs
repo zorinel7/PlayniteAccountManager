@@ -45,6 +45,31 @@ namespace PlayniteAccountManager.Services
         /// </summary>
         public bool GoBackFromRememberedAccount;
 
+        /// <summary>
+        /// The control that leaves the remembered-account step is the link closest
+        /// above the form ("Switch account") instead of the top-most button.
+        /// </summary>
+        public bool BackControlIsLink;
+
+        /// <summary>
+        /// A field that stays empty after typing may be activated with ENTER (Ubisoft
+        /// Connect controller navigation). Off by default: on other pages ENTER in an
+        /// empty field submits the form.
+        /// </summary>
+        public bool ActivateWithEnter;
+
+        /// <summary>
+        /// Wait after the page switches to the password step and read the form again
+        /// before typing and before submitting (Battle.net animates between steps).
+        /// </summary>
+        public TimeSpan StepSettleTime = TimeSpan.Zero;
+
+        /// <summary>
+        /// Click the field before typing: some pages (Battle.net password field) only
+        /// take keyboard input after a real click, not after MSAA focus.
+        /// </summary>
+        public bool ClickFieldToFocus;
+
         /// <summary>Login succeeded when the login window closes or hides.</summary>
         public bool SuccessWhenWindowCloses = true;
 
@@ -203,6 +228,12 @@ namespace PlayniteAccountManager.Services
 
                 bool foreground = EAAppUiAutomation.EnsureWindowForeground(window);
                 bool focused = FocusField(target);
+                if (options.ClickFieldToFocus)
+                {
+                    ClickField(target);
+                    Thread.Sleep(200);
+                }
+
                 string strategy;
                 TypeResult typed = TypeIntoField(window, target, testText, out strategy);
                 int length = GetValueLength(target);
@@ -279,6 +310,14 @@ namespace PlayniteAccountManager.Services
                     Submit(window, screen.SubmitButton, "e-mail");
 
                     screen = WaitForScreen(window, s => s.PasswordField != null, options.StepTimeout);
+                    if (screen.PasswordField != null && options.StepSettleTime > TimeSpan.Zero)
+                    {
+                        // The page is still animating to the password step; let it settle
+                        // and read the form again so the field objects are current.
+                        Thread.Sleep(options.StepSettleTime);
+                        screen = WaitForScreen(window, s => s.PasswordField != null, options.StepTimeout);
+                    }
+
                     if (screen.PasswordField == null)
                     {
                         error = options.LauncherName + " nie przeszedł do kroku hasła (np. nieprawidłowy e-mail, CAPTCHA lub dodatkowa weryfikacja). Dokończ logowanie w oknie launchera.";
@@ -289,7 +328,25 @@ namespace PlayniteAccountManager.Services
 
             Log(screen.EmailField == null ? "krok 2/2, wpisuję hasło." : "wpisuję hasło.");
             if (!FillField(window, screen.PasswordField, password, "hasło", out error))
-                return MsaaLoginResult.Failed;
+            {
+                if (options.StepSettleTime <= TimeSpan.Zero)
+                    return MsaaLoginResult.Failed;
+
+                // One more attempt on a freshly read form (the page may have re-rendered).
+                Log("ponawiam wpisanie hasła na odświeżonym formularzu.");
+                Thread.Sleep(options.StepSettleTime);
+                screen = WaitForScreen(window, s => s.PasswordField != null, options.StepTimeout);
+                if (screen.PasswordField == null || !FillField(window, screen.PasswordField, password, "hasło", out error))
+                    return MsaaLoginResult.Failed;
+            }
+
+            if (options.StepSettleTime > TimeSpan.Zero)
+            {
+                // Use the current submit button, not one read before the page re-rendered.
+                Screen current = ReadScreen(window);
+                if (current.SubmitButton != null)
+                    screen = current;
+            }
 
             Submit(window, screen.SubmitButton, "hasło");
 
@@ -312,6 +369,12 @@ namespace PlayniteAccountManager.Services
                 return false;
             }
 
+            if (options.ClickFieldToFocus)
+            {
+                ClickField(field);
+                Thread.Sleep(200);
+            }
+
             string strategy;
             TypeResult result = TypeIntoField(window, field, value, out strategy);
             if (result == TypeResult.Typed)
@@ -325,6 +388,50 @@ namespace PlayniteAccountManager.Services
                 : options.LauncherName + " (MSAA): pole „" + fieldName + "” pozostało puste po wpisaniu.";
             return false;
         }
+
+        /// <summary>
+        /// Clicks inside the left third of the field (away from icons such as
+        /// "show password") and puts the mouse cursor back.
+        /// </summary>
+        private static void ClickField(IAccessible field)
+        {
+            int x, y, width, height;
+            try { field.accLocation(out x, out y, out width, out height, 0); }
+            catch { return; }
+
+            if (width <= 0 || height <= 0)
+                return;
+
+            POINT previous;
+            GetCursorPos(out previous);
+
+            SetCursorPos(x + width / 3, y + height / 2);
+            Thread.Sleep(80);
+            mouse_event(MouseLeftDown, 0, 0, 0, UIntPtr.Zero);
+            mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(80);
+
+            SetCursorPos(previous.X, previous.Y);
+        }
+
+        private const uint MouseLeftDown = 0x0002;
+        private const uint MouseLeftUp = 0x0004;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int X;
+            public int Y;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out POINT point);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetCursorPos(int x, int y);
+
+        [DllImport("user32.dll")]
+        private static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extraInfo);
 
         private enum TypeResult
         {
@@ -345,7 +452,11 @@ namespace PlayniteAccountManager.Services
         {
             string[] strategies = { "fokus", "aktywacja pola", "ENTER" };
 
-            for (int attempt = 0; attempt < strategies.Length; attempt++)
+            // ENTER in an empty field submits the form on most pages, so it is only
+            // used where the launcher needs it to start editing (Ubisoft Connect).
+            int attempts = options.ActivateWithEnter ? strategies.Length : 2;
+
+            for (int attempt = 0; attempt < attempts; attempt++)
             {
                 strategy = strategies[attempt];
 
@@ -354,6 +465,11 @@ namespace PlayniteAccountManager.Services
                     try { field.accDoDefaultAction(0); } catch { }
                     Thread.Sleep(200);
                     FocusField(field);
+                    if (options.ClickFieldToFocus)
+                    {
+                        ClickField(field);
+                        Thread.Sleep(200);
+                    }
                 }
                 else if (attempt == 2)
                 {
@@ -623,6 +739,18 @@ namespace PlayniteAccountManager.Services
             Node submit = null;
             Node defaultSubmit = null;
             Node back = null;
+
+            // Battle.net: "Switch account" is a link right above the password field.
+            if (options.BackControlIsLink)
+            {
+                foreach (Node node in nodes)
+                {
+                    if (node.Role == RoleLink && node.IsVisible && node.Bottom <= top.Y &&
+                        (back == null || node.Y > back.Y))
+                        back = node;
+                }
+            }
+
             foreach (Node node in nodes)
             {
                 if (node.Role != RolePushButton || !node.IsVisible)
@@ -647,7 +775,7 @@ namespace PlayniteAccountManager.Services
                     defaultSubmit = node;
 
                 // Back: top-most button above the form.
-                if (node.Bottom <= top.Y && (back == null || node.Y < back.Y))
+                if (!options.BackControlIsLink && node.Bottom <= top.Y && (back == null || node.Y < back.Y))
                     back = node;
             }
 

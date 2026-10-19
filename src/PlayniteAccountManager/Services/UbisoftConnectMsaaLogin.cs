@@ -22,7 +22,8 @@ namespace PlayniteAccountManager.Services
                 ProcessNames = new[] { "upc", "UbisoftConnect" },
                 GoBackFromRememberedAccount = false,
                 SuccessWhenWindowCloses = false,
-                SuccessWhenFormGoneFor = TimeSpan.FromSeconds(3)
+                SuccessWhenFormGoneFor = TimeSpan.FromSeconds(3),
+                ActivateWithEnter = true
             }, log);
         }
 
