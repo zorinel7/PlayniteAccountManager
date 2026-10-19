@@ -17,8 +17,8 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 | Launcher | Login modes | How the account is switched | Password needed | If it fails |
 |---|---|---|---|---|
 | **Steam** | automatic | Selects a remembered account (`loginusers.vdf`) and restarts Steam | no | notification |
-| **Epic Games** | automatic / manual | Restores the account's saved, encrypted "Remember me" session (~5 s, no typing) | yes (first login) | types the credentials (TAB sequence) |
-| **EA App** | automatic / manual | Fills e-mail and password on the login page through its accessibility tree (MSAA), ~8 s | yes | keyboard (TAB) sequence |
+| **Epic Games** | automatic / manual | Restores the account's saved, encrypted "Remember me" session (~5 s, no typing) | yes (first login) | keyboard sequence |
+| **EA App** | automatic / manual | Fills e-mail and password on the login page through its accessibility tree MSAA, ~8 s | yes | keyboard sequence |
 | **Ubisoft Connect** | automatic / manual | Fills the login page through MSAA | yes | keyboard sequence |
 | **GOG Galaxy** | automatic / manual | Clears the session, restarts Galaxy and types into its sign-in window | yes | manual window |
 | **Battle.net** | automatic / manual | Clears the session, restarts Battle.net and fills its sign-in window through MSAA | yes | manual window |
