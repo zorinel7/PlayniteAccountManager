@@ -4,20 +4,29 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 
 **Version 0.10.0** · Windows · Playnite SDK 6 · GPL-3.0
 
+## Screenshots
+
+![Account Manager with a selected game and a Steam account](docs/images/account-manager-steam.png)
+
+| EA App account (login mode) | Xbox App account | Manual login window |
+|---|---|---|
+| ![EA App account](docs/images/account-manager-ea.png) | ![Xbox App account](docs/images/account-manager-xbox.png) | ![Manual login window](docs/images/manual-login-window.png) |
+
 ## Supported launchers
 
-| Launcher | Switching method | Time | Fallback |
-|---|---|---|---|
-| **Steam** | Remembered Steam accounts (`loginusers.vdf`), no password | — | — |
-| **EA App** | Fills the login page through its accessibility tree (MSAA) | ~8 s | TAB sequence |
-| **Ubisoft Connect** | Fills the login page through its accessibility tree (MSAA) | — | keyboard sequence |
-| **Epic Games** | Restores a saved, encrypted "Remember me" session, no typing | ~5 s | TAB sequence (also creates the first session) |
-| **Xbox App** | Selects the account in the Windows account picker, no password | ~8 s (0.1 s if already active) | manual window |
-| **Rockstar Games Launcher** | Clears the session, fills the sign-in window through MSAA and clicks *Sign in* | — | manual window |
-| **GOG Galaxy** | Clears the session, restarts Galaxy and fills its sign-in window | — | manual window |
-| **Battle.net** | Clears the session, fills its sign-in window through MSAA | — | manual window |
+| Launcher | Login modes | How the account is switched | Password needed | If it fails |
+|---|---|---|---|---|
+| **Steam** | automatic | Selects a remembered account (`loginusers.vdf`) and restarts Steam | no | notification |
+| **Epic Games** | automatic / manual | Restores the account's saved, encrypted "Remember me" session (~5 s, no typing) | yes (first login) | types the credentials (TAB sequence) |
+| **EA App** | automatic / manual | Fills e-mail and password on the login page through its accessibility tree (MSAA), ~8 s | yes | keyboard (TAB) sequence |
+| **Ubisoft Connect** | automatic / manual | Fills the login page through MSAA | yes | keyboard sequence |
+| **GOG Galaxy** | automatic / manual | Clears the session, restarts Galaxy and types into its sign-in window | yes | manual window |
+| **Battle.net** | automatic / manual | Clears the session, restarts Battle.net and fills its sign-in window through MSAA | yes | manual window |
+| **Rockstar Games Launcher** | automatic | Closes the launcher, clears the session, fills the sign-in window through MSAA and clicks *Sign in* | yes | manual window |
+| **Xbox App** | automatic | Signs out and picks the account in the Windows account picker (~8 s, instant if already active) | no | manual window |
+| **Other** | — | Only stores the account; nothing is switched when the game starts | optional | — |
 
-EA App, Ubisoft Connect, Epic Games, GOG Galaxy and Battle.net can also be set to **Manual** per account.
+*Manual* shows the login and a masked password in a window; clicking a field copies it for Ctrl+V in the launcher. New EA App, Epic Games, GOG Galaxy and Battle.net accounts start in manual mode — switch them to *Automatic* in the account's **Login** section.
 
 ## Installation
 
