@@ -28,6 +28,18 @@ namespace PlayniteAccountManager.Views
         private bool editingExisting;
 
         public ObservableCollection<AccountListItem> Accounts { get; private set; }
+        public ObservableCollection<ContextGameRow> ContextGameRows { get; private set; } = new ObservableCollection<ContextGameRow>();
+        public bool HasContextGames => ContextGames.Count > 0;
+        public bool NoContextGames => ContextGames.Count == 0;
+        public string ContextBannerTitle { get; private set; }
+        public string ContextBannerGames { get; private set; }
+        public string ContextBannerAssignment { get; private set; }
+        public bool HasContextBannerAssignment => !string.IsNullOrEmpty(ContextBannerAssignment);
+        public string ContextMoreGames { get; private set; }
+        public bool HasContextMoreGames => !string.IsNullOrEmpty(ContextMoreGames);
+        public string LauncherNote { get; private set; }
+        public bool HasLauncherNote => !string.IsNullOrEmpty(LauncherNote);
+        public Guid LastSavedAccountId { get; private set; }
         public ObservableCollection<LauncherOption> Launchers { get; private set; }
         public List<Game> ContextGames { get; private set; }
         public ObservableCollection<EpicLoginModeOption> EpicLoginModes { get; private set; }
@@ -62,6 +74,7 @@ namespace PlayniteAccountManager.Views
                 OnPropertyChanged(nameof(IsUbisoftConnectLauncher));
                 OnPropertyChanged(nameof(IsGOGGalaxyLauncher));
                 OnPropertyChanged(nameof(IsBattleNetLauncher));
+                UpdateLauncherNote();
             }
         }
         public bool EditAutoLogin { get => editAutoLogin; set => SetValue(ref editAutoLogin, value); }
@@ -98,13 +111,108 @@ namespace PlayniteAccountManager.Views
         {
             ContextGames = games == null ? new List<Game>() : games.Where(x => x != null).ToList();
             OnPropertyChanged(nameof(ContextGames));
+            Refresh();
         }
 
         public void Refresh()
         {
-            Accounts = new ObservableCollection<AccountListItem>(store.Settings.Accounts.Select(x => new AccountListItem(x)));
+            var assignedToContext = new HashSet<Guid>(ContextGames
+                .Select(x => store.GetAssignment(x.Id))
+                .Where(x => x != null)
+                .Select(x => x.AccountId));
+
+            Accounts = new ObservableCollection<AccountListItem>(
+                store.Settings.Accounts.Select(x => new AccountListItem(x, assignedToContext.Contains(x.Id))));
             OnPropertyChanged(nameof(Accounts));
+            RefreshContext();
         }
+
+        /// <summary>Texts describing the games selected in Playnite and their current accounts.</summary>
+        private void RefreshContext()
+        {
+            const int maxRows = 6;
+            const int maxBannerNames = 3;
+
+            ContextGameRows = new ObservableCollection<ContextGameRow>(ContextGames.Take(maxRows).Select(game =>
+            {
+                AccountRecord account = GetAssignedAccount(game);
+                return new ContextGameRow
+                {
+                    Name = game.Name,
+                    HasAssignment = account != null,
+                    AssignmentText = account == null
+                        ? L("LOCPlayniteAccountManagerNoAssignment")
+                        : account.Name + "  \u2022  " + account.Launcher.GetDisplayName()
+                };
+            }));
+
+            int count = ContextGames.Count;
+            ContextBannerTitle = count == 1
+                ? L("LOCPlayniteAccountManagerGameToAssign")
+                : string.Format(L("LOCPlayniteAccountManagerGamesToAssign"), count);
+
+            ContextBannerGames = string.Join(", ", ContextGames.Take(maxBannerNames).Select(x => x.Name));
+            if (count > maxBannerNames)
+                ContextBannerGames += " " + string.Format(L("LOCPlayniteAccountManagerMoreGames"), count - maxBannerNames);
+
+            ContextBannerAssignment = null;
+            if (count == 1)
+            {
+                AccountRecord account = GetAssignedAccount(ContextGames[0]);
+                ContextBannerAssignment = account == null
+                    ? L("LOCPlayniteAccountManagerNoAssignment")
+                    : string.Format(L("LOCPlayniteAccountManagerCurrentAssignment"),
+                        account.Name + "  \u2022  " + account.Launcher.GetDisplayName());
+            }
+
+            ContextMoreGames = count > maxRows
+                ? string.Format(L("LOCPlayniteAccountManagerMoreGames"), count - maxRows)
+                : null;
+
+            OnPropertyChanged(nameof(ContextGameRows));
+            OnPropertyChanged(nameof(HasContextGames));
+            OnPropertyChanged(nameof(NoContextGames));
+            OnPropertyChanged(nameof(ContextBannerTitle));
+            OnPropertyChanged(nameof(ContextBannerGames));
+            OnPropertyChanged(nameof(ContextBannerAssignment));
+            OnPropertyChanged(nameof(HasContextBannerAssignment));
+            OnPropertyChanged(nameof(ContextMoreGames));
+            OnPropertyChanged(nameof(HasContextMoreGames));
+        }
+
+        private AccountRecord GetAssignedAccount(Game game)
+        {
+            GameAccountAssignment assignment = store.GetAssignment(game.Id);
+            return assignment == null ? null : store.GetAccount(assignment.AccountId);
+        }
+
+        /// <summary>Explains launchers that have no login-mode choice.</summary>
+        private void UpdateLauncherNote()
+        {
+            switch (EditLauncher)
+            {
+                case LauncherType.Steam:
+                    LauncherNote = L("LOCPlayniteAccountManagerSteamNote");
+                    break;
+                case LauncherType.RockstarGamesLauncher:
+                    LauncherNote = L("LOCPlayniteAccountManagerRockstarNote");
+                    break;
+                case LauncherType.XboxApp:
+                    LauncherNote = L("LOCPlayniteAccountManagerXboxNote");
+                    break;
+                case LauncherType.Other:
+                    LauncherNote = L("LOCPlayniteAccountManagerOtherNote");
+                    break;
+                default:
+                    LauncherNote = null;
+                    break;
+            }
+
+            OnPropertyChanged(nameof(LauncherNote));
+            OnPropertyChanged(nameof(HasLauncherNote));
+        }
+
+        private static string L(string key) => ResourceProvider.GetString(key);
 
         public void BeginNewAccount()
         {
@@ -152,19 +260,19 @@ namespace PlayniteAccountManager.Views
             error = null;
             if (string.IsNullOrWhiteSpace(EditName))
             {
-                error = "Podaj nazwę konta.";
+                error = L("LOCPlayniteAccountManagerErrorName");
                 return false;
             }
             if (string.IsNullOrWhiteSpace(EditUserName))
             {
-                error = "Podaj login lub adres e-mail.";
+                error = L("LOCPlayniteAccountManagerErrorLogin");
                 return false;
             }
             // Xbox app accounts sign in through the Windows account picker; the
             // password is optional (only used in the manual fallback window).
             if (!editingExisting && string.IsNullOrEmpty(EditPassword) && EditLauncher != LauncherType.XboxApp)
             {
-                error = "Podaj hasło dla nowego konta.";
+                error = L("LOCPlayniteAccountManagerErrorPassword");
                 return false;
             }
 
@@ -209,6 +317,7 @@ namespace PlayniteAccountManager.Views
 
             store.Save();
             editingExisting = true;
+            LastSavedAccountId = record.Id;
             return true;
         }
     }

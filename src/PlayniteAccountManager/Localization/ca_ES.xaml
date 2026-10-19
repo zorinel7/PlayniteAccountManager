@@ -4,13 +4,92 @@
         <ResourceDictionary Source="en_US.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <sys:String x:Key="LOCPlayniteAccountManagerTitle">Gestor de comptes</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Gestiona els comptes dels llançadors i assigna&apos;ls a jocs</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Gestiona els comptes dels launchers i assigna'ls als jocs</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  AFEGEIX UN COMPTE</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">COMPTES DESATS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">No hi ha comptes desats.
+
+Fes clic a «AFEGEIX UN COMPTE» per afegir el teu primer compte.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Compte nou</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Llançador</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nom del compte</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Inici de sessió / correu</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Usuari / correu</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Contrasenya</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">En editar, deixa-ho buit per mantenir la contrasenya actual.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Canvia a aquest compte en iniciar el joc</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Tanca la sessió després del joc</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Compte principal de Steam</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Mode d'inici de sessió d'Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Inici de sessió manual</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Inici de sessió automàtic</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Manual: mostra les dades per copiar-les. Automàtic: restaura la sessió desada «Recorda'm» d'aquest compte; la primera vegada (o si la sessió caduca) s'escriuen l'usuari i la contrasenya.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">PROVA L'INICI AUTOMÀTIC</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">MOSTRA LES DADES D'ACCÉS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">ASSIGNA ALS JOCS SELECCIONATS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">SUPRIMEIX EL COMPTE</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">DESA EL COMPTE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Selecciona un compte o afegeix-ne un de nou.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Seleccionat: {0}. Tria un compte i fes clic a ASSIGNA.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Selecciona un o més jocs al Playnite per assignar-los un compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Inici de sessió</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Inici de sessió — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Joc: {0}
+
+Inicia la sessió manualment a {1} amb el compte següent.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">La contrasenya està oculta a la pantalla. Fes clic a l'usuari o la contrasenya per copiar-lo al porta-retalls. Després fes servir Ctrl+V al launcher i inicia la sessió manualment.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">S'ha iniciat el launcher. Inicia la sessió manualment.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">CANCEL·LA L'INICI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">FET — INICIA EL JOC</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">El compte «{0}» s'ha assignat a {1} jocs.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">S'ha suprimit el compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">S'ha desat el compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">S'està iniciant {0} i introduint les dades desades...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">L'inici de sessió automàtic a {0} s'ha completat correctament.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">L'inici de sessió automàtic ha fallat.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">L'inici de sessió automàtic encara no està disponible per a aquest launcher.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">S'han mostrat les dades d'accés.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">No s'han pogut obrir les dades d'accés.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Selecciona primer un compte desat.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Selecciona primer almenys un joc al Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Vols suprimir el compte «{0}»?
+
+També se suprimiran les assignacions d'aquest compte als jocs.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Suprimeix el compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Edita: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">PRINCIPAL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANUAL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Gestor de comptes</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Assigna un compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Treu l'assignació del compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Treu l'assignació: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Fes clic per copiar l'usuari</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Fes clic per copiar la contrasenya</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">S'ha copiat l'usuari al porta-retalls. Enganxa'l al launcher amb Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">S'ha copiat la contrasenya al porta-retalls. Enganxa-la al launcher amb Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Mode d'inici de sessió d'EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manual: mostra les dades per copiar-les. Automàtic: inicia EA App i omple l'usuari i la contrasenya; si no es troben els camps, s'utilitza una seqüència de tecles.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Mode d'inici de sessió de Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Manual: mostra les dades per copiar-les. Automàtic: reinicia Battle.net i introdueix l'usuari i la contrasenya; si falla, es mostra la finestra manual.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Mode d'inici de sessió de GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Manual: mostra les dades per copiar-les. Automàtic: reinicia GOG Galaxy i introdueix l'usuari i la contrasenya; si falla, es mostra la finestra manual.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Mode d'inici de sessió d'Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Manual: mostra les dades per copiar-les. Automàtic: inicia Ubisoft Connect i omple l'usuari i la contrasenya; si no es troben els camps, s'utilitza una seqüència de tecles.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Inici de sessió</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Assignació als jocs</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Cap joc seleccionat. Selecciona un o més jocs al Playnite i obre el Gestor de comptes (o el menú contextual del joc) per assignar un compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Selecciona un compte a l'esquerra i fes clic a ASSIGNA ALS JOCS SELECCIONATS. Aquestes opcions es desen amb l'assignació.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Cap compte assignat</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">JOC PER ASSIGNAR</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">JOCS PER ASSIGNAR ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} més</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Compte actual: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">ASSIGNAT</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam canvia entre comptes recordats sense contrasenya. Inicia la sessió una vegada en aquest compte a Steam amb «Recorda'm». Usuari = nom del compte de Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automàtic: el launcher es reinicia i s'omple la seva finestra d'inici de sessió; si falla, es mostra la finestra manual.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automàtic: el compte es tria al selector de comptes de Windows. Afegeix el compte Microsoft a Configuració de Windows &gt; Comptes &gt; Correu electrònic i comptes. La contrasenya és opcional.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Sense automatització per a aquest launcher: abans d'iniciar el joc es mostra la finestra manual amb les dades d'accés.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">S'ha tret l'assignació del compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">prova d'inici de sessió manual</sys:String>
 </ResourceDictionary>

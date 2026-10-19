@@ -1,14 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
-<sys:String x:Key="LOCPlayniteAccountManagerTitle">Pengelola Akun</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Kelola akun launcher dan tetapkan ke game</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  TAMBAH AKUN</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">AKUN TERSIMPAN</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Akun baru</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nama akun</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Login / email</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerPassword">Kata sandi</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSave">SIMPAN AKUN</sys:String>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Pengelola Akun</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Kelola akun launcher dan tetapkan ke game</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  TAMBAH AKUN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">AKUN TERSIMPAN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Tidak ada akun tersimpan.
+
+Klik &quot;TAMBAH AKUN&quot; untuk menambahkan akun pertama Anda.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Akun baru</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nama akun</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Login / email</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Kata sandi</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Saat mengedit, biarkan kosong untuk mempertahankan kata sandi saat ini.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Beralih ke akun ini saat game dimulai</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Keluar setelah bermain</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Akun Steam utama</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Mode login Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Login manual</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Login otomatis</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Manual: menampilkan data login untuk disalin. Otomatis: memulihkan sesi &quot;Ingat saya&quot; yang tersimpan untuk akun ini; pertama kali (atau saat sesi kedaluwarsa) login dan kata sandi akan diketikkan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">UJI LOGIN OTOMATIS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">TAMPILKAN DATA LOGIN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">TETAPKAN KE GAME TERPILIH</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">HAPUS AKUN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">SIMPAN AKUN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Pilih akun atau tambahkan akun baru.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Terpilih: {0}. Pilih akun lalu klik TETAPKAN.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Pilih satu atau beberapa game di Playnite untuk menetapkan akun.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Login — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Game: {0}
+
+Masuk secara manual ke akun berikut di {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Kata sandi disembunyikan di layar. Klik login atau kata sandi untuk menyalinnya ke papan klip. Lalu gunakan Ctrl+V di launcher dan masuk secara manual.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Launcher telah dimulai. Masuk secara manual.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">BATALKAN MULAI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">SELESAI — MULAI GAME</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Akun &quot;{0}&quot; ditetapkan ke {1} game.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Akun dihapus.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Akun disimpan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Memulai {0} dan memasukkan data login tersimpan...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Login otomatis ke {0} berhasil.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Login otomatis gagal.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Login otomatis belum tersedia untuk launcher ini.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Data login ditampilkan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Tidak dapat membuka data login.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Pilih akun tersimpan terlebih dahulu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Pilih setidaknya satu game di Playnite terlebih dahulu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Hapus akun &quot;{0}&quot;?
+
+Penetapan akun ini ke game juga akan dihapus.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Hapus akun</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Edit: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">UTAMA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">OTOMATIS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANUAL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Pengelola Akun</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Tetapkan akun</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Hapus penetapan akun</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Hapus penetapan: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Klik untuk menyalin login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Klik untuk menyalin kata sandi</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Login disalin ke papan klip. Tempelkan di launcher dengan Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Kata sandi disalin ke papan klip. Tempelkan di launcher dengan Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Mode login EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manual: menampilkan data login untuk disalin. Otomatis: memulai EA App dan mengisi login serta kata sandi; jika kolom tidak ditemukan, urutan tombol akan digunakan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Mode login Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Manual: menampilkan data login untuk disalin. Otomatis: memulai ulang Battle.net dan memasukkan login serta kata sandi; jika gagal, jendela manual akan ditampilkan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Mode login GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Manual: menampilkan data login untuk disalin. Otomatis: memulai ulang GOG Galaxy dan memasukkan login serta kata sandi; jika gagal, jendela manual akan ditampilkan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Mode login Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Manual: menampilkan data login untuk disalin. Otomatis: memulai Ubisoft Connect dan mengisi login serta kata sandi; jika kolom tidak ditemukan, urutan tombol akan digunakan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Akun</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Penetapan ke game</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Tidak ada game yang dipilih. Pilih satu atau beberapa game di Playnite, lalu buka Pengelola Akun (atau menu konteks game) untuk menetapkan akun.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Pilih akun di sebelah kiri lalu klik TETAPKAN KE GAME TERPILIH. Opsi ini disimpan bersama penetapan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Belum ada akun yang ditetapkan</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">GAME UNTUK DITETAPKAN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">GAME UNTUK DITETAPKAN ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} lainnya</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Akun saat ini: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">DITETAPKAN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam beralih di antara akun yang diingat tanpa kata sandi. Masuk ke akun ini sekali di Steam dengan &quot;Ingat saya&quot;. Login = nama akun Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Otomatis: launcher dimulai ulang dan jendela loginnya diisi; jika gagal, jendela manual akan ditampilkan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Otomatis: akun dipilih di pemilih akun Windows. Tambahkan akun Microsoft di Pengaturan Windows &gt; Akun &gt; Email &amp; akun. Kata sandi bersifat opsional.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Tidak ada otomatisasi untuk launcher ini: jendela manual dengan data login ditampilkan sebelum game dimulai.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Penetapan akun dihapus.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">uji login manual</sys:String>
 </ResourceDictionary>

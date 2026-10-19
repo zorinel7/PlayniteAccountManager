@@ -27,7 +27,7 @@ namespace PlayniteAccountManager.Services
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanych dla konta EA App.";
+                error = Loc.Get("ErrNoCredentialsLauncher", "EA App");
                 return false;
             }
 
@@ -70,14 +70,14 @@ namespace PlayniteAccountManager.Services
                 IntPtr hwnd = GetEAForegroundWindow();
                 if (hwnd == IntPtr.Zero)
                 {
-                    error = "Nie udało się znaleźć aktywnego okna EA App po 15 sekundach.";
+                    error = Loc.Get("ErrWindowNotFound", "EA App");
                     return false;
                 }
 
                 log("EA INPUT: aktywne okno należy do EA App.");
                 if (!EnsureWindowForeground(hwnd))
                 {
-                    error = "Nie udało się aktywować okna EA App. Przerywam automatyczne wpisywanie danych.";
+                    error = Loc.Get("ErrActivateWindow", "EA App");
                     return false;
                 }
 
@@ -86,7 +86,7 @@ namespace PlayniteAccountManager.Services
                 log("EA INPUT: AHK krok 1 — wpisuję login.");
                 if (!NativeKeyboardInput.TypeText(username, hwnd, log))
                 {
-                    error = "Nie udało się wpisać loginu EA App.";
+                    error = Loc.Get("ErrTypeLogin", "EA App");
                     return false;
                 }
 
@@ -99,7 +99,7 @@ namespace PlayniteAccountManager.Services
                 log("EA INPUT: AHK krok 3 — ENTER.");
                 if (!NativeKeyboardInput.SendEnter(log))
                 {
-                    error = "Nie udało się wysłać ENTER w EA App po loginie.";
+                    error = Loc.Get("ErrSendKeys", "EA App");
                     return false;
                 }
 
@@ -109,7 +109,7 @@ namespace PlayniteAccountManager.Services
                 log("EA INPUT: AHK krok 5 — wpisuję hasło.");
                 if (!NativeKeyboardInput.TypeText(password, hwnd, log))
                 {
-                    error = "Nie udało się wpisać hasła EA App.";
+                    error = Loc.Get("ErrTypePassword", "EA App");
                     return false;
                 }
 
@@ -122,7 +122,7 @@ namespace PlayniteAccountManager.Services
                 log("EA INPUT: AHK krok 7 — ENTER.");
                 if (!NativeKeyboardInput.SendEnter(log))
                 {
-                    error = "Nie udało się wysłać końcowego ENTER w EA App.";
+                    error = Loc.Get("ErrSendKeys", "EA App");
                     return false;
                 }
 
@@ -132,7 +132,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Błąd automatycznego logowania EA App: " + ex.Message;
+                error = Loc.Get("ErrAutoLogin", "EA App", ex.Message);
                 return false;
             }
         }
@@ -145,7 +145,7 @@ namespace PlayniteAccountManager.Services
             {
                 if (!NativeKeyboardInput.SendTab(log))
                 {
-                    error = "Nie udało się wykonać TAB #" + (i + 1) + " " + context + ".";
+                    error = Loc.Get("ErrSendKeys", "EA App");
                     return false;
                 }
 

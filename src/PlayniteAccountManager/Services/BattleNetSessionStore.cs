@@ -64,12 +64,12 @@ namespace PlayniteAccountManager.Services
             }
             catch (UnauthorizedAccessException ex)
             {
-                error = "Brak uprawnień do wyczyszczenia danych sesji Battle.net: " + ex.Message;
+                error = Loc.Get("ErrClearSessionAccess", "Battle.net", ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji Battle.net: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "Battle.net", ex.Message);
                 return false;
             }
         }

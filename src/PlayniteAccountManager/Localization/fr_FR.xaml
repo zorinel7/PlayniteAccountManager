@@ -1,14 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
-<sys:String x:Key="LOCPlayniteAccountManagerTitle">Gestionnaire de comptes</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Gérez les comptes des launchers et attribuez-les aux jeux</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  AJOUTER UN COMPTE</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">COMPTES ENREGISTRÉS</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nouveau compte</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nom du compte</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Connexion / e-mail</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerPassword">Mot de passe</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSave">ENREGISTRER LE COMPTE</sys:String>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Gestionnaire de comptes</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Gérez les comptes des launchers et associez-les aux jeux</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  AJOUTER UN COMPTE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">COMPTES ENREGISTRÉS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Aucun compte enregistré.
+
+Cliquez sur « AJOUTER UN COMPTE » pour ajouter votre premier compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nouveau compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nom du compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Identifiant / e-mail</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Mot de passe</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Lors de la modification, laissez vide pour conserver le mot de passe actuel.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Passer à ce compte au lancement du jeu</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Se déconnecter après le jeu</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Compte Steam principal</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Mode de connexion Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Connexion manuelle</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Connexion automatique</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Manuel : affiche les identifiants à copier. Automatique : restaure la session « Se souvenir de moi » enregistrée de ce compte ; la première fois (ou si la session expire), l’identifiant et le mot de passe sont saisis.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">TESTER LA CONNEXION AUTOMATIQUE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">AFFICHER LES IDENTIFIANTS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">ASSOCIER AUX JEUX SÉLECTIONNÉS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">SUPPRIMER LE COMPTE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">ENREGISTRER LE COMPTE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Sélectionnez un compte ou ajoutez-en un nouveau.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Sélection : {0}. Choisissez un compte et cliquez sur ASSOCIER.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Sélectionnez un ou plusieurs jeux dans Playnite pour leur associer un compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Connexion</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Connexion — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Jeu : {0}
+
+Connectez-vous manuellement au compte suivant dans {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Le mot de passe est masqué à l’écran. Cliquez sur l’identifiant ou le mot de passe pour le copier dans le presse-papiers, puis utilisez Ctrl+V dans le launcher et connectez-vous manuellement.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Le launcher a été lancé. Connectez-vous manuellement.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">ANNULER LE LANCEMENT</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">TERMINÉ — LANCER LE JEU</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Compte « {0} » associé à {1} jeux.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Compte supprimé.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Compte enregistré.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Lancement de {0} et saisie des identifiants enregistrés...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Connexion automatique à {0} réussie.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">La connexion automatique a échoué.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">La connexion automatique n’est pas encore disponible pour ce launcher.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Identifiants affichés.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Impossible d’afficher les identifiants.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Sélectionnez d’abord un compte enregistré.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Sélectionnez d’abord au moins un jeu dans Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Supprimer le compte « {0} » ?
+
+Les associations de ce compte aux jeux seront également supprimées.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Supprimer le compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Modifier : {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">PRINCIPAL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANUEL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Gestionnaire de comptes</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Associer un compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Retirer l’association du compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Retirer l’association : {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Cliquez pour copier l’identifiant</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Cliquez pour copier le mot de passe</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Identifiant copié dans le presse-papiers. Collez-le dans le launcher avec Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Mot de passe copié dans le presse-papiers. Collez-le dans le launcher avec Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Mode de connexion EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manuel : affiche les identifiants à copier. Automatique : lance EA App et remplit l’identifiant et le mot de passe ; si les champs sont introuvables, une séquence de touches est utilisée.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Mode de connexion Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Manuel : affiche les identifiants à copier. Automatique : redémarre Battle.net et saisit l’identifiant et le mot de passe ; en cas d’échec, la fenêtre manuelle s’affiche.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Mode de connexion GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Manuel : affiche les identifiants à copier. Automatique : redémarre GOG Galaxy et saisit l’identifiant et le mot de passe ; en cas d’échec, la fenêtre manuelle s’affiche.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Mode de connexion Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Manuel : affiche les identifiants à copier. Automatique : lance Ubisoft Connect et remplit l’identifiant et le mot de passe ; si les champs sont introuvables, une séquence de touches est utilisée.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Compte</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Connexion</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Association aux jeux</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Aucun jeu sélectionné. Sélectionnez un ou plusieurs jeux dans Playnite, puis ouvrez le Gestionnaire de comptes (ou le menu contextuel du jeu) pour associer un compte.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Sélectionnez un compte à gauche et cliquez sur ASSOCIER AUX JEUX SÉLECTIONNÉS. Ces options sont enregistrées avec l’association.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Aucun compte associé</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">JEU À ASSOCIER</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">JEUX À ASSOCIER ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} de plus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Compte actuel : {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">ASSOCIÉ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam bascule entre les comptes mémorisés sans mot de passe. Connectez-vous une fois à ce compte dans Steam avec « Se souvenir de moi ». Identifiant = nom du compte Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatique : le launcher est redémarré et sa fenêtre de connexion est remplie ; en cas d’échec, la fenêtre manuelle s’affiche.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatique : le compte est choisi dans le sélecteur de comptes Windows. Ajoutez le compte Microsoft dans Paramètres Windows &gt; Comptes &gt; E-mail et comptes. Le mot de passe est facultatif.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Aucune automatisation pour ce launcher : la fenêtre manuelle avec les identifiants s’affiche avant le lancement du jeu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Association du compte retirée.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test de connexion manuelle</sys:String>
 </ResourceDictionary>

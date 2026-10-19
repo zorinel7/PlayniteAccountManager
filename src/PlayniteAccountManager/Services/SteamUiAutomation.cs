@@ -52,7 +52,7 @@ namespace PlayniteAccountManager.Services
 
             if (workerException != null)
             {
-                error = "Błąd wątku automatyzacji Steam: " + workerException.Message;
+                error = Loc.Get("ErrAutomation", "Steam", workerException.Message);
                 return false;
             }
 
@@ -65,7 +65,7 @@ namespace PlayniteAccountManager.Services
             error = null;
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Brak nazwy konta Steam lub hasła.";
+                error = Loc.Get("ErrNoCredentialsLauncher", "Steam");
                 return false;
             }
 
@@ -87,7 +87,7 @@ namespace PlayniteAccountManager.Services
 
             if (hwnd == IntPtr.Zero)
             {
-                error = "Nie znaleziono okna Steam w czasie oczekiwania.";
+                error = Loc.Get("ErrWindowNotFound", "Steam");
                 return false;
             }
 
@@ -109,15 +109,15 @@ namespace PlayniteAccountManager.Services
 
             if (LooksLikeSteamGuard(hwnd))
             {
-                error = "Steam zatrzymał logowanie na ekranie Steam Guard. Kod trzeba dokończyć ręcznie na tym etapie.";
+                error = Loc.Get("ErrSteamGuard");
                 return false;
             }
 
             if (!LooksLikeLoginScreen(hwnd))
             {
                 error = LooksAuthenticated(hwnd)
-                    ? "Steam jest już zalogowany albo nie udało się wymusić ekranu logowania. Nie mogę bezpiecznie potwierdzić, że aktywne jest przypisane konto."
-                    : "Steam nie pokazał rozpoznawalnego ekranu logowania. Zatrzymuję automatyzację, aby nie wpisać danych do niewłaściwego okna.";
+                    ? Loc.Get("ErrSteamAlreadySignedIn")
+                    : Loc.Get("ErrSteamNoLoginScreen");
                 return false;
             }
 
@@ -126,7 +126,7 @@ namespace PlayniteAccountManager.Services
             Thread.Sleep(1000);
             if (GetForegroundWindow() != hwnd)
             {
-                error = "Steam nie jest aktywnym oknem. Przerywam wpisywanie danych, aby nie trafiły do innej aplikacji.";
+                error = Loc.Get("ErrNotActiveWindow", "Steam");
                 return false;
             }
 
@@ -140,7 +140,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(150);
                 if (!NativeKeyboardInput.TypeText(username, hwnd, log))
                 {
-                    error = "Nie udało się wpisać nazwy konta Steam.";
+                    error = Loc.Get("ErrTypeLogin", "Steam");
                     return false;
                 }
 
@@ -154,7 +154,7 @@ namespace PlayniteAccountManager.Services
                     log("Steam INPUT: drugie pole nie zostało znalezione, używam TAB.");
                     if (!NativeKeyboardInput.SendTab(log))
                     {
-                        error = "Nie udało się przejść do pola hasła Steam.";
+                        error = Loc.Get("ErrSendKeys", "Steam");
                         return false;
                     }
                 }
@@ -162,14 +162,14 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(200);
                 if (!NativeKeyboardInput.TypeText(password, hwnd, log))
                 {
-                    error = "Nie udało się wpisać hasła Steam.";
+                    error = Loc.Get("ErrTypePassword", "Steam");
                     return false;
                 }
 
                 Thread.Sleep(300);
                 if (!NativeKeyboardInput.SendEnter(log))
                 {
-                    error = "Nie udało się wysłać zatwierdzenia logowania Steam.";
+                    error = Loc.Get("ErrSendKeys", "Steam");
                     return false;
                 }
             }
@@ -179,25 +179,25 @@ namespace PlayniteAccountManager.Services
                 EnsureWindowForeground(hwnd);
                 if (!NativeKeyboardInput.TypeText(username, hwnd, log))
                 {
-                    error = "Nie udało się wpisać nazwy konta Steam.";
+                    error = Loc.Get("ErrTypeLogin", "Steam");
                     return false;
                 }
                 Thread.Sleep(300);
                 if (!NativeKeyboardInput.SendTab(log))
                 {
-                    error = "Nie udało się przejść do pola hasła Steam.";
+                    error = Loc.Get("ErrSendKeys", "Steam");
                     return false;
                 }
                 Thread.Sleep(200);
                 if (!NativeKeyboardInput.TypeText(password, hwnd, log))
                 {
-                    error = "Nie udało się wpisać hasła Steam.";
+                    error = Loc.Get("ErrTypePassword", "Steam");
                     return false;
                 }
                 Thread.Sleep(300);
                 if (!NativeKeyboardInput.SendEnter(log))
                 {
-                    error = "Nie udało się wysłać zatwierdzenia logowania Steam.";
+                    error = Loc.Get("ErrSendKeys", "Steam");
                     return false;
                 }
             }
@@ -211,7 +211,7 @@ namespace PlayniteAccountManager.Services
                 {
                     if (LooksLikeSteamGuard(hwnd))
                     {
-                        error = "Steam wymaga kodu Steam Guard. Automatyczne wpisanie kodu nie jest jeszcze zaimplementowane.";
+                        error = Loc.Get("ErrSteamGuard");
                         return false;
                     }
 
@@ -224,7 +224,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(500);
             }
 
-            error = "Steam nie potwierdził zalogowania po wysłaniu danych.";
+            error = Loc.Get("ErrNotConfirmed", "Steam");
             return false;
         }
 
@@ -371,7 +371,7 @@ namespace PlayniteAccountManager.Services
 
             if (workerException != null)
             {
-                error = "Błąd wątku automatyzacji Steam: " + workerException.Message;
+                error = Loc.Get("ErrAutomation", "Steam", workerException.Message);
                 return false;
             }
 
@@ -391,13 +391,13 @@ namespace PlayniteAccountManager.Services
                 {
                     if (LooksLikeAccountChooser(hwnd))
                     {
-                        error = "Steam pokazuje ekran „Kto gra?”. Wyłącz w Steam opcję „Pytaj, którego konta używać przy każdym uruchomieniu Steam”, aby Menadżer Kont mógł przełączać zapisane konto automatycznie.";
+                        error = Loc.Get("ErrSteamWhoIsPlaying");
                         return false;
                     }
 
                     if (LooksLikeSteamGuard(hwnd))
                     {
-                        error = "Steam wymaga Steam Guard. Automatyczne przełączenie zatrzymano.";
+                        error = Loc.Get("ErrSteamGuard");
                         return false;
                     }
 
@@ -407,7 +407,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(450);
             }
 
-            error = "Steam nie potwierdził zalogowania wybranego konta w wymaganym czasie.";
+            error = Loc.Get("ErrNotConfirmed", "Steam");
             return false;
         }
 

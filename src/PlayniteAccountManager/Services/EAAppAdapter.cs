@@ -51,7 +51,7 @@ namespace PlayniteAccountManager.Services
                 string exe = FindExecutable();
                 if (string.IsNullOrWhiteSpace(exe))
                 {
-                    error = "Nie znaleziono EA App na tym komputerze. Sprawdź, czy EADesktop.exe lub EALauncher.exe są zainstalowane.";
+                    error = Loc.Get("ErrLauncherNotFound", "EA App");
                     return false;
                 }
 
@@ -66,7 +66,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przygotować EA App do ręcznego logowania: " + ex.Message;
+                error = Loc.Get("ErrPrepareManual", "EA App", ex.Message);
                 return false;
             }
         }
@@ -77,19 +77,19 @@ namespace PlayniteAccountManager.Services
 
             if (account == null || account.Id == Guid.Empty)
             {
-                error = "Nie wybrano konta EA App.";
+                error = Loc.Get("ErrNoAccountSelected", "EA App");
                 return false;
             }
 
             if (account.Launcher != LauncherType.EAApp)
             {
-                error = "Wybrane konto nie jest kontem EA App.";
+                error = Loc.Get("ErrWrongLauncher", "EA App");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanego dla konta „" + account.Name + "”.";
+                error = Loc.Get("ErrNoCredentialsAccount", account.Name);
                 return false;
             }
 
@@ -98,7 +98,7 @@ namespace PlayniteAccountManager.Services
                 string exe = FindExecutable();
                 if (string.IsNullOrWhiteSpace(exe))
                 {
-                    error = "Nie znaleziono EA App na tym komputerze. Sprawdź, czy EADesktop.exe lub EALauncher.exe są zainstalowane.";
+                    error = Loc.Get("ErrLauncherNotFound", "EA App");
                     return false;
                 }
 
@@ -120,7 +120,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Błąd automatycznego logowania EA App: " + ex.Message;
+                error = Loc.Get("ErrAutoLogin", "EA App", ex.Message);
                 return false;
             }
         }
@@ -134,7 +134,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji EA App: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "EA App", ex.Message);
                 return false;
             }
         }
@@ -206,7 +206,7 @@ namespace PlayniteAccountManager.Services
 
                     try
                     {
-                        string path = p.MainModule.FileName;
+                        string path = ProcessPaths.Get(p);
                         if (!string.IsNullOrWhiteSpace(path))
                             candidates.Add(path);
                     }

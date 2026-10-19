@@ -49,12 +49,12 @@ namespace PlayniteAccountManager.Services
             }
             catch (UnauthorizedAccessException ex)
             {
-                error = "Brak uprawnień do wyczyszczenia sesji Epic Games: " + ex.Message;
+                error = Loc.Get("ErrClearSessionAccess", "Epic Games", ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji Epic Games: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "Epic Games", ex.Message);
                 return false;
             }
         }
@@ -125,7 +125,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przywrócić zapisanej sesji Epic Games: " + ex.Message;
+                error = Loc.Get("ErrEpicRestore", ex.Message);
                 return false;
             }
         }

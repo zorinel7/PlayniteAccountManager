@@ -45,7 +45,7 @@ namespace PlayniteAccountManager.Services
                 string exe = FindExecutable();
                 if (string.IsNullOrWhiteSpace(exe))
                 {
-                    error = "Nie znaleziono Epic Games Launcher na tym komputerze.";
+                    error = Loc.Get("ErrLauncherNotFound", "Epic Games Launcher");
                     return false;
                 }
 
@@ -63,7 +63,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przygotować Epic Games do ręcznego logowania: " + ex.Message;
+                error = Loc.Get("ErrPrepareManual", "Epic Games", ex.Message);
                 return false;
             }
         }
@@ -74,19 +74,19 @@ namespace PlayniteAccountManager.Services
 
             if (account == null || account.Id == Guid.Empty)
             {
-                error = "Nie wybrano konta Epic Games.";
+                error = Loc.Get("ErrNoAccountSelected", "Epic Games");
                 return false;
             }
 
             if (account.Launcher != LauncherType.EpicGames)
             {
-                error = "Wybrane konto nie jest kontem Epic Games.";
+                error = Loc.Get("ErrWrongLauncher", "Epic Games");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanego dla konta „" + account.Name + "”.";
+                error = Loc.Get("ErrNoCredentialsAccount", account.Name);
                 return false;
             }
 
@@ -95,7 +95,7 @@ namespace PlayniteAccountManager.Services
                 string exe = FindExecutable();
                 if (string.IsNullOrWhiteSpace(exe))
                 {
-                    error = "Nie znaleziono Epic Games Launcher na tym komputerze.";
+                    error = Loc.Get("ErrLauncherNotFound", "Epic Games Launcher");
                     return false;
                 }
 
@@ -153,7 +153,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Błąd automatycznego logowania Epic Games: " + ex.Message;
+                error = Loc.Get("ErrAutoLogin", "Epic Games", ex.Message);
                 return false;
             }
         }
@@ -169,7 +169,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji Epic Games: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "Epic Games", ex.Message);
                 return false;
             }
         }
@@ -195,7 +195,7 @@ namespace PlayniteAccountManager.Services
             {
                 // Never keep a snapshot that signs in a different Epic account.
                 vault.Delete(account.Id);
-                error = "zapisana sesja zalogowała inne konto Epic niż przypisane – usunięto ją.";
+                error = Loc.Get("ErrEpicWrongAccount");
                 return false;
             }
 
@@ -337,7 +337,7 @@ namespace PlayniteAccountManager.Services
 
                     try
                     {
-                        string path = p.MainModule.FileName;
+                        string path = ProcessPaths.Get(p);
                         if (!string.IsNullOrWhiteSpace(path))
                             candidates.Add(path);
                     }

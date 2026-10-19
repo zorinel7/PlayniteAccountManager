@@ -64,7 +64,7 @@ namespace PlayniteAccountManager
 
             yield return new GameMenuItem
             {
-                MenuSection = "Menadżer Kont",
+                MenuSection = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuTitle"),
                 Description = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuAssign"),
                 Action = _ => OpenManager(args.Games)
             };
@@ -77,7 +77,7 @@ namespace PlayniteAccountManager
                     var account = Store.GetAccount(assignment.AccountId);
                     yield return new GameMenuItem
                     {
-                        MenuSection = "Menadżer Kont",
+                        MenuSection = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuTitle"),
                         Description = account == null
                             ? ResourceProvider.GetString("LOCPlayniteAccountManagerMenuUnassign")
                             : string.Format(ResourceProvider.GetString("LOCPlayniteAccountManagerMenuUnassignNamed"), account.Name),
@@ -86,12 +86,29 @@ namespace PlayniteAccountManager
                             Store.ClearAssignment(args.Games[0].Id);
                             PlayniteApi.Notifications.Add(new NotificationMessage(
                                 "PlayniteAccountManager",
-                                "Przypisanie konta usunięte.",
+                                Loc.Get("AssignmentRemoved"),
                                 NotificationType.Info));
                         }
                     };
                 }
             }
+        }
+
+        /// <summary>
+        /// Sizes a window to a share of the screen work area, so it fits on
+        /// small and scaled displays and does not become huge on 4K ones.
+        /// </summary>
+        private static void FitToWorkArea(Window window, double maxWidth, double maxHeight,
+            double widthShare, double heightShare, double minWidth, double minHeight)
+        {
+            Rect area = SystemParameters.WorkArea;
+            double availableWidth = Math.Max(400, area.Width - 40);
+            double availableHeight = Math.Max(300, area.Height - 40);
+
+            window.MinWidth = Math.Min(minWidth, availableWidth);
+            window.MinHeight = Math.Min(minHeight, availableHeight);
+            window.Width = Math.Max(window.MinWidth, Math.Min(maxWidth, Math.Min(availableWidth, area.Width * widthShare)));
+            window.Height = Math.Max(window.MinHeight, Math.Min(maxHeight, Math.Min(availableHeight, area.Height * heightShare)));
         }
 
         private void OpenManager(IEnumerable<Game> contextGames)
@@ -106,11 +123,8 @@ namespace PlayniteAccountManager
                     ShowMinimizeButton = false,
                     ShowMaximizeButton = true
                 });
-                window.Title = "Menadżer Kont";
-                window.Width = 1200;
-                window.Height = 820;
-                window.MinWidth = 1100;
-                window.MinHeight = 700;
+                window.Title = ResourceProvider.GetString("LOCPlayniteAccountManagerTitle");
+                FitToWorkArea(window, 1280, 980, 0.85, 0.9, 860, 560);
                 window.Content = view;
                 window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
                 window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
@@ -119,7 +133,7 @@ namespace PlayniteAccountManager
             catch (Exception ex)
             {
                 logger.Error(ex, "Nie udało się otworzyć Menadżera Kont.");
-                PlayniteApi.Dialogs.ShowErrorMessage("Nie udało się otworzyć Menadżera Kont.\n\n" + ex.Message, "Menadżer Kont");
+                PlayniteApi.Dialogs.ShowErrorMessage(Loc.Get("ErrOpenManager", ex.Message), ResourceProvider.GetString("LOCPlayniteAccountManagerTitle"));
             }
         }
 
@@ -130,7 +144,7 @@ namespace PlayniteAccountManager
             var account = Store.GetAccount(accountId);
             if (account == null)
             {
-                error = "Nie znaleziono konta.";
+                error = Loc.Get("ErrAccountNotFound");
                 return false;
             }
 
@@ -141,7 +155,7 @@ namespace PlayniteAccountManager
                 account.Launcher != LauncherType.BattleNet &&
                 account.Launcher != LauncherType.RockstarGamesLauncher)
             {
-                error = "To konto nie korzysta z ręcznego logowania.";
+                error = Loc.Get("ErrNotManual");
                 return false;
             }
 
@@ -150,8 +164,7 @@ namespace PlayniteAccountManager
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Konto „" + account.Name +
-                        "” nie ma zapisanych danych logowania.";
+                error = Loc.Get("ErrNoCredentialsAccount", account.Name);
                 return false;
             }
 
@@ -188,7 +201,7 @@ namespace PlayniteAccountManager
 
             return ShowManualLoginWindow(
                 account.Launcher.GetDisplayName(),
-                "ręczny test logowania",
+                Loc.Get("ManualTestGame"),
                 username,
                 password);
         }
@@ -221,7 +234,7 @@ namespace PlayniteAccountManager
             var account = Store.GetAccount(accountId);
             if (account == null)
             {
-                error = "Nie znaleziono konta.";
+                error = Loc.Get("ErrAccountNotFound");
                 return false;
             }
 
@@ -236,13 +249,13 @@ namespace PlayniteAccountManager
                     if (account.EpicLoginMode == EpicLoginMode.Automatic)
                         return epic.PrepareAndLogin(account, password, out error);
 
-                    error = "To konto Epic Games jest ustawione na logowanie ręczne.";
+                    error = Loc.Get("ErrManualMode", "Epic Games");
                     return false;
                 case LauncherType.EAApp:
                     if (account.EALoginMode == (EALoginMode)1)
                         return ea.PrepareAndLogin(account, password, out error);
 
-                    error = "To konto EA App jest ustawione na logowanie ręczne.";
+                    error = Loc.Get("ErrManualMode", "EA App");
                     return false;
                 case LauncherType.XboxApp:
                     return xbox.PrepareAndLogin(account, out error);
@@ -250,16 +263,16 @@ namespace PlayniteAccountManager
                     if (account.BattleNetLoginMode == BattleNetLoginMode.Automatic)
                         return TryBattleNetAutomaticLogin(account, password, out error);
 
-                    error = "To konto Battle.net jest ustawione na logowanie ręczne.";
+                    error = Loc.Get("ErrManualMode", "Battle.net");
                     return false;
                 case LauncherType.GOGGalaxy:
                     if (account.GOGLoginMode == GOGLoginMode.Automatic)
                         return TryGogAutomaticLogin(account, password, out error);
 
-                    error = "To konto GOG Galaxy jest ustawione na logowanie ręczne.";
+                    error = Loc.Get("ErrManualMode", "GOG Galaxy");
                     return false;
                 default:
-                    error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
+                    error = Loc.Get("ErrAutoNotImplemented", account.Launcher.GetDisplayName());
                     return false;
             }
         }
@@ -383,8 +396,7 @@ namespace PlayniteAccountManager
                     catch (Exception ex)
                     {
                         ok = false;
-                        error = "Launcher login preparation failed for " +
-                                account.Launcher.GetDisplayName() + ": " + ex.Message;
+                        error = Loc.Get("ErrPrepareLauncher", account.Launcher.GetDisplayName(), ex.Message);
                         logger.Error(ex, "Exception while preparing launcher login.");
                     }
 
@@ -432,7 +444,7 @@ namespace PlayniteAccountManager
                 catch (Exception ex)
                 {
                     mainOk = false;
-                    mainError = "Błąd ustawiania głównego konta Steam: " + ex.Message;
+                    mainError = Loc.Get("ErrSteamPrimary", ex.Message);
                     logger.Error(ex, "Wyjątek podczas ustawiania głównego konta Steam.");
                 }
 
@@ -501,7 +513,7 @@ namespace PlayniteAccountManager
 
             if (account == null)
             {
-                error = "Nie znaleziono konta.";
+                error = Loc.Get("ErrAccountNotFound");
                 return false;
             }
 
@@ -510,8 +522,7 @@ namespace PlayniteAccountManager
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Konto „" + account.Name +
-                        "” nie ma zapisanych danych logowania.";
+                error = Loc.Get("ErrNoCredentialsAccount", account.Name);
                 return false;
             }
 
@@ -552,7 +563,7 @@ namespace PlayniteAccountManager
                 }
                 else
                 {
-                    error = "Nieobsługiwany launcher.";
+                    error = Loc.Get("ErrUnsupportedLauncher");
                     return false;
                 }
 
@@ -564,7 +575,7 @@ namespace PlayniteAccountManager
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przygotować ręcznego logowania: " + ex.Message;
+                error = Loc.Get("ErrPrepareManualLogin", ex.Message);
                 logger.Error(ex, "Manual launcher login preparation failed.");
                 return false;
             }
@@ -601,7 +612,7 @@ namespace PlayniteAccountManager
                 return true;
             }
 
-            error = "Logowanie do GOG Galaxy zostało anulowane.";
+            error = Loc.Get("ErrLoginCancelled", "GOG Galaxy");
             return false;
         }
 
@@ -639,7 +650,7 @@ namespace PlayniteAccountManager
                 return true;
             }
 
-            error = "Logowanie do Battle.net zostało anulowane.";
+            error = Loc.Get("ErrLoginCancelled", "Battle.net");
             return false;
         }
 
@@ -647,7 +658,7 @@ namespace PlayniteAccountManager
         {
             if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
             {
-                error = "Konto „" + account.Name + "” nie ma zapisanych danych logowania.";
+                error = Loc.Get("ErrNoCredentialsAccount", account.Name);
                 return false;
             }
 
@@ -668,7 +679,7 @@ namespace PlayniteAccountManager
         {
             if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
             {
-                error = "Konto „" + account.Name + "” nie ma zapisanych danych logowania.";
+                error = Loc.Get("ErrNoCredentialsAccount", account.Name);
                 return false;
             }
 
@@ -718,7 +729,7 @@ namespace PlayniteAccountManager
                 return true;
             }
 
-            error = "Logowanie do aplikacji Xbox zostało anulowane.";
+            error = Loc.Get("ErrLoginCancelled", "Xbox");
             return false;
         }
 
@@ -782,11 +793,8 @@ namespace PlayniteAccountManager
                     ShowMaximizeButton = false
                 });
 
-                window.Title = "Logowanie — " + launcherName;
-                window.Width = 720;
-                window.Height = 600;
-                window.MinWidth = 660;
-                window.MinHeight = 540;
+                window.Title = string.Format(ResourceProvider.GetString("LOCPlayniteAccountManagerLoginTitle"), launcherName);
+                FitToWorkArea(window, 760, 640, 0.6, 0.8, 560, 460);
                 window.Content = view;
                 window.Owner = PlayniteApi.Dialogs.GetCurrentAppWindow();
                 window.WindowStartupLocation = WindowStartupLocation.CenterOwner;

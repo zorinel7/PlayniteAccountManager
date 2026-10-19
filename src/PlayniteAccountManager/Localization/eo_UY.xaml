@@ -4,13 +4,92 @@
         <ResourceDictionary Source="en_US.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <sys:String x:Key="LOCPlayniteAccountManagerTitle">Konto-Administrilo</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Administru lanĉilajn kontojn kaj atribuu ilin al ludoj</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Administru kontojn de lanĉiloj kaj asignu ilin al ludoj</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ALDONI KONTON</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">KONSERVITAJ KONTOJ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Neniuj konservitaj kontoj.
+
+Alklaku „ALDONI KONTON“ por aldoni vian unuan konton.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nova konto</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Lanĉilo</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Kontonomo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Nomo de konto</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Ensaluto / retpoŝto</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Pasvorto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Dum redaktado lasu malplena por konservi la nunan pasvorton.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Ŝanĝi al ĉi tiu konto kiam la ludo startas</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Elsaluti post la ludo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Ĉefa Steam-konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Ensaluta reĝimo de Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Mana ensaluto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Aŭtomata ensaluto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Mana: montras la ensalutajn datumojn por kopii. Aŭtomata: restarigas la konservitan seancon „Memori min“ de ĉi tiu konto; la unuan fojon (aŭ kiam la seanco eksvalidiĝas) la ensaluto kaj pasvorto estas tajpataj.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">TESTI AŬTOMATAN ENSALUTON</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">MONTRI ENSALUTAJN DATUMOJN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">ASIGNI AL ELEKTITAJ LUDOJ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">FORIGI KONTON</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">KONSERVI KONTON</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Elektu konton aŭ aldonu novan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Elektita: {0}. Elektu konton kaj alklaku ASIGNI.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Elektu unu aŭ plurajn ludojn en Playnite por asigni konton.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Ensaluto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Ensaluto — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Ludo: {0}
+
+Mane ensalutu al la jena konto en {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">La pasvorto estas kaŝita sur la ekrano. Alklaku la ensaluton aŭ pasvorton por kopii ĝin al la tondujo. Poste uzu Ctrl+V en la lanĉilo kaj mane ensalutu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">La lanĉilo estas startigita. Mane ensalutu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">NULIGI STARTON</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">FARITA — STARTIGI LUDON</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">La konto „{0}“ estas asignita al {1} ludoj.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Konto forigita.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Konto konservita.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Startigante {0} kaj enigante la konservitajn ensalutajn datumojn...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Aŭtomata ensaluto al {0} sukcesis.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Aŭtomata ensaluto malsukcesis.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Aŭtomata ensaluto ankoraŭ ne disponeblas por ĉi tiu lanĉilo.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Ensalutaj datumoj montritaj.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Ne eblis malfermi la ensalutajn datumojn.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Unue elektu konservitan konton.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Unue elektu almenaŭ unu ludon en Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Ĉu forigi la konton „{0}“?
+
+La asignoj de ĉi tiu konto al ludoj ankaŭ estos forigitaj.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Forigi konton</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Redakti: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">ĈEFA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AŬTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Konto-Administrilo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Asigni konton</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Forigi asignon de konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Forigi asignon: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Alklaku por kopii la ensaluton</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Alklaku por kopii la pasvorton</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Ensaluto kopiita al la tondujo. Algluu ĝin en la lanĉilo per Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Pasvorto kopiita al la tondujo. Algluu ĝin en la lanĉilo per Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Ensaluta reĝimo de EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Mana: montras la ensalutajn datumojn por kopii. Aŭtomata: startigas EA App kaj plenigas la ensaluton kaj pasvorton; se la kampoj ne troviĝas, klavsekvenco estas uzata.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Ensaluta reĝimo de Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Mana: montras la ensalutajn datumojn por kopii. Aŭtomata: restartigas Battle.net kaj enigas la ensaluton kaj pasvorton; se tio malsukcesas, la mana fenestro aperas.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Ensaluta reĝimo de GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Mana: montras la ensalutajn datumojn por kopii. Aŭtomata: restartigas GOG Galaxy kaj enigas la ensaluton kaj pasvorton; se tio malsukcesas, la mana fenestro aperas.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Ensaluta reĝimo de Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Mana: montras la ensalutajn datumojn por kopii. Aŭtomata: startigas Ubisoft Connect kaj plenigas la ensaluton kaj pasvorton; se la kampoj ne troviĝas, klavsekvenco estas uzata.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Ensaluto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Asigno al ludoj</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Neniu ludo elektita. Elektu unu aŭ plurajn ludojn en Playnite, poste malfermu la Konto-Administrilon (aŭ la kuntekstan menuon de la ludo) por asigni konton.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Elektu konton maldekstre kaj alklaku ASIGNI AL ELEKTITAJ LUDOJ. Ĉi tiuj opcioj estas konservataj kun la asigno.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Neniu konto asignita</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">LUDO POR ASIGNI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">LUDOJ POR ASIGNI ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} pli</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Nuna konto: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">ASIGNITA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam ŝanĝas inter memoritaj kontoj sen pasvorto. Ensalutu unufoje al ĉi tiu konto en Steam kun „Memori min“. Ensaluto = nomo de la Steam-konto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Aŭtomata: la lanĉilo estas restartigita kaj ĝia ensaluta fenestro plenigita; se tio malsukcesas, la mana fenestro aperas.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Aŭtomata: la konto estas elektata en la kontelektilo de Windows. Aldonu la Microsoft-konton en Agordoj de Windows &gt; Kontoj &gt; Retpoŝto kaj kontoj. La pasvorto estas laŭvola.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Neniu aŭtomatigo por ĉi tiu lanĉilo: la mana fenestro kun la ensalutaj datumoj aperas antaŭ ol la ludo startas.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Asigno de konto forigita.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">testo de mana ensaluto</sys:String>
 </ResourceDictionary>

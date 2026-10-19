@@ -38,12 +38,12 @@ namespace PlayniteAccountManager.Services
             }
             catch (UnauthorizedAccessException ex)
             {
-                error = "Brak uprawnień do wyczyszczenia danych sesji EA App: " + ex.Message;
+                error = Loc.Get("ErrClearSessionAccess", "EA App", ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji EA App: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "EA App", ex.Message);
                 return false;
             }
         }

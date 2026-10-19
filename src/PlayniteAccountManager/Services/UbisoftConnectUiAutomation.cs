@@ -54,7 +54,7 @@ namespace PlayniteAccountManager.Services
 
             if (workerException != null)
             {
-                error = "Błąd wątku automatyzacji Ubisoft Connect: " + workerException.Message;
+                error = Loc.Get("ErrAutomation", "Ubisoft Connect", workerException.Message);
                 return false;
             }
 
@@ -67,7 +67,7 @@ namespace PlayniteAccountManager.Services
             error = null;
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanych dla konta Ubisoft Connect.";
+                error = Loc.Get("ErrNoCredentialsLauncher", "Ubisoft Connect");
                 return false;
             }
 
@@ -115,7 +115,7 @@ namespace PlayniteAccountManager.Services
 
             if (hwnd == IntPtr.Zero)
             {
-                error = "Nie znaleziono okna „Ubisoft Connect” w czasie oczekiwania.";
+                error = Loc.Get("ErrWindowNotFound", "Ubisoft Connect");
                 return false;
             }
 
@@ -136,7 +136,7 @@ namespace PlayniteAccountManager.Services
             log("Ubisoft INPUT: [1/8] Enter");
             if (!NativeKeyboardInput.SendEnter(log))
             {
-                error = "Nie udało się wysłać pierwszego Enter do Ubisoft Connect.";
+                error = Loc.Get("ErrSendKeys", "Ubisoft Connect");
                 return false;
             }
 
@@ -152,7 +152,7 @@ namespace PlayniteAccountManager.Services
             log("Ubisoft INPUT: [2/8] wpisuję login przez VkKeyScanEx + key events.");
             if (!NativeKeyboardInput.TypeText(username, hwnd, log))
             {
-                error = "Nie udało się wysłać loginu jako zdarzeń klawiatury.";
+                error = Loc.Get("ErrTypeLogin", "Ubisoft Connect");
                 return false;
             }
 
@@ -162,7 +162,7 @@ namespace PlayniteAccountManager.Services
             log("Ubisoft INPUT: [3/8] TAB");
             if (!NativeKeyboardInput.SendTab(log))
             {
-                error = "Nie udało się wysłać TAB do Ubisoft Connect.";
+                error = Loc.Get("ErrSendKeys", "Ubisoft Connect");
                 return false;
             }
 
@@ -172,7 +172,7 @@ namespace PlayniteAccountManager.Services
             log("Ubisoft INPUT: [4/8] Enter po TAB");
             if (!NativeKeyboardInput.SendEnter(log))
             {
-                error = "Nie udało się wysłać Enter po loginie.";
+                error = Loc.Get("ErrSendKeys", "Ubisoft Connect");
                 return false;
             }
 
@@ -186,7 +186,7 @@ namespace PlayniteAccountManager.Services
             log("Ubisoft INPUT: [5/8] wpisuję hasło przez VkKeyScanEx + key events.");
             if (!NativeKeyboardInput.TypeText(password, hwnd, log))
             {
-                error = "Nie udało się wysłać hasła jako zdarzeń klawiatury.";
+                error = Loc.Get("ErrTypePassword", "Ubisoft Connect");
                 return false;
             }
 
@@ -196,7 +196,7 @@ namespace PlayniteAccountManager.Services
             log("Ubisoft INPUT: [6/8] Enter po haśle");
             if (!NativeKeyboardInput.SendEnter(log))
             {
-                error = "Nie udało się wysłać końcowego Enter do Ubisoft Connect.";
+                error = Loc.Get("ErrSendKeys", "Ubisoft Connect");
                 return false;
             }
 
@@ -220,7 +220,7 @@ namespace PlayniteAccountManager.Services
 
             // Some versions can keep the login page visible while the submit is
             // still being processed. Do not claim success without a visible state.
-            error = "Ubisoft Connect nie potwierdził zalogowania po wysłaniu danych.";
+            error = Loc.Get("ErrNotConfirmed", "Ubisoft Connect");
             return false;
         }
 

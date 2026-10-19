@@ -1,14 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
-<sys:String x:Key="LOCPlayniteAccountManagerTitle">Menadžer naloga</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Upravljaj nalozima pokretača i dodeljuj ih igrama</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  DODAJ NALOG</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">SAČUVANI NALOZI</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Novi nalog</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Pokretač</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Naziv naloga</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Prijava / e-pošta</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerPassword">Lozinka</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSave">SAČUVAJ NALOG</sys:String>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Menadžer naloga</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Upravljajte nalozima pokretača i dodelite ih igrama</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  DODAJ NALOG</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">SAČUVANI NALOZI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Nema sačuvanih naloga.
+
+Kliknite „DODAJ NALOG” da biste dodali prvi nalog.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Novi nalog</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Pokretač</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Naziv naloga</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Korisničko ime / e-pošta</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Lozinka</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Pri izmeni ostavite prazno da biste zadržali trenutnu lozinku.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Prebaci na ovaj nalog pri pokretanju igre</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Odjavi se posle igre</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Glavni Steam nalog</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Način prijave za Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Ručna prijava</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Automatska prijava</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Ručno: prikazuje podatke za kopiranje. Automatski: vraća sačuvanu sesiju „Zapamti me” ovog naloga; prvi put (ili kada sesija istekne) unose se korisničko ime i lozinka.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">TESTIRAJ AUTOMATSKU PRIJAVU</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">PRIKAŽI PODATKE ZA PRIJAVU</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">DODELI IZABRANIM IGRAMA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">IZBRIŠI NALOG</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">SAČUVAJ NALOG</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Izaberite nalog ili dodajte novi.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Izabrano: {0}. Izaberite nalog i kliknite DODELI.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Izaberite jednu ili više igara u Playnite-u da biste dodelili nalog.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Prijava</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Prijava — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Igra: {0}
+
+Ručno se prijavite na sledeći nalog u {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Lozinka je skrivena na ekranu. Kliknite korisničko ime ili lozinku da biste ih kopirali u privremenu memoriju. Zatim u pokretaču koristite Ctrl+V i prijavite se ručno.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Pokretač je pokrenut. Prijavite se ručno.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">OTKAŽI POKRETANJE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">GOTOVO — POKRENI IGRU</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Nalog „{0}” je dodeljen igrama: {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Nalog je izbrisan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Nalog je sačuvan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Pokrećem {0} i unosim sačuvane podatke za prijavu...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Automatska prijava na {0} je uspešno završena.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Automatska prijava nije uspela.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Automatska prijava još nije dostupna za ovaj pokretač.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Podaci za prijavu su prikazani.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Nije moguće otvoriti podatke za prijavu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Prvo izaberite sačuvani nalog.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Prvo izaberite bar jednu igru u Playnite-u.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Izbrisati nalog „{0}”?
+
+Biće uklonjene i dodele ovog naloga igrama.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Izbriši nalog</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Izmeni: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">GLAVNI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">RUČNO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Menadžer naloga</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Dodeli nalog</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Ukloni dodelu naloga</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Ukloni dodelu: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Kliknite da kopirate korisničko ime</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Kliknite da kopirate lozinku</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Korisničko ime je kopirano. Nalepite ga u pokretač pomoću Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Lozinka je kopirana. Nalepite je u pokretač pomoću Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Način prijave za EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Ručno: prikazuje podatke za kopiranje. Automatski: pokreće EA App i popunjava korisničko ime i lozinku; ako polja nisu pronađena, koristi se niz tastera.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Način prijave za Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Ručno: prikazuje podatke za kopiranje. Automatski: ponovo pokreće Battle.net i unosi korisničko ime i lozinku; ako ne uspe, prikazuje se ručni prozor.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Način prijave za GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Ručno: prikazuje podatke za kopiranje. Automatski: ponovo pokreće GOG Galaxy i unosi korisničko ime i lozinku; ako ne uspe, prikazuje se ručni prozor.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Način prijave za Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Ručno: prikazuje podatke za kopiranje. Automatski: pokreće Ubisoft Connect i popunjava korisničko ime i lozinku; ako polja nisu pronađena, koristi se niz tastera.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Nalog</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Prijava</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Dodela igrama</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Nijedna igra nije izabrana. Izaberite jednu ili više igara u Playnite-u, a zatim otvorite Menadžer naloga (ili kontekstni meni igre) da biste dodelili nalog.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Izaberite nalog sa leve strane i kliknite DODELI IZABRANIM IGRAMA. Ove opcije se čuvaju zajedno sa dodelom.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Nema dodeljenog naloga</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">IGRA ZA DODELU</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">IGRE ZA DODELU ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} još</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Trenutni nalog: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">DODELJENO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam prelazi između zapamćenih naloga bez lozinke. Jednom se prijavite na ovaj nalog u Steam-u sa opcijom „Zapamti me”. Korisničko ime = naziv Steam naloga.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatski: pokretač se ponovo pokreće i popunjava se njegov prozor za prijavu; ako ne uspe, prikazuje se ručni prozor.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatski: nalog se bira u Windows biraču naloga. Dodajte Microsoft nalog u Windows podešavanjima &gt; Nalozi &gt; E-pošta i nalozi. Lozinka nije obavezna.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Nema automatizacije za ovaj pokretač: pre pokretanja igre prikazuje se ručni prozor sa podacima za prijavu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Dodela naloga je uklonjena.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test ručne prijave</sys:String>
 </ResourceDictionary>

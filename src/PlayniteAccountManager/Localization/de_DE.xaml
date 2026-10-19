@@ -7,10 +7,89 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Launcher-Konten verwalten und Spielen zuweisen</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  KONTO HINZUFÜGEN</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">GESPEICHERTE KONTEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Keine gespeicherten Konten.
+
+Klicke auf „KONTO HINZUFÜGEN“, um dein erstes Konto anzulegen.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Neues Konto</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Kontoname</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Login / E-Mail</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Passwort</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Beim Bearbeiten leer lassen, um das aktuelle Passwort zu behalten.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Beim Spielstart zu diesem Konto wechseln</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Nach dem Spiel abmelden</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Primäres Steam-Konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Epic-Games-Anmeldemodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Manuelle Anmeldung</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Automatische Anmeldung</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Manuell: zeigt die Anmeldedaten zum Kopieren. Automatisch: stellt die gespeicherte „Angemeldet bleiben“-Sitzung dieses Kontos wieder her; beim ersten Mal (oder wenn die Sitzung abläuft) werden Login und Passwort eingegeben.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">AUTOMATISCHE ANMELDUNG TESTEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">ANMELDEDATEN ANZEIGEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">AUSGEWÄHLTEN SPIELEN ZUWEISEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">KONTO LÖSCHEN</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">KONTO SPEICHERN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Wähle ein Konto aus oder füge ein neues hinzu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Ausgewählt: {0}. Wähle ein Konto und klicke auf ZUWEISEN.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Wähle ein oder mehrere Spiele in Playnite aus, um ein Konto zuzuweisen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Anmeldung</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Anmeldung — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Spiel: {0}
+
+Melde dich in {1} manuell mit folgendem Konto an.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Das Passwort ist auf dem Bildschirm verborgen. Klicke auf Login oder Passwort, um es in die Zwischenablage zu kopieren. Füge es dann mit Strg+V im Launcher ein und melde dich manuell an.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Der Launcher wurde gestartet. Melde dich manuell an.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">START ABBRECHEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">FERTIG — SPIEL STARTEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Konto „{0}“ wurde {1} Spielen zugewiesen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Konto gelöscht.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Konto gespeichert.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">{0} wird gestartet und die gespeicherten Anmeldedaten werden eingegeben...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Automatische Anmeldung bei {0} erfolgreich abgeschlossen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Automatische Anmeldung fehlgeschlagen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Automatische Anmeldung ist für diesen Launcher noch nicht verfügbar.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Anmeldedaten angezeigt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Anmeldedaten konnten nicht geöffnet werden.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Wähle zuerst ein gespeichertes Konto aus.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Wähle zuerst mindestens ein Spiel in Playnite aus.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Konto „{0}“ löschen?
+
+Die Zuweisungen dieses Kontos zu Spielen werden ebenfalls entfernt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Konto löschen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Bearbeiten: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">PRIMÄR</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANUELL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Kontenverwaltung</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Konto zuweisen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Kontozuweisung entfernen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Zuweisung entfernen: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Klicken, um den Login zu kopieren</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Klicken, um das Passwort zu kopieren</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Login in die Zwischenablage kopiert. Füge ihn im Launcher mit Strg+V ein.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Passwort in die Zwischenablage kopiert. Füge es im Launcher mit Strg+V ein.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">EA-App-Anmeldemodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manuell: zeigt die Anmeldedaten zum Kopieren. Automatisch: startet die EA App und füllt Login und Passwort aus; werden die Felder nicht gefunden, wird eine Tastenfolge verwendet.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Battle.net-Anmeldemodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Manuell: zeigt die Anmeldedaten zum Kopieren. Automatisch: startet Battle.net neu und gibt Login und Passwort ein; schlägt das fehl, wird das manuelle Fenster angezeigt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">GOG-Galaxy-Anmeldemodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Manuell: zeigt die Anmeldedaten zum Kopieren. Automatisch: startet GOG Galaxy neu und gibt Login und Passwort ein; schlägt das fehl, wird das manuelle Fenster angezeigt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Ubisoft-Connect-Anmeldemodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Manuell: zeigt die Anmeldedaten zum Kopieren. Automatisch: startet Ubisoft Connect und füllt Login und Passwort aus; werden die Felder nicht gefunden, wird eine Tastenfolge verwendet.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Anmeldung</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Zuweisung zu Spielen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Kein Spiel ausgewählt. Wähle ein oder mehrere Spiele in Playnite aus und öffne dann die Kontenverwaltung (oder nutze das Kontextmenü des Spiels), um ein Konto zuzuweisen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Wähle links ein Konto aus und klicke auf AUSGEWÄHLTEN SPIELEN ZUWEISEN. Diese Optionen werden mit der Zuweisung gespeichert.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Kein Konto zugewiesen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">ZUZUWEISENDES SPIEL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">ZUZUWEISENDE SPIELE ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} weitere</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Aktuelles Konto: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">ZUGEWIESEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam wechselt ohne Passwort zwischen gespeicherten Konten. Melde dich einmal in Steam mit „Angemeldet bleiben“ bei diesem Konto an. Login = Steam-Kontoname.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatisch: Der Launcher wird neu gestartet und sein Anmeldefenster ausgefüllt; schlägt das fehl, wird das manuelle Fenster angezeigt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatisch: Das Konto wird in der Windows-Kontoauswahl ausgewählt. Füge das Microsoft-Konto unter Windows-Einstellungen &gt; Konten &gt; E-Mail und Konten hinzu. Das Passwort ist optional.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Keine Automatisierung für diesen Launcher: Vor dem Spielstart wird das manuelle Fenster mit den Anmeldedaten angezeigt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Kontozuweisung entfernt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">manueller Anmeldetest</sys:String>
 </ResourceDictionary>

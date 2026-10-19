@@ -22,9 +22,11 @@ namespace PlayniteAccountManager.Services
             "Rockstar-Games-Launcher",
             "LauncherPatcher",
             "SocialClubHelper",
-            "RockstarService",
             "RockstarErrorHandler"
         };
+
+        // RockstarService runs as a Windows service (SYSTEM) and cannot be stopped
+        // from Playnite; it does not lock the per-user session files.
 
         private static readonly string[] ExecutableNames =
         {
@@ -50,7 +52,7 @@ namespace PlayniteAccountManager.Services
                 string launcherPath = FindLauncherExecutable();
                 if (string.IsNullOrWhiteSpace(launcherPath) || !File.Exists(launcherPath))
                 {
-                    error = "Nie znaleziono Rockstar Games Launcher na tym komputerze. Sprawdź, czy Launcher.exe jest zainstalowany.";
+                    error = Loc.Get("ErrLauncherNotFound", "Rockstar Games Launcher");
                     return false;
                 }
 
@@ -61,8 +63,6 @@ namespace PlayniteAccountManager.Services
                 // RockstarService is installed as a Windows service and may briefly
                 // respawn launcher components after Launcher.exe exits. Repeat the
                 // process sweep immediately before deleting the profile state.
-                System.Threading.Thread.Sleep(700);
-                StopProcesses();
                 System.Threading.Thread.Sleep(500);
 
                 if (!sessionStore.ClearLiveState(out error))
@@ -77,7 +77,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przygotować Rockstar Games Launcher do ręcznego logowania: " + ex.Message;
+                error = Loc.Get("ErrPrepareManual", "Rockstar Games Launcher", ex.Message);
                 return false;
             }
         }
@@ -87,13 +87,11 @@ namespace PlayniteAccountManager.Services
             try
             {
                 StopProcesses();
-                System.Threading.Thread.Sleep(700);
-                StopProcesses();
                 return sessionStore.ClearLiveState(out error);
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji Rockstar Games Launcher: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "Rockstar Games Launcher", ex.Message);
                 return false;
             }
         }
@@ -111,7 +109,52 @@ namespace PlayniteAccountManager.Services
             }
         }
 
-        private static void StopProcesses()
+        private void StopProcesses()
+        {
+            StopProcessesOnce();
+
+            // Launcher.exe respawns its helpers while it shuts down; wait until every
+            // Rockstar process of the user is gone so the session files are released.
+            DateTime deadline = DateTime.UtcNow.AddSeconds(10);
+            while (DateTime.UtcNow < deadline)
+            {
+                List<string> running = RunningProcessNames();
+                if (running.Count == 0)
+                    return;
+
+                System.Threading.Thread.Sleep(400);
+                StopProcessesOnce();
+            }
+
+            List<string> left = RunningProcessNames();
+            if (left.Count > 0)
+                log("Rockstar Games Launcher: nadal działają procesy: " + string.Join(", ", left));
+        }
+
+        private static List<string> RunningProcessNames()
+        {
+            var names = new List<string>();
+            foreach (string processName in ProcessNames)
+            foreach (Process process in SafeGetProcesses(processName))
+            {
+                try
+                {
+                    if (!process.HasExited && IsRockstarProcess(process))
+                        names.Add(processName);
+                }
+                catch
+                {
+                }
+                finally
+                {
+                    process.Dispose();
+                }
+            }
+
+            return names;
+        }
+
+        private static void StopProcessesOnce()
         {
             foreach (string processName in ProcessNames)
             foreach (Process process in SafeGetProcesses(processName))
@@ -146,9 +189,10 @@ namespace PlayniteAccountManager.Services
         {
             try
             {
-                string path = process.MainModule.FileName;
+                string path = ProcessPaths.Get(process);
                 if (string.IsNullOrWhiteSpace(path))
                     return false;
+
 
                 return path.IndexOf(
                            Path.DirectorySeparatorChar + "Rockstar Games" + Path.DirectorySeparatorChar,
@@ -191,7 +235,7 @@ namespace PlayniteAccountManager.Services
 
                     try
                     {
-                        string path = process.MainModule.FileName;
+                        string path = ProcessPaths.Get(process);
                         if (!string.IsNullOrWhiteSpace(path))
                             candidates.Add(path);
                     }

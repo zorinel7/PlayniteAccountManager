@@ -28,12 +28,12 @@ namespace PlayniteAccountManager.Services
             }
             catch (UnauthorizedAccessException ex)
             {
-                error = "Brak uprawnień do wyczyszczenia danych sesji GOG Galaxy: " + ex.Message;
+                error = Loc.Get("ErrClearSessionAccess", "GOG Galaxy", ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji GOG Galaxy: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "GOG Galaxy", ex.Message);
                 return false;
             }
         }

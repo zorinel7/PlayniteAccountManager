@@ -1,14 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
-<sys:String x:Key="LOCPlayniteAccountManagerTitle">Менеджер аккаунтов</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Управляйте аккаунтами лаунчеров и назначайте их играм</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ДОБАВИТЬ АККАУНТ</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">СОХРАНЁННЫЕ АККАУНТЫ</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Новый аккаунт</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Лаунчер</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Название аккаунта</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Логин / e-mail</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerPassword">Пароль</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSave">СОХРАНИТЬ АККАУНТ</sys:String>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Менеджер аккаунтов</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Управляйте аккаунтами лаунчеров и назначайте их играм</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ДОБАВИТЬ АККАУНТ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">СОХРАНЁННЫЕ АККАУНТЫ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Нет сохранённых аккаунтов.
+
+Нажмите «ДОБАВИТЬ АККАУНТ», чтобы добавить первый аккаунт.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Новый аккаунт</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Лаунчер</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Название аккаунта</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Логин / e-mail</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Пароль</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">При редактировании оставьте пустым, чтобы сохранить текущий пароль.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Переключаться на этот аккаунт при запуске игры</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Выходить после игры</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Основной аккаунт Steam</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Режим входа Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Ручной вход</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Автоматический вход</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Вручную: показывает данные для копирования. Автоматически: восстанавливает сохранённую сессию «Запомнить меня» этого аккаунта; в первый раз (или когда сессия истекла) вводятся логин и пароль.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">ПРОВЕРИТЬ АВТОМАТИЧЕСКИЙ ВХОД</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">ПОКАЗАТЬ ДАННЫЕ ДЛЯ ВХОДА</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">НАЗНАЧИТЬ ВЫБРАННЫМ ИГРАМ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">УДАЛИТЬ АККАУНТ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">СОХРАНИТЬ АККАУНТ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Выберите аккаунт или добавьте новый.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Выбрано: {0}. Выберите аккаунт и нажмите НАЗНАЧИТЬ.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Выберите одну или несколько игр в Playnite, чтобы назначить аккаунт.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Вход</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Вход — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Игра: {0}
+
+Войдите вручную в следующий аккаунт в {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Пароль скрыт на экране. Нажмите на логин или пароль, чтобы скопировать его в буфер обмена. Затем используйте Ctrl+V в лаунчере и войдите вручную.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Лаунчер запущен. Войдите вручную.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">ОТМЕНИТЬ ЗАПУСК</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">ГОТОВО — ЗАПУСТИТЬ ИГРУ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Аккаунт «{0}» назначен играм: {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Аккаунт удалён.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Аккаунт сохранён.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Запуск {0} и ввод сохранённых данных для входа...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Автоматический вход в {0} выполнен успешно.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Автоматический вход не удался.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Автоматический вход для этого лаунчера пока недоступен.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Данные для входа показаны.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Не удалось открыть данные для входа.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Сначала выберите сохранённый аккаунт.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Сначала выберите хотя бы одну игру в Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Удалить аккаунт «{0}»?
+
+Назначения этого аккаунта играм также будут удалены.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Удаление аккаунта</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Редактирование: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">ОСНОВНОЙ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">АВТО</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">ВРУЧНУЮ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Менеджер аккаунтов</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Назначить аккаунт</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Убрать назначение аккаунта</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Убрать назначение: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Нажмите, чтобы скопировать логин</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Нажмите, чтобы скопировать пароль</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Логин скопирован в буфер обмена. Вставьте его в лаунчер с помощью Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Пароль скопирован в буфер обмена. Вставьте его в лаунчер с помощью Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Режим входа EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Вручную: показывает данные для копирования. Автоматически: запускает EA App и заполняет логин и пароль; если поля не найдены, используется последовательность клавиш.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Режим входа Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Вручную: показывает данные для копирования. Автоматически: перезапускает Battle.net и вводит логин и пароль; при неудаче показывается окно ручного входа.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Режим входа GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Вручную: показывает данные для копирования. Автоматически: перезапускает GOG Galaxy и вводит логин и пароль; при неудаче показывается окно ручного входа.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Режим входа Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Вручную: показывает данные для копирования. Автоматически: запускает Ubisoft Connect и заполняет логин и пароль; если поля не найдены, используется последовательность клавиш.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Аккаунт</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Вход</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Назначение играм</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Игра не выбрана. Выберите одну или несколько игр в Playnite, затем откройте Менеджер аккаунтов (или контекстное меню игры), чтобы назначить аккаунт.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Выберите аккаунт слева и нажмите НАЗНАЧИТЬ ВЫБРАННЫМ ИГРАМ. Эти параметры сохраняются вместе с назначением.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Аккаунт не назначен</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">ИГРА ДЛЯ НАЗНАЧЕНИЯ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">ИГРЫ ДЛЯ НАЗНАЧЕНИЯ ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">ещё +{0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Текущий аккаунт: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">НАЗНАЧЕН</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam переключается между запомненными аккаунтами без пароля. Один раз войдите в этот аккаунт в Steam с опцией «Запомнить меня». Логин = имя аккаунта Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Автоматически: лаунчер перезапускается, и его окно входа заполняется; при неудаче показывается окно ручного входа.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Автоматически: аккаунт выбирается в окне выбора учётной записи Windows. Добавьте учётную запись Microsoft в Параметры Windows &gt; Учётные записи &gt; Электронная почта и учётные записи. Пароль необязателен.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Для этого лаунчера нет автоматизации: перед запуском игры показывается окно ручного входа с данными.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Назначение аккаунта удалено.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">проверка ручного входа</sys:String>
 </ResourceDictionary>

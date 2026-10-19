@@ -34,14 +34,14 @@ namespace PlayniteAccountManager.Services
 
             if (account == null || account.Launcher != LauncherType.XboxApp)
             {
-                error = "Wybrane konto nie jest kontem Xbox App.";
+                error = Loc.Get("ErrWrongLauncher", "Xbox App");
                 return false;
             }
 
             string email = (account.UserName ?? string.Empty).Trim();
             if (email.IndexOf('@') <= 0)
             {
-                error = "Konto „" + account.Name + "” wymaga adresu e-mail konta Microsoft jako loginu.";
+                error = Loc.Get("ErrXboxNeedsEmail", account.Name);
                 return false;
             }
 

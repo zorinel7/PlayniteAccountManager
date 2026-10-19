@@ -1,14 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
-<sys:String x:Key="LOCPlayniteAccountManagerTitle">账户管理器</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">管理启动器账户并将其分配给游戏</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  添加账户</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">已保存账户</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">新账户</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLauncher">启动器</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAccountName">账户名称</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">登录 / 电子邮箱</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerPassword">密码</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSave">保存账户</sys:String>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">账户管理器</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">管理启动器账户并将其分配给游戏</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  添加账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">已保存的账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">没有已保存的账户。
+
+点击“添加账户”来添加第一个账户。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">新账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">启动器</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">账户名称</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">登录名 / 邮箱</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">密码</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">编辑时留空即可保留当前密码。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">游戏启动时切换到此账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">游戏结束后注销</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Steam 主账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Epic Games 登录方式</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">手动登录</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">自动登录</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">手动：显示可复制的登录信息。自动：恢复此账户已保存的“保持登录”会话；首次（或会话过期时）会输入登录名和密码。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">测试自动登录</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">显示登录信息</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">分配给所选游戏</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">删除账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">保存账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">请选择一个账户或添加新账户。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">已选择：{0}。请选择账户并点击“分配”。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">请在 Playnite 中选择一个或多个游戏以分配账户。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">登录</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">登录 — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">游戏：{0}
+
+请在 {1} 中手动登录以下账户。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">密码在屏幕上已隐藏。点击登录名或密码可将其复制到剪贴板，然后在启动器中按 Ctrl+V 并手动登录。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">启动器已启动。请手动登录。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">取消启动</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">完成 — 启动游戏</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">账户“{0}”已分配给 {1} 个游戏。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">账户已删除。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">账户已保存。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">正在启动 {0} 并输入已保存的登录信息...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">{0} 自动登录成功。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">自动登录失败。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">此启动器暂不支持自动登录。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">已显示登录信息。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">无法打开登录信息。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">请先选择一个已保存的账户。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">请先在 Playnite 中选择至少一个游戏。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">删除账户“{0}”？
+
+此账户与游戏的分配也将被移除。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">删除账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">编辑：{0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">主账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">自动</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">手动</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">账户管理器</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">分配账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">移除账户分配</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">移除分配：{0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">点击复制登录名</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">点击复制密码</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">登录名已复制到剪贴板。请在启动器中按 Ctrl+V 粘贴。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">密码已复制到剪贴板。请在启动器中按 Ctrl+V 粘贴。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">EA App 登录方式</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">手动：显示可复制的登录信息。自动：启动 EA App 并填写登录名和密码；如果找不到输入框，则使用按键序列。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Battle.net 登录方式</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">手动：显示可复制的登录信息。自动：重启 Battle.net 并输入登录名和密码；如果失败，则显示手动窗口。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">GOG Galaxy 登录方式</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">手动：显示可复制的登录信息。自动：重启 GOG Galaxy 并输入登录名和密码；如果失败，则显示手动窗口。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Ubisoft Connect 登录方式</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">手动：显示可复制的登录信息。自动：启动 Ubisoft Connect 并填写登录名和密码；如果找不到输入框，则使用按键序列。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">登录</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">分配给游戏</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">未选择游戏。请在 Playnite 中选择一个或多个游戏，然后打开账户管理器（或游戏的右键菜单）来分配账户。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">在左侧选择一个账户，然后点击“分配给所选游戏”。这些选项会与分配一起保存。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">未分配账户</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">待分配的游戏</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">待分配的游戏（{0}）</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">另外 {0} 个</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">当前账户：{0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">已分配</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam 可在已记住的账户之间无密码切换。请在 Steam 中勾选“记住我”并登录此账户一次。登录名 = Steam 账户名。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">自动：重启启动器并填写其登录窗口；如果失败，则显示手动窗口。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">自动：在 Windows 账户选择器中选择账户。请在 Windows 设置 &gt; 账户 &gt; 电子邮件和账户 中添加 Microsoft 账户。密码可选。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">此启动器没有自动化：游戏启动前会显示包含登录信息的手动窗口。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">已移除账户分配。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">手动登录测试</sys:String>
 </ResourceDictionary>

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.10.0 - New Account Manager UI, full localization, Rockstar and Xbox fixes
+- Redesigned Account Manager: the window size adapts to the screen (share of the work area with sensible limits), the editor is split into *Account*, *Login* and *Assignment to games* sections and scrolls, and the Save / Delete / Test buttons stay visible at the bottom.
+- The games selected in Playnite are shown in a banner at the top with their current account, and the *Assign to selected games* button sits next to them. Accounts in the list show the launcher, an AUTO / MANUAL tag, the Steam PRIMARY tag and an ASSIGNED tag for accounts used by the selected games; the edited account stays selected after saving or assigning.
+- Short notes explain Steam, Rockstar, Xbox and launchers without automation; outdated Epic, EA App and Ubisoft hints were rewritten.
+- Everything shown to the user is localized: game menu, window titles, notifications and launcher error messages (previously hard-coded in Polish). English and Polish are complete; the interface is translated into all 42 other Playnite languages (error messages fall back to English there).
+- Rockstar Games Launcher: a running launcher is now closed before its session is cleared. Playnite is a 32-bit process and could not read the path of the 64-bit launcher processes, so they were never stopped and the cleanup failed on locked files. Process paths are now read with `QueryFullProcessImageName` in all launcher adapters, the plugin waits until all Rockstar processes have exited, and locked log files are skipped while sign-in files must be removed.
+- Rockstar Games Launcher: the *Sign in* button is pressed with a real mouse click; the page rejected the accessibility click ("we cannot process your request right now"). If the sign-in window is still open after 8 s, the button is pressed once more.
+- Xbox App: switching at game start took over a minute because Playnite's own (blocked) window was queried through UI Automation while looking for the Xbox app. Windows are now listed through Win32 without Playnite's windows, so the switch is as fast as the test button.
+
 ## 0.9.65 - Battle.net automatic login
 - Battle.net accounts have a per-account **Manual / Automatic** login mode, like EA App, Epic Games, Ubisoft Connect and GOG Galaxy (new and existing accounts default to Manual).
 - Automatic mode clears the local Battle.net session, restarts the launcher and fills its sign-in window (Chromium) through the accessibility tree (MSAA): a remembered account is left with the *Switch account* link, then e-mail → *Continue* and password → *Log in*. Success is the sign-in window closing.

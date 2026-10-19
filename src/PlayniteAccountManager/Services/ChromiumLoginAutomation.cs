@@ -65,6 +65,28 @@ namespace PlayniteAccountManager.Services
         public TimeSpan StepSettleTime = TimeSpan.Zero;
 
         /// <summary>
+        /// Pause between typing the password and pressing the sign-in button. Some
+        /// pages reject a request sent right after the fields change (Rockstar).
+        /// </summary>
+        public TimeSpan SubmitDelay = TimeSpan.Zero;
+
+        /// <summary>
+        /// When the login window is still open this long after pressing the sign-in
+        /// button, press it again (up to <see cref="MaxResubmits"/> times). Rockstar
+        /// sometimes rejects the first request ("cannot process your request right
+        /// now") and accepts the same form on the next click.
+        /// </summary>
+        public TimeSpan ResubmitAfter = TimeSpan.Zero;
+
+        public int MaxResubmits;
+
+        /// <summary>
+        /// Press the sign-in button with a real mouse click instead of its
+        /// accessibility action. Rockstar's page ignores/rejects the synthetic click.
+        /// </summary>
+        public bool ClickSubmitWithMouse;
+
+        /// <summary>
         /// Click the field before typing: some pages (Battle.net password field) only
         /// take keyboard input after a real click, not after MSAA focus.
         /// </summary>
@@ -157,7 +179,7 @@ namespace PlayniteAccountManager.Services
 
             if (workerException != null)
             {
-                error = options.LauncherName + " (MSAA): błąd automatyzacji: " + workerException.Message;
+                error = Loc.Get("ErrAutomation", options.LauncherName, workerException.Message);
                 return inputSent ? MsaaLoginResult.Failed : MsaaLoginResult.FieldsNotFound;
             }
 
@@ -259,7 +281,7 @@ namespace PlayniteAccountManager.Services
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanych dla konta " + options.LauncherName + ".";
+                error = Loc.Get("ErrNoCredentialsLauncher", options.LauncherName);
                 return MsaaLoginResult.Failed;
             }
 
@@ -275,7 +297,7 @@ namespace PlayniteAccountManager.Services
             Screen screen = WaitForScreen(window, s => s.HasForm, options.FieldsTimeout);
             if (!screen.HasForm)
             {
-                error = options.LauncherName + " (MSAA): formularz logowania nie udostępnił pól w drzewie dostępności.";
+                error = FormError("formularz logowania nie udostępnił pól w drzewie dostępności.");
                 return MsaaLoginResult.FieldsNotFound;
             }
 
@@ -286,14 +308,14 @@ namespace PlayniteAccountManager.Services
                 Log("formularz pokazuje krok hasła dla zapamiętanego konta, wracam do kroku e-mail.");
                 if (!Press(screen.BackButton))
                 {
-                    error = options.LauncherName + " (MSAA): nie udało się wrócić do kroku e-mail z zapamiętanego konta.";
+                    error = FormError("nie udało się wrócić do kroku e-mail z zapamiętanego konta.");
                     return MsaaLoginResult.Failed;
                 }
 
                 screen = WaitForScreen(window, s => s.EmailField != null, options.StepTimeout);
                 if (screen.EmailField == null)
                 {
-                    error = options.LauncherName + " (MSAA): po powrocie nie pojawiło się pole e-mail.";
+                    error = FormError("po powrocie nie pojawiło się pole e-mail.");
                     return MsaaLoginResult.Failed;
                 }
             }
@@ -320,7 +342,7 @@ namespace PlayniteAccountManager.Services
 
                     if (screen.PasswordField == null)
                     {
-                        error = options.LauncherName + " nie przeszedł do kroku hasła (np. nieprawidłowy e-mail, CAPTCHA lub dodatkowa weryfikacja). Dokończ logowanie w oknie launchera.";
+                        error = Loc.Get("ErrNoPasswordStep", options.LauncherName);
                         return MsaaLoginResult.Failed;
                     }
                 }
@@ -348,9 +370,15 @@ namespace PlayniteAccountManager.Services
                     screen = current;
             }
 
+            if (options.SubmitDelay > TimeSpan.Zero)
+            {
+                Log("czekam " + options.SubmitDelay.TotalSeconds.ToString("0.0") + " s przed wysłaniem formularza.");
+                Thread.Sleep(options.SubmitDelay);
+            }
+
             Submit(window, screen.SubmitButton, "hasło");
 
-            return WaitForResult(window, out error);
+            return WaitForResult(window, screen.SubmitButton, out error);
         }
 
         private bool FillField(IntPtr window, IAccessible field, string value, string fieldName, out string error)
@@ -359,13 +387,13 @@ namespace PlayniteAccountManager.Services
 
             if (!EAAppUiAutomation.EnsureWindowForeground(window))
             {
-                error = options.LauncherName + " (MSAA): nie udało się aktywować okna logowania.";
+                error = Loc.Get("ErrActivateWindow", options.LauncherName);
                 return false;
             }
 
             if (!FocusField(field))
             {
-                error = options.LauncherName + " (MSAA): nie udało się ustawić fokusu na polu „" + fieldName + "”.";
+                error = FormError("nie udało się ustawić fokusu na polu „" + fieldName + "”.");
                 return false;
             }
 
@@ -384,8 +412,8 @@ namespace PlayniteAccountManager.Services
             }
 
             error = result == TypeResult.InputFailed
-                ? options.LauncherName + " (MSAA): nie udało się wpisać pola „" + fieldName + "”."
-                : options.LauncherName + " (MSAA): pole „" + fieldName + "” pozostało puste po wpisaniu.";
+                ? FormError("nie udało się wpisać pola „" + fieldName + "”.")
+                : FormError("pole „" + fieldName + "” pozostało puste po wpisaniu.");
             return false;
         }
 
@@ -412,6 +440,42 @@ namespace PlayniteAccountManager.Services
             Thread.Sleep(80);
 
             SetCursorPos(previous.X, previous.Y);
+        }
+
+        /// <summary>
+        /// Moves the cursor to the centre of the element in a few steps (pages watch
+        /// for pointer movement), clicks it and puts the cursor back.
+        /// </summary>
+        private static bool MouseClick(IAccessible element)
+        {
+            int x, y, width, height;
+            try { element.accLocation(out x, out y, out width, out height, 0); }
+            catch { return false; }
+
+            if (width <= 0 || height <= 0)
+                return false;
+
+            POINT previous;
+            GetCursorPos(out previous);
+
+            int targetX = x + width / 2;
+            int targetY = y + height / 2;
+            const int steps = 8;
+            for (int i = 1; i <= steps; i++)
+            {
+                SetCursorPos(previous.X + (targetX - previous.X) * i / steps,
+                             previous.Y + (targetY - previous.Y) * i / steps);
+                Thread.Sleep(25);
+            }
+
+            Thread.Sleep(150);
+            mouse_event(MouseLeftDown, 0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(70);
+            mouse_event(MouseLeftUp, 0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(150);
+
+            SetCursorPos(previous.X, previous.Y);
+            return true;
         }
 
         private const uint MouseLeftDown = 0x0002;
@@ -526,6 +590,13 @@ namespace PlayniteAccountManager.Services
 
         private void Submit(IntPtr window, IAccessible button, string afterField)
         {
+            if (options.ClickSubmitWithMouse && button != null &&
+                EAAppUiAutomation.EnsureWindowForeground(window) && MouseClick(button))
+            {
+                Log("kliknięto przycisk logowania myszą (po polu: " + afterField + ").");
+                return;
+            }
+
             if (Press(button))
             {
                 Log("wysłano formularz przyciskiem (po polu: " + afterField + ").");
@@ -537,12 +608,14 @@ namespace PlayniteAccountManager.Services
                 NativeKeyboardInput.SendEnter(log);
         }
 
-        private MsaaLoginResult WaitForResult(IntPtr window, out string error)
+        private MsaaLoginResult WaitForResult(IntPtr window, IAccessible submitButton, out string error)
         {
             error = null;
             Screen last = Screen.Empty;
             DateTime deadline = DateTime.UtcNow + options.ResultTimeout;
             DateTime formGoneSince = DateTime.MaxValue;
+            DateTime lastSubmit = DateTime.UtcNow;
+            int resubmits = 0;
 
             while (DateTime.UtcNow < deadline)
             {
@@ -575,6 +648,25 @@ namespace PlayniteAccountManager.Services
                     }
                 }
 
+                if (options.ResubmitAfter > TimeSpan.Zero &&
+                    resubmits < options.MaxResubmits &&
+                    DateTime.UtcNow - lastSubmit >= options.ResubmitAfter &&
+                    IsWindow(window) && IsWindowVisible(window))
+                {
+                    resubmits++;
+                    Log("okno logowania nadal otwarte, ponownie klikam przycisk logowania (" + resubmits + "/" + options.MaxResubmits + ").");
+                    if (options.ClickSubmitWithMouse)
+                        Submit(window, submitButton, "ponowienie");
+                    else if (!Press(submitButton))
+                    {
+                        Screen current = ReadScreen(window);
+                        submitButton = current.SubmitButton;
+                        Submit(window, submitButton, "ponowienie");
+                    }
+
+                    lastSubmit = DateTime.UtcNow;
+                }
+
                 Thread.Sleep(PollInterval);
             }
 
@@ -583,13 +675,20 @@ namespace PlayniteAccountManager.Services
                 last = ReadScreen(window);
 
             if (last.PasswordField != null)
-                error = options.LauncherName + " nie zaakceptował logowania (sprawdź zapisane hasło). Dokończ logowanie w oknie launchera.";
+                error = Loc.Get("ErrRejected", options.LauncherName);
             else if (last.EmailField != null)
-                error = options.LauncherName + " wymaga dodatkowej weryfikacji (np. kodu 2FA). Dokończ logowanie w oknie launchera.";
+                error = Loc.Get("ErrVerification", options.LauncherName);
             else
-                error = options.LauncherName + " nie potwierdził zalogowania w ciągu " + (int)options.ResultTimeout.TotalSeconds + " s.";
+                error = Loc.Get("ErrNotConfirmedIn", options.LauncherName, (int)options.ResultTimeout.TotalSeconds);
 
             return MsaaLoginResult.Failed;
+        }
+
+        /// <summary>Logs the technical detail and returns a localized message for the user.</summary>
+        private string FormError(string detail)
+        {
+            Log(detail);
+            return Loc.Get("ErrFormNotFilled", options.LauncherName);
         }
 
         private void Log(string message)

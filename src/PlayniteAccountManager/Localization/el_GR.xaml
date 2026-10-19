@@ -3,14 +3,93 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="en_US.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Διαχειριστής λογαριασμών</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Διαχειριστείτε λογαριασμούς launcher και αντιστοιχίστε τους σε παιχνίδια</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Διαχείριση λογαριασμών</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Διαχειριστείτε τους λογαριασμούς των launcher και αντιστοιχίστε τους σε παιχνίδια</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  ΠΡΟΣΘΗΚΗ ΛΟΓΑΡΙΑΣΜΟΥ</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">ΑΠΟΘΗΚΕΥΜΕΝΟΙ ΛΟΓΑΡΙΑΣΜΟΙ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Δεν υπάρχουν αποθηκευμένοι λογαριασμοί.
+
+Πατήστε «ΠΡΟΣΘΗΚΗ ΛΟΓΑΡΙΑΣΜΟΥ» για να προσθέσετε τον πρώτο σας λογαριασμό.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Νέος λογαριασμός</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Όνομα λογαριασμού</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Σύνδεση / e-mail</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Όνομα χρήστη / e-mail</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Κωδικός πρόσβασης</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Κατά την επεξεργασία, αφήστε κενό για να διατηρηθεί ο τρέχων κωδικός.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Εναλλαγή σε αυτόν τον λογαριασμό κατά την εκκίνηση του παιχνιδιού</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Αποσύνδεση μετά το παιχνίδι</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Κύριος λογαριασμός Steam</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Τρόπος σύνδεσης Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Χειροκίνητη σύνδεση</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Αυτόματη σύνδεση</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Χειροκίνητα: εμφανίζει τα στοιχεία για αντιγραφή. Αυτόματα: επαναφέρει την αποθηκευμένη συνεδρία «Να με θυμάσαι» του λογαριασμού· την πρώτη φορά (ή όταν λήξει η συνεδρία) πληκτρολογούνται όνομα χρήστη και κωδικός.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">ΔΟΚΙΜΗ ΑΥΤΟΜΑΤΗΣ ΣΥΝΔΕΣΗΣ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">ΕΜΦΑΝΙΣΗ ΣΤΟΙΧΕΙΩΝ ΣΥΝΔΕΣΗΣ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">ΑΝΤΙΣΤΟΙΧΙΣΗ ΣΤΑ ΕΠΙΛΕΓΜΕΝΑ ΠΑΙΧΝΙΔΙΑ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">ΔΙΑΓΡΑΦΗ ΛΟΓΑΡΙΑΣΜΟΥ</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">ΑΠΟΘΗΚΕΥΣΗ ΛΟΓΑΡΙΑΣΜΟΥ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Επιλέξτε λογαριασμό ή προσθέστε νέο.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Επιλεγμένα: {0}. Επιλέξτε λογαριασμό και πατήστε ΑΝΤΙΣΤΟΙΧΙΣΗ.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Επιλέξτε ένα ή περισσότερα παιχνίδια στο Playnite για να αντιστοιχίσετε λογαριασμό.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Σύνδεση</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Σύνδεση — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Παιχνίδι: {0}
+
+Συνδεθείτε χειροκίνητα στον παρακάτω λογαριασμό στο {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Ο κωδικός είναι κρυφός στην οθόνη. Κάντε κλικ στο όνομα χρήστη ή στον κωδικό για αντιγραφή στο πρόχειρο. Έπειτα χρησιμοποιήστε Ctrl+V στο launcher και συνδεθείτε χειροκίνητα.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Το launcher ξεκίνησε. Συνδεθείτε χειροκίνητα.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">ΑΚΥΡΩΣΗ ΕΚΚΙΝΗΣΗΣ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">ΕΤΟΙΜΟ — ΕΚΚΙΝΗΣΗ ΠΑΙΧΝΙΔΙΟΥ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Ο λογαριασμός «{0}» αντιστοιχίστηκε σε {1} παιχνίδια.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Ο λογαριασμός διαγράφηκε.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Ο λογαριασμός αποθηκεύτηκε.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Εκκίνηση του {0} και εισαγωγή των αποθηκευμένων στοιχείων...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Η αυτόματη σύνδεση στο {0} ολοκληρώθηκε με επιτυχία.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Η αυτόματη σύνδεση απέτυχε.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Η αυτόματη σύνδεση δεν είναι ακόμη διαθέσιμη για αυτό το launcher.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Εμφανίστηκαν τα στοιχεία σύνδεσης.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Δεν ήταν δυνατό το άνοιγμα των στοιχείων σύνδεσης.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Επιλέξτε πρώτα έναν αποθηκευμένο λογαριασμό.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Επιλέξτε πρώτα τουλάχιστον ένα παιχνίδι στο Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Διαγραφή του λογαριασμού «{0}»;
+
+Θα αφαιρεθούν επίσης οι αντιστοιχίσεις του λογαριασμού σε παιχνίδια.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Διαγραφή λογαριασμού</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Επεξεργασία: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">ΚΥΡΙΟΣ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">ΧΕΙΡΟΚΙΝΗΤΑ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Διαχείριση λογαριασμών</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Αντιστοίχιση λογαριασμού</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Κατάργηση αντιστοίχισης λογαριασμού</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Κατάργηση αντιστοίχισης: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Κάντε κλικ για αντιγραφή του ονόματος χρήστη</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Κάντε κλικ για αντιγραφή του κωδικού</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Το όνομα χρήστη αντιγράφηκε στο πρόχειρο. Επικολλήστε το στο launcher με Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Ο κωδικός αντιγράφηκε στο πρόχειρο. Επικολλήστε τον στο launcher με Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Τρόπος σύνδεσης EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Χειροκίνητα: εμφανίζει τα στοιχεία για αντιγραφή. Αυτόματα: ξεκινά το EA App και συμπληρώνει όνομα χρήστη και κωδικό· αν δεν βρεθούν τα πεδία, χρησιμοποιείται ακολουθία πλήκτρων.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Τρόπος σύνδεσης Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Χειροκίνητα: εμφανίζει τα στοιχεία για αντιγραφή. Αυτόματα: επανεκκινεί το Battle.net και εισάγει όνομα χρήστη και κωδικό· αν αποτύχει, εμφανίζεται το χειροκίνητο παράθυρο.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Τρόπος σύνδεσης GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Χειροκίνητα: εμφανίζει τα στοιχεία για αντιγραφή. Αυτόματα: επανεκκινεί το GOG Galaxy και εισάγει όνομα χρήστη και κωδικό· αν αποτύχει, εμφανίζεται το χειροκίνητο παράθυρο.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Τρόπος σύνδεσης Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Χειροκίνητα: εμφανίζει τα στοιχεία για αντιγραφή. Αυτόματα: ξεκινά το Ubisoft Connect και συμπληρώνει όνομα χρήστη και κωδικό· αν δεν βρεθούν τα πεδία, χρησιμοποιείται ακολουθία πλήκτρων.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Λογαριασμός</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Σύνδεση</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Αντιστοίχιση σε παιχνίδια</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Δεν έχει επιλεγεί παιχνίδι. Επιλέξτε ένα ή περισσότερα παιχνίδια στο Playnite και ανοίξτε τη Διαχείριση λογαριασμών (ή το μενού περιβάλλοντος του παιχνιδιού) για να αντιστοιχίσετε λογαριασμό.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Επιλέξτε λογαριασμό αριστερά και πατήστε ΑΝΤΙΣΤΟΙΧΙΣΗ ΣΤΑ ΕΠΙΛΕΓΜΕΝΑ ΠΑΙΧΝΙΔΙΑ. Αυτές οι επιλογές αποθηκεύονται μαζί με την αντιστοίχιση.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Δεν έχει αντιστοιχιστεί λογαριασμός</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">ΠΑΙΧΝΙΔΙ ΓΙΑ ΑΝΤΙΣΤΟΙΧΙΣΗ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">ΠΑΙΧΝΙΔΙΑ ΓΙΑ ΑΝΤΙΣΤΟΙΧΙΣΗ ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} ακόμη</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Τρέχων λογαριασμός: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">ΑΝΤΙΣΤΟΙΧΙΣΜΕΝΟΣ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Το Steam εναλλάσσει απομνημονευμένους λογαριασμούς χωρίς κωδικό. Συνδεθείτε μία φορά σε αυτόν τον λογαριασμό στο Steam με «Να με θυμάσαι». Όνομα χρήστη = όνομα λογαριασμού Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Αυτόματα: το launcher επανεκκινείται και συμπληρώνεται το παράθυρο σύνδεσής του· αν αποτύχει, εμφανίζεται το χειροκίνητο παράθυρο.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Αυτόματα: ο λογαριασμός επιλέγεται στον επιλογέα λογαριασμών των Windows. Προσθέστε τον λογαριασμό Microsoft στις Ρυθμίσεις Windows &gt; Λογαριασμοί &gt; Email και λογαριασμοί. Ο κωδικός είναι προαιρετικός.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Δεν υπάρχει αυτοματοποίηση για αυτό το launcher: πριν από την εκκίνηση του παιχνιδιού εμφανίζεται το χειροκίνητο παράθυρο με τα στοιχεία σύνδεσης.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Η αντιστοίχιση λογαριασμού καταργήθηκε.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">δοκιμή χειροκίνητης σύνδεσης</sys:String>
 </ResourceDictionary>

@@ -4,13 +4,92 @@
         <ResourceDictionary Source="en_US.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <sys:String x:Key="LOCPlayniteAccountManagerTitle">Rheolwr Cyfrifon</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Rheoli cyfrifon lanswyr a&apos;u neilltuo i gemau</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Rheoli cyfrifon lanswyr a'u neilltuo i gemau</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  YCHWANEGU CYFRIF</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">CYFRIFON WEDI&apos;U CADW</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">CYFRIFON WEDI'U CADW</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Dim cyfrifon wedi'u cadw.
+
+Cliciwch &quot;YCHWANEGU CYFRIF&quot; i ychwanegu eich cyfrif cyntaf.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Cyfrif newydd</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Lansiwr</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Enw&apos;r cyfrif</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Mewngofnodi / e-bost</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Lanswr</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Enw'r cyfrif</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Mewngofnod / e-bost</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Cyfrinair</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Wrth olygu, gadewch yn wag i gadw'r cyfrinair presennol.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Newid i'r cyfrif hwn pan fydd y gêm yn dechrau</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Allgofnodi ar ôl y gêm</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Prif gyfrif Steam</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Modd mewngofnodi Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Mewngofnodi â llaw</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Mewngofnodi awtomatig</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Â llaw: yn dangos y manylion mewngofnodi i'w copïo. Awtomatig: yn adfer sesiwn &quot;Cofio fi&quot; y cyfrif hwn; y tro cyntaf (neu pan fydd y sesiwn wedi dod i ben) teipir y mewngofnod a'r cyfrinair.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">PROFI MEWNGOFNODI AWTOMATIG</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">DANGOS MANYLION MEWNGOFNODI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">NEILLTUO I'R GEMAU A DDEWISWYD</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">DILEU CYFRIF</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">CADW CYFRIF</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Dewiswch gyfrif neu ychwanegwch un newydd.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Wedi'u dewis: {0}. Dewiswch gyfrif a chliciwch NEILLTUO.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Dewiswch un neu fwy o gemau yn Playnite i neilltuo cyfrif.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Mewngofnodi</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Mewngofnodi — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Gêm: {0}
+
+Mewngofnodwch â llaw i'r cyfrif canlynol yn {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Mae'r cyfrinair wedi'i guddio ar y sgrin. Cliciwch y mewngofnod neu'r cyfrinair i'w gopïo i'r clipfwrdd. Yna defnyddiwch Ctrl+V yn y lanswr a mewngofnodwch â llaw.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Mae'r lanswr wedi'i gychwyn. Mewngofnodwch â llaw.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">CANSLO'R CYCHWYN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">WEDI GORFFEN — CYCHWYN Y GÊM</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Neilltuwyd y cyfrif &quot;{0}&quot; i {1} gêm.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Dilëwyd y cyfrif.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Cadwyd y cyfrif.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Wrthi'n cychwyn {0} a rhoi'r manylion mewngofnodi a gadwyd...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Llwyddodd y mewngofnodi awtomatig i {0}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Methodd y mewngofnodi awtomatig.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Nid yw mewngofnodi awtomatig ar gael ar gyfer y lanswr hwn eto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Dangoswyd y manylion mewngofnodi.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Methu agor y manylion mewngofnodi.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Dewiswch gyfrif wedi'i gadw yn gyntaf.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Dewiswch o leiaf un gêm yn Playnite yn gyntaf.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Dileu'r cyfrif &quot;{0}&quot;?
+
+Bydd neilltuadau'r cyfrif hwn i gemau hefyd yn cael eu tynnu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Dileu cyfrif</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Golygu: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">PRIF</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AWTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">Â LLAW</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Rheolwr Cyfrifon</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Neilltuo cyfrif</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Tynnu neilltuad y cyfrif</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Tynnu neilltuad: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Cliciwch i gopïo'r mewngofnod</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Cliciwch i gopïo'r cyfrinair</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Copïwyd y mewngofnod i'r clipfwrdd. Gludwch ef yn y lanswr gyda Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Copïwyd y cyfrinair i'r clipfwrdd. Gludwch ef yn y lanswr gyda Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Modd mewngofnodi EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Â llaw: yn dangos y manylion mewngofnodi i'w copïo. Awtomatig: yn cychwyn EA App ac yn llenwi'r mewngofnod a'r cyfrinair; os na cheir hyd i'r meysydd, defnyddir dilyniant bysellau.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Modd mewngofnodi Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Â llaw: yn dangos y manylion mewngofnodi i'w copïo. Awtomatig: yn ailgychwyn Battle.net ac yn rhoi'r mewngofnod a'r cyfrinair; os bydd hynny'n methu, dangosir y ffenestr â llaw.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Modd mewngofnodi GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Â llaw: yn dangos y manylion mewngofnodi i'w copïo. Awtomatig: yn ailgychwyn GOG Galaxy ac yn rhoi'r mewngofnod a'r cyfrinair; os bydd hynny'n methu, dangosir y ffenestr â llaw.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Modd mewngofnodi Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Â llaw: yn dangos y manylion mewngofnodi i'w copïo. Awtomatig: yn cychwyn Ubisoft Connect ac yn llenwi'r mewngofnod a'r cyfrinair; os na cheir hyd i'r meysydd, defnyddir dilyniant bysellau.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Cyfrif</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Mewngofnodi</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Neilltuo i gemau</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Dim gêm wedi'i dewis. Dewiswch un neu fwy o gemau yn Playnite, yna agorwch y Rheolwr Cyfrifon (neu ddewislen cyd-destun y gêm) i neilltuo cyfrif.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Dewiswch gyfrif ar y chwith a chliciwch NEILLTUO I'R GEMAU A DDEWISWYD. Caiff yr opsiynau hyn eu cadw gyda'r neilltuad.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Dim cyfrif wedi'i neilltuo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">GÊM I'W NEILLTUO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">GEMAU I'W NEILLTUO ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} arall</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Cyfrif presennol: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">WEDI'I NEILLTUO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Mae Steam yn newid rhwng cyfrifon a gofiwyd heb gyfrinair. Mewngofnodwch i'r cyfrif hwn unwaith yn Steam gyda &quot;Cofio fi&quot;. Mewngofnod = enw'r cyfrif Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Awtomatig: mae'r lanswr yn cael ei ailgychwyn a'i ffenestr mewngofnodi'n cael ei llenwi; os bydd hynny'n methu, dangosir y ffenestr â llaw.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Awtomatig: dewisir y cyfrif yn newisydd cyfrifon Windows. Ychwanegwch y cyfrif Microsoft yng Ngosodiadau Windows &gt; Cyfrifon &gt; E-bost a chyfrifon. Mae'r cyfrinair yn ddewisol.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Dim awtomeiddio ar gyfer y lanswr hwn: dangosir y ffenestr â llaw gyda'r manylion mewngofnodi cyn i'r gêm ddechrau.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Tynnwyd neilltuad y cyfrif.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">prawf mewngofnodi â llaw</sys:String>
 </ResourceDictionary>

@@ -7,10 +7,89 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Spravujte účty launcherů a přiřazujte je ke hrám</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  PŘIDAT ÚČET</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">ULOŽENÉ ÚČTY</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Žádné uložené účty.
+
+Kliknutím na „PŘIDAT ÚČET“ přidáte svůj první účet.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nový účet</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Název účtu</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Přihlášení / e-mail</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Přihlašovací jméno / e-mail</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Heslo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Při úpravách nechte prázdné, chcete-li zachovat současné heslo.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Při spuštění hry přepnout na tento účet</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Odhlásit po hře</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Hlavní účet Steam</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Režim přihlášení Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Ruční přihlášení</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Automatické přihlášení</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Ručně: zobrazí údaje ke zkopírování. Automaticky: obnoví uloženou relaci „Zapamatovat si mě“ tohoto účtu; poprvé (nebo když relace vyprší) se zadá přihlašovací jméno a heslo.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">VYZKOUŠET AUTOMATICKÉ PŘIHLÁŠENÍ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">ZOBRAZIT PŘIHLAŠOVACÍ ÚDAJE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">PŘIŘADIT VYBRANÝM HRÁM</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">SMAZAT ÚČET</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">ULOŽIT ÚČET</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Vyberte účet nebo přidejte nový.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Vybráno: {0}. Zvolte účet a klikněte na PŘIŘADIT.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Vyberte v Playnite jednu nebo více her, ke kterým chcete přiřadit účet.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Přihlášení</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Přihlášení — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Hra: {0}
+
+Přihlaste se ručně k následujícímu účtu v {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Heslo je na obrazovce skryté. Kliknutím na přihlašovací jméno nebo heslo jej zkopírujete do schránky. Poté použijte v launcheru Ctrl+V a přihlaste se ručně.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Launcher byl spuštěn. Přihlaste se ručně.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">ZRUŠIT SPUŠTĚNÍ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">HOTOVO — SPUSTIT HRU</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Účet „{0}“ byl přiřazen k {1} hrám.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Účet smazán.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Účet uložen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Spouštím {0} a zadávám uložené přihlašovací údaje...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Automatické přihlášení do {0} proběhlo úspěšně.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Automatické přihlášení se nezdařilo.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Automatické přihlášení zatím pro tento launcher není k dispozici.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Přihlašovací údaje zobrazeny.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Přihlašovací údaje se nepodařilo otevřít.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Nejprve vyberte uložený účet.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Nejprve vyberte v Playnite alespoň jednu hru.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Smazat účet „{0}“?
+
+Odeberou se také přiřazení tohoto účtu ke hrám.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Smazat účet</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Upravit: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">HLAVNÍ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">RUČNĚ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Správce účtů</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Přiřadit účet</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Odebrat přiřazení účtu</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Odebrat přiřazení: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Kliknutím zkopírujete přihlašovací jméno</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Kliknutím zkopírujete heslo</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Přihlašovací jméno zkopírováno do schránky. Vložte jej do launcheru pomocí Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Heslo zkopírováno do schránky. Vložte jej do launcheru pomocí Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Režim přihlášení EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Ručně: zobrazí údaje ke zkopírování. Automaticky: spustí EA App a vyplní přihlašovací jméno a heslo; pokud pole nenajde, použije sekvenci kláves.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Režim přihlášení Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Ručně: zobrazí údaje ke zkopírování. Automaticky: restartuje Battle.net a zadá přihlašovací jméno a heslo; pokud to selže, zobrazí se ruční okno.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Režim přihlášení GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Ručně: zobrazí údaje ke zkopírování. Automaticky: restartuje GOG Galaxy a zadá přihlašovací jméno a heslo; pokud to selže, zobrazí se ruční okno.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Režim přihlášení Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Ručně: zobrazí údaje ke zkopírování. Automaticky: spustí Ubisoft Connect a vyplní přihlašovací jméno a heslo; pokud pole nenajde, použije sekvenci kláves.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Účet</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Přihlášení</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Přiřazení ke hrám</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Není vybrána žádná hra. Vyberte v Playnite jednu nebo více her a poté otevřete Správce účtů (nebo použijte kontextovou nabídku hry) pro přiřazení účtu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Vyberte vlevo účet a klikněte na PŘIŘADIT VYBRANÝM HRÁM. Tyto volby se uloží spolu s přiřazením.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Žádný přiřazený účet</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">HRA K PŘIŘAZENÍ</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">HRY K PŘIŘAZENÍ ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} další</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Aktuální účet: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">PŘIŘAZENO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam přepíná mezi zapamatovanými účty bez hesla. Jednou se k tomuto účtu přihlaste ve Steamu s volbou „Zapamatovat si mě“. Přihlašovací jméno = název účtu Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automaticky: launcher se restartuje a vyplní se jeho přihlašovací okno; pokud to selže, zobrazí se ruční okno.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automaticky: účet se vybere ve výběru účtů Windows. Přidejte účet Microsoft v Nastavení Windows &gt; Účty &gt; E-mail a účty. Heslo je volitelné.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Pro tento launcher není automatizace: před spuštěním hry se zobrazí ruční okno s přihlašovacími údaji.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Přiřazení účtu odebráno.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test ručního přihlášení</sys:String>
 </ResourceDictionary>

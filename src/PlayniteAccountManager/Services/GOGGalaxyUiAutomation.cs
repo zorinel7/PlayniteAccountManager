@@ -58,7 +58,7 @@ namespace PlayniteAccountManager.Services
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanych dla konta GOG Galaxy.";
+                error = Loc.Get("ErrNoCredentialsLauncher", "GOG Galaxy");
                 return MsaaLoginResult.Failed;
             }
 
@@ -66,7 +66,7 @@ namespace PlayniteAccountManager.Services
             IntPtr window = WaitForLoginWindow(WindowTimeout);
             if (window == IntPtr.Zero)
             {
-                error = "GOG Galaxy nie pokazał okna logowania.";
+                error = Loc.Get("ErrWindowNotFound", "GOG Galaxy");
                 return MsaaLoginResult.FieldsNotFound;
             }
 
@@ -79,7 +79,7 @@ namespace PlayniteAccountManager.Services
 
             if (!IsWindow(window) || !IsWindowVisible(window))
             {
-                error = "Okno logowania GOG Galaxy zostało zamknięte przed wpisaniem danych.";
+                error = Loc.Get("ErrLoginWindowClosed", "GOG Galaxy");
                 return MsaaLoginResult.FieldsNotFound;
             }
 
@@ -103,14 +103,14 @@ namespace PlayniteAccountManager.Services
 
             if (!EAAppUiAutomation.EnsureWindowForeground(window))
             {
-                error = "Nie udało się aktywować okna logowania GOG Galaxy.";
+                error = Loc.Get("ErrActivateWindow", "GOG Galaxy");
                 return false;
             }
 
             RECT rect;
             if (!GetWindowRect(window, out rect) || rect.Right - rect.Left < 100 || rect.Bottom - rect.Top < 100)
             {
-                error = "Nie udało się odczytać położenia okna logowania GOG Galaxy.";
+                error = Loc.Get("ErrFormNotFilled", "GOG Galaxy");
                 return false;
             }
 
@@ -121,14 +121,14 @@ namespace PlayniteAccountManager.Services
 
             if (!NativeKeyboardInput.SendSelectAll(log))
             {
-                error = "Nie udało się zaznaczyć zawartości pola w GOG Galaxy.";
+                error = Loc.Get("ErrSendKeys", "GOG Galaxy");
                 return false;
             }
 
             Thread.Sleep(100);
             if (!NativeKeyboardInput.TypeText(value, window, log))
             {
-                error = "Nie udało się wpisać danych w oknie GOG Galaxy (okno straciło fokus).";
+                error = Loc.Get("ErrNotActiveWindow", "GOG Galaxy");
                 return false;
             }
 
@@ -158,7 +158,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(500);
             }
 
-            error = "GOG Galaxy nie potwierdził zalogowania (sprawdź zapisane hasło albo dokończ weryfikację w oknie GOG Galaxy).";
+            error = Loc.Get("ErrNotConfirmedCheck", "GOG Galaxy");
             return MsaaLoginResult.Failed;
         }
 

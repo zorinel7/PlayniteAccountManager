@@ -4,13 +4,92 @@
         <ResourceDictionary Source="en_US.xaml"/>
     </ResourceDictionary.MergedDictionaries>
     <sys:String x:Key="LOCPlayniteAccountManagerTitle">مدير الحسابات</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">إدارة حسابات المنصات وإسنادها إلى الألعاب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">إدارة حسابات المشغّلات وتعيينها للألعاب</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  إضافة حساب</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">الحسابات المحفوظة</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">لا توجد حسابات محفوظة.
+
+انقر على &quot;إضافة حساب&quot; لإضافة حسابك الأول.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">حساب جديد</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">المنصة</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">المشغّل</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAccountName">اسم الحساب</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">تسجيل الدخول / البريد الإلكتروني</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">اسم الدخول / البريد الإلكتروني</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">كلمة المرور</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">عند التعديل، اتركه فارغًا للاحتفاظ بكلمة المرور الحالية.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">التبديل إلى هذا الحساب عند بدء اللعبة</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">تسجيل الخروج بعد اللعب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">حساب Steam الرئيسي</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">وضع تسجيل الدخول إلى Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">تسجيل دخول يدوي</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">تسجيل دخول تلقائي</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">يدوي: يعرض بيانات الدخول لنسخها. تلقائي: يستعيد جلسة &quot;تذكرني&quot; المحفوظة لهذا الحساب؛ في المرة الأولى (أو عند انتهاء الجلسة) تتم كتابة اسم الدخول وكلمة المرور.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">اختبار تسجيل الدخول التلقائي</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">عرض بيانات الدخول</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">تعيين للألعاب المحددة</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">حذف الحساب</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">حفظ الحساب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">اختر حسابًا أو أضف حسابًا جديدًا.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">المحدد: {0}. اختر حسابًا وانقر على تعيين.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">حدد لعبة أو أكثر في Playnite لتعيين حساب لها.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">تسجيل الدخول</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">تسجيل الدخول — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">اللعبة: {0}
+
+سجّل الدخول يدويًا إلى الحساب التالي في {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">كلمة المرور مخفية على الشاشة. انقر على اسم الدخول أو كلمة المرور لنسخه إلى الحافظة، ثم استخدم Ctrl+V في المشغّل وسجّل الدخول يدويًا.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">تم تشغيل المشغّل. سجّل الدخول يدويًا.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">إلغاء التشغيل</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">تم — تشغيل اللعبة</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">تم تعيين الحساب &quot;{0}&quot; إلى {1} من الألعاب.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">تم حذف الحساب.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">تم حفظ الحساب.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">جارٍ تشغيل {0} وإدخال بيانات الدخول المحفوظة...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">اكتمل تسجيل الدخول التلقائي إلى {0} بنجاح.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">فشل تسجيل الدخول التلقائي.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">تسجيل الدخول التلقائي غير متاح بعد لهذا المشغّل.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">تم عرض بيانات الدخول.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">تعذّر فتح بيانات الدخول.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">اختر حسابًا محفوظًا أولاً.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">حدد لعبة واحدة على الأقل في Playnite أولاً.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">هل تريد حذف الحساب &quot;{0}&quot;؟
+
+ستتم أيضًا إزالة تعيينات هذا الحساب للألعاب.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">حذف الحساب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">تعديل: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">رئيسي</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">تلقائي</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">يدوي</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">مدير الحسابات</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">تعيين حساب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">إزالة تعيين الحساب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">إزالة التعيين: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">انقر لنسخ اسم الدخول</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">انقر لنسخ كلمة المرور</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">تم نسخ اسم الدخول إلى الحافظة. الصقه في المشغّل باستخدام Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">تم نسخ كلمة المرور إلى الحافظة. الصقها في المشغّل باستخدام Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">وضع تسجيل الدخول إلى EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">يدوي: يعرض بيانات الدخول لنسخها. تلقائي: يشغّل EA App ويملأ اسم الدخول وكلمة المرور؛ إذا لم يتم العثور على الحقول، يُستخدم تسلسل مفاتيح.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">وضع تسجيل الدخول إلى Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">يدوي: يعرض بيانات الدخول لنسخها. تلقائي: يعيد تشغيل Battle.net ويُدخل اسم الدخول وكلمة المرور؛ إذا فشل ذلك، تظهر النافذة اليدوية.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">وضع تسجيل الدخول إلى GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">يدوي: يعرض بيانات الدخول لنسخها. تلقائي: يعيد تشغيل GOG Galaxy ويُدخل اسم الدخول وكلمة المرور؛ إذا فشل ذلك، تظهر النافذة اليدوية.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">وضع تسجيل الدخول إلى Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">يدوي: يعرض بيانات الدخول لنسخها. تلقائي: يشغّل Ubisoft Connect ويملأ اسم الدخول وكلمة المرور؛ إذا لم يتم العثور على الحقول، يُستخدم تسلسل مفاتيح.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">الحساب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">تسجيل الدخول</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">التعيين للألعاب</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">لم يتم تحديد أي لعبة. حدد لعبة أو أكثر في Playnite، ثم افتح مدير الحسابات (أو قائمة اللعبة السياقية) لتعيين حساب.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">اختر حسابًا من اليسار وانقر على تعيين للألعاب المحددة. تُحفظ هذه الخيارات مع التعيين.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">لا يوجد حساب معيّن</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">اللعبة المراد تعيينها</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">الألعاب المراد تعيينها ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} أخرى</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">الحساب الحالي: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">معيّن</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">يبدّل Steam بين الحسابات المحفوظة دون كلمة مرور. سجّل الدخول إلى هذا الحساب مرة واحدة في Steam مع خيار &quot;تذكرني&quot;. اسم الدخول = اسم حساب Steam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">تلقائي: يُعاد تشغيل المشغّل وتُملأ نافذة تسجيل الدخول الخاصة به؛ إذا فشل ذلك، تظهر النافذة اليدوية.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">تلقائي: يتم اختيار الحساب في أداة اختيار الحسابات في Windows. أضف حساب Microsoft من إعدادات Windows &gt; الحسابات &gt; البريد الإلكتروني والحسابات. كلمة المرور اختيارية.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">لا توجد أتمتة لهذا المشغّل: تظهر النافذة اليدوية مع بيانات الدخول قبل بدء اللعبة.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">تمت إزالة تعيين الحساب.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">اختبار تسجيل الدخول اليدوي</sys:String>
 </ResourceDictionary>

@@ -3,14 +3,93 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="en_US.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Kontoadministrator</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Kontohåndtering</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Administrer launcher-konti og tildel dem til spil</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  TILFØJ KONTO</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">GEMTE KONTI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Ingen gemte konti.
+
+Klik på &quot;TILFØJ KONTO&quot; for at tilføje din første konto.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Ny konto</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Launcher</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Kontonavn</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Login / e-mail</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Adgangskode</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Ved redigering: lad feltet være tomt for at beholde den nuværende adgangskode.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Skift til denne konto, når spillet starter</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Log ud efter spillet</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Primær Steam-konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Login-tilstand for Epic Games</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Manuelt login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Automatisk login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Manuelt: viser loginoplysningerne til kopiering. Automatisk: gendanner kontoens gemte &quot;Husk mig&quot;-session; første gang (eller når sessionen udløber) indtastes login og adgangskode.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">TEST AUTOMATISK LOGIN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">VIS LOGINOPLYSNINGER</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">TILDEL TIL VALGTE SPIL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">SLET KONTO</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">GEM KONTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Vælg en konto, eller tilføj en ny.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Valgt: {0}. Vælg en konto, og klik på TILDEL.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Vælg et eller flere spil i Playnite for at tildele en konto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Login — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Spil: {0}
+
+Log manuelt ind på følgende konto i {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Adgangskoden er skjult på skærmen. Klik på login eller adgangskode for at kopiere den til udklipsholderen. Brug derefter Ctrl+V i launcheren, og log ind manuelt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Launcheren er startet. Log ind manuelt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">ANNULLER START</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">FÆRDIG — START SPIL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Kontoen &quot;{0}&quot; er tildelt {1} spil.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Konto slettet.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Konto gemt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Starter {0} og indtaster de gemte loginoplysninger...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Automatisk login til {0} gennemført.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Automatisk login mislykkedes.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Automatisk login er endnu ikke tilgængeligt for denne launcher.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Loginoplysninger vist.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Kunne ikke åbne loginoplysningerne.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Vælg først en gemt konto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Vælg først mindst ét spil i Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Slet kontoen &quot;{0}&quot;?
+
+Kontoens tildelinger til spil fjernes også.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Slet konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Rediger: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">PRIMÆR</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANUEL</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Kontohåndtering</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Tildel konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Fjern kontotildeling</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Fjern tildeling: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Klik for at kopiere login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Klik for at kopiere adgangskode</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Login kopieret til udklipsholderen. Indsæt det i launcheren med Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Adgangskode kopieret til udklipsholderen. Indsæt den i launcheren med Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">Login-tilstand for EA App</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manuelt: viser loginoplysningerne til kopiering. Automatisk: starter EA App og udfylder login og adgangskode; hvis felterne ikke findes, bruges en tastesekvens.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Login-tilstand for Battle.net</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Manuelt: viser loginoplysningerne til kopiering. Automatisk: genstarter Battle.net og indtaster login og adgangskode; hvis det mislykkes, vises det manuelle vindue.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">Login-tilstand for GOG Galaxy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Manuelt: viser loginoplysningerne til kopiering. Automatisk: genstarter GOG Galaxy og indtaster login og adgangskode; hvis det mislykkes, vises det manuelle vindue.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Login-tilstand for Ubisoft Connect</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Manuelt: viser loginoplysningerne til kopiering. Automatisk: starter Ubisoft Connect og udfylder login og adgangskode; hvis felterne ikke findes, bruges en tastesekvens.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Konto</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Login</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Tildeling til spil</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Intet spil valgt. Vælg et eller flere spil i Playnite, og åbn derefter Kontohåndtering (eller brug spillets genvejsmenu) for at tildele en konto.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Vælg en konto til venstre, og klik på TILDEL TIL VALGTE SPIL. Disse indstillinger gemmes sammen med tildelingen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Ingen konto tildelt</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">SPIL AT TILDELE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">SPIL AT TILDELE ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} mere</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Nuværende konto: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">TILDELT</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam skifter mellem huskede konti uden adgangskode. Log én gang ind på denne konto i Steam med &quot;Husk mig&quot;. Login = Steam-kontonavn.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatisk: launcheren genstartes, og dens loginvindue udfyldes; hvis det mislykkes, vises det manuelle vindue.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatisk: kontoen vælges i Windows' kontovælger. Tilføj Microsoft-kontoen under Windows-indstillinger &gt; Konti &gt; Mail og konti. Adgangskoden er valgfri.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ingen automatisering for denne launcher: det manuelle vindue med loginoplysningerne vises, før spillet starter.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Kontotildeling fjernet.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">manuel logintest</sys:String>
 </ResourceDictionary>

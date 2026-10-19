@@ -53,26 +53,26 @@ namespace PlayniteAccountManager.Services
 
             if (account == null || account.Id == Guid.Empty)
             {
-                error = "Nie wybrano konta Steam.";
+                error = Loc.Get("ErrNoAccountSelected", "Steam");
                 return false;
             }
 
             if (account.Launcher != LauncherType.Steam)
             {
-                error = "Wybrane konto nie jest kontem Steam.";
+                error = Loc.Get("ErrWrongLauncher", "Steam");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(account.UserName))
             {
-                error = "Brak nazwy konta Steam.";
+                error = Loc.Get("ErrSteamNoName");
                 return false;
             }
 
             string steamPath = FindSteamExecutable();
             if (string.IsNullOrWhiteSpace(steamPath) || !File.Exists(steamPath))
             {
-                error = "Nie znaleziono Steam.exe na tym komputerze.";
+                error = Loc.Get("ErrLauncherNotFound", "Steam");
                 return false;
             }
 
@@ -83,7 +83,7 @@ namespace PlayniteAccountManager.Services
 
                 if (!File.Exists(loginUsersPath))
                 {
-                    error = "Nie znaleziono Steam\\config\\loginusers.vdf. Zaloguj wcześniej na dane konto Steam i pozwól Steam zapamiętać konto.";
+                    error = Loc.Get("ErrSteamNoLoginUsers");
                     return false;
                 }
 
@@ -96,7 +96,7 @@ namespace PlayniteAccountManager.Services
 
                 if (runningTarget == null)
                 {
-                    error = "Konto Steam „" + account.UserName + "” nie jest zapisane w loginusers.vdf. Najpierw zaloguj się na nie ręcznie w Steam i włącz zapamiętywanie konta.";
+                    error = Loc.Get("ErrSteamNotRemembered", account.UserName);
                     return false;
                 }
 
@@ -113,7 +113,7 @@ namespace PlayniteAccountManager.Services
                     target = snapshot.Users.FirstOrDefault(x => AccountNamesEqual(x.AccountName, account.UserName));
                     if (target == null)
                     {
-                        error = "Po zamknięciu Steam nie odnaleziono docelowego konta w loginusers.vdf.";
+                        error = Loc.Get("ErrSteamTargetMissing");
                         return false;
                     }
                 }
@@ -138,7 +138,7 @@ namespace PlayniteAccountManager.Services
 
                 if (!target.HasSwitchableLoginFlag)
                 {
-                    error = "Nie udało się rozpoznać ustawień automatycznego logowania dla konta Steam „" + account.UserName + "”.";
+                    error = Loc.Get("ErrSteamAutoLoginSettings", account.UserName);
                     return false;
                 }
 
@@ -165,7 +165,7 @@ namespace PlayniteAccountManager.Services
                 {
                     string ignoredRestoreError;
                     TryRestoreNativeState(loginUsersPath, snapshot, out ignoredRestoreError);
-                    error = "Windows nie uruchomił Steam.";
+                    error = Loc.Get("ErrStartFailed", "Steam");
                     return false;
                 }
 
@@ -193,7 +193,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Błąd przełączania konta Steam: " + ex.Message;
+                error = Loc.Get("ErrSteamSwitch", ex.Message);
                 log(error);
                 return false;
             }
@@ -275,7 +275,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(450);
             }
 
-            error = "Steam przełączył konto, ale plugin nie mógł potwierdzić gotowego klienta w wymaganym czasie.";
+            error = Loc.Get("ErrSteamNotReady");
             return false;
         }
 
@@ -341,7 +341,7 @@ namespace PlayniteAccountManager.Services
                 List<SteamAccountBlock> users = ParseUsers(text).ToList();
                 if (users.Count == 0)
                 {
-                    error = "Nie udało się odczytać żadnych kont z Steam\\config\\loginusers.vdf.";
+                    error = Loc.Get("ErrSteamNoAccounts");
                     return false;
                 }
 
@@ -354,7 +354,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się odczytać ustawień Steam: " + ex.Message;
+                error = Loc.Get("ErrSteamSettings", ex.Message);
                 return false;
             }
         }
@@ -368,7 +368,7 @@ namespace PlayniteAccountManager.Services
                 List<SteamAccountBlock> currentUsers = ParseUsers(currentText).ToList();
                 if (!currentUsers.Any(x => AccountNamesEqual(x.AccountName, targetAccountName)))
                 {
-                    error = "Po zamknięciu Steam nie odnaleziono docelowego konta w loginusers.vdf.";
+                    error = Loc.Get("ErrSteamTargetMissing");
                     return false;
                 }
 
@@ -400,7 +400,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się zmienić loginusers.vdf: " + ex.Message;
+                error = Loc.Get("ErrSteamWriteLoginUsers", ex.Message);
                 return false;
             }
         }
@@ -587,7 +587,7 @@ namespace PlayniteAccountManager.Services
                 {
                     if (key == null)
                     {
-                        error = "Nie znaleziono klucza HKCU\\Software\\Valve\\Steam.";
+                        error = Loc.Get("ErrSteamRegistry");
                         return false;
                     }
 
@@ -600,7 +600,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się ustawić AutoLoginUser: " + ex.Message;
+                error = Loc.Get("ErrSteamAutoLoginUser", ex.Message);
                 return false;
             }
         }
@@ -667,7 +667,7 @@ namespace PlayniteAccountManager.Services
             {
                 try
                 {
-                    string path = process.MainModule.FileName;
+                    string path = ProcessPaths.Get(process);
                     if (!string.IsNullOrWhiteSpace(path)) candidates.Add(path);
                 }
                 catch { }

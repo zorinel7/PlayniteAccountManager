@@ -44,7 +44,7 @@ namespace PlayniteAccountManager.Services
                 string launcherPath = FindLauncherExecutable();
                 if (string.IsNullOrWhiteSpace(launcherPath) || !File.Exists(launcherPath))
                 {
-                    error = "Nie znaleziono Battle.net na tym komputerze. Przeszukano standardowe lokalizacje, rejestr, uruchomione procesy i skróty Start Menu.";
+                    error = Loc.Get("ErrLauncherNotFound", "Battle.net");
                     return false;
                 }
 
@@ -67,7 +67,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przygotować Battle.net do ręcznego logowania: " + ex.Message;
+                error = Loc.Get("ErrPrepareManual", "Battle.net", ex.Message);
                 return false;
             }
         }
@@ -81,7 +81,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji Battle.net: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "Battle.net", ex.Message);
                 return false;
             }
         }
@@ -143,7 +143,7 @@ namespace PlayniteAccountManager.Services
 
                     try
                     {
-                        string path = process.MainModule.FileName;
+                        string path = ProcessPaths.Get(process);
                         if (!string.IsNullOrWhiteSpace(path))
                         {
                             string fileName = Path.GetFileName(path);

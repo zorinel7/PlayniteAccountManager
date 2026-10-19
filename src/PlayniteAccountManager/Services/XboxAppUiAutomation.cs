@@ -84,7 +84,7 @@ namespace PlayniteAccountManager.Services
 
             gamertag = workerGamertag;
             error = workerException != null
-                ? "Xbox: błąd automatyzacji: " + workerException.Message
+                ? Loc.Get("ErrAutomation", "Xbox", workerException.Message)
                 : workerError;
             return workerException != null ? XboxSwitchResult.Failed : result;
         }
@@ -97,7 +97,7 @@ namespace PlayniteAccountManager.Services
             if (app != null)
                 return true;
 
-            error = "Nie udało się uruchomić aplikacji Xbox.";
+            error = Loc.Get("ErrStartFailed", "Xbox");
             return false;
         }
 
@@ -107,12 +107,15 @@ namespace PlayniteAccountManager.Services
             error = null;
 
             log("Xbox: czekam na aplikację Xbox.");
+            Stopwatch timer = Stopwatch.StartNew();
             AutomationElement app = WaitForApp(AppTimeout);
             if (app == null)
             {
-                error = "Nie udało się uruchomić aplikacji Xbox.";
+                error = Loc.Get("ErrStartFailed", "Xbox");
                 return XboxSwitchResult.Failed;
             }
+
+            log("Xbox: aplikacja znaleziona po " + timer.Elapsed.TotalSeconds.ToString("0.0") + " s.");
 
             AutomationElement profile = FindById(app, ProfileButtonId);
             if (profile != null)
@@ -134,7 +137,7 @@ namespace PlayniteAccountManager.Services
             AutomationElement signIn = WaitFor(() => FindById(app, SignInButtonId), StepTimeout);
             if (signIn == null || !Invoke(signIn))
             {
-                error = "Xbox: nie znaleziono przycisku logowania w aplikacji Xbox.";
+                error = Loc.Get("ErrXboxNoSignIn");
                 return XboxSwitchResult.Failed;
             }
 
@@ -142,21 +145,20 @@ namespace PlayniteAccountManager.Services
             AutomationElement picker = WaitFor(FindAccountPicker, PickerTimeout);
             if (picker == null)
             {
-                error = "Xbox: okno wyboru konta Windows nie pojawiło się.";
+                error = Loc.Get("ErrXboxNoPicker");
                 return XboxSwitchResult.Failed;
             }
 
             AutomationElement tile = FindAccountTile(picker, email);
             if (tile == null)
             {
-                error = "Konto „" + email + "” nie jest dodane w Windows. Dodaj je w Ustawienia → Konta → " +
-                        "E-mail i konta (konto Microsoft dla aplikacji), aby przełączać je bez hasła.";
+                error = Loc.Get("ErrXboxNotInWindows", email);
                 return XboxSwitchResult.AccountNotInWindows;
             }
 
             if (!Select(tile))
             {
-                error = "Xbox: nie udało się wybrać konta w oknie Windows.";
+                error = Loc.Get("ErrXboxSelect");
                 return XboxSwitchResult.Failed;
             }
 
@@ -164,7 +166,7 @@ namespace PlayniteAccountManager.Services
             AutomationElement next = FindById(picker, PickerContinueId);
             if (next == null || !Invoke(next))
             {
-                error = "Xbox: nie udało się zatwierdzić wyboru konta.";
+                error = Loc.Get("ErrXboxConfirm");
                 return XboxSwitchResult.Failed;
             }
 
@@ -175,7 +177,7 @@ namespace PlayniteAccountManager.Services
             AutomationElement signedIn = WaitFor(() => FindById(app, ProfileButtonId), SignInTimeout);
             if (signedIn == null)
             {
-                error = "Xbox: aplikacja nie potwierdziła zalogowania.";
+                error = Loc.Get("ErrNotConfirmed", "Xbox");
                 return XboxSwitchResult.Failed;
             }
 
@@ -207,7 +209,7 @@ namespace PlayniteAccountManager.Services
                     if (WaitFor(() => FindById(app, SignInButtonId), StepTimeout) != null)
                         return true;
 
-                    error = "Xbox: po wylogowaniu nie pojawił się ekran logowania.";
+                    error = Loc.Get("ErrXboxNoSignInScreen");
                     return false;
                 }
 
@@ -215,7 +217,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(500);
             }
 
-            error = "Xbox: nie znaleziono opcji „Wyloguj się” w menu profilu.";
+            error = Loc.Get("ErrXboxNoSignOut");
             return false;
         }
 
@@ -234,7 +236,7 @@ namespace PlayniteAccountManager.Services
                     if (addresses.Count > 0 &&
                         !addresses.Exists(a => string.Equals(a, email, StringComparison.OrdinalIgnoreCase)))
                     {
-                        error = "Xbox: okno potwierdzenia pokazuje inne konto niż przypisane.";
+                        error = Loc.Get("ErrXboxWrongAccount");
                         return false;
                     }
 
@@ -255,7 +257,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(PollInterval);
             }
 
-            error = "Xbox: logowanie nie zostało potwierdzone.";
+            error = Loc.Get("ErrNotConfirmed", "Xbox");
             return false;
         }
 
@@ -536,21 +538,46 @@ namespace PlayniteAccountManager.Services
             }
         }
 
+        /// <summary>
+        /// Visible top-level windows of other processes. Listed through Win32 instead of
+        /// the UIA desktop: during game start Playnite's UI thread waits for this switch,
+        /// so querying Playnite's own windows through UIA would block until timeout.
+        /// </summary>
         private static IEnumerable<AutomationElement> TopLevelWindows()
         {
-            AutomationElementCollection windows;
-            try
+            uint ownProcessId = (uint)Process.GetCurrentProcess().Id;
+            var handles = new List<IntPtr>();
+            EnumWindows((hwnd, _) =>
             {
-                windows = AutomationElement.RootElement.FindAll(TreeScope.Children, Condition.TrueCondition);
-            }
-            catch
-            {
-                yield break;
-            }
+                uint processId;
+                if (IsWindowVisible(hwnd) &&
+                    GetWindowThreadProcessId(hwnd, out processId) != 0 &&
+                    processId != ownProcessId)
+                    handles.Add(hwnd);
+                return true;
+            }, IntPtr.Zero);
 
-            foreach (AutomationElement window in windows)
-                yield return window;
+            foreach (IntPtr hwnd in handles)
+            {
+                AutomationElement window = null;
+                try { window = AutomationElement.FromHandle(hwnd); }
+                catch { }
+
+                if (window != null)
+                    yield return window;
+            }
         }
+
+        private delegate bool EnumWindowsProc(IntPtr hwnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc callback, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hwnd);
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint processId);
 
         private static IEnumerable<Process> SafeGetProcesses(string name)
         {

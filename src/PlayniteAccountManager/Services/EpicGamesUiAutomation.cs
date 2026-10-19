@@ -27,7 +27,7 @@ namespace PlayniteAccountManager.Services
 
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanych dla konta Epic Games.";
+                error = Loc.Get("ErrNoCredentialsLauncher", "Epic Games");
                 return false;
             }
 
@@ -41,14 +41,14 @@ namespace PlayniteAccountManager.Services
                 IntPtr hwnd = GetEpicForegroundWindow();
                 if (hwnd == IntPtr.Zero)
                 {
-                    error = "Nie udało się znaleźć aktywnego okna Epic Games Launcher po 15 sekundach.";
+                    error = Loc.Get("ErrWindowNotFound", "Epic Games Launcher");
                     return false;
                 }
 
                 log("Epic INPUT: aktywne okno należy do Epic Games Launcher.");
                 if (!EnsureWindowForeground(hwnd))
                 {
-                    error = "Nie udało się aktywować okna Epic Games Launcher. Przerywam automatyczne wpisywanie danych.";
+                    error = Loc.Get("ErrActivateWindow", "Epic Games Launcher");
                     return false;
                 }
 
@@ -56,7 +56,7 @@ namespace PlayniteAccountManager.Services
                 log("Epic INPUT: AHK krok 1 — TAB, TAB.");
                 if (!SendTab() || !SendTab())
                 {
-                    error = "Nie udało się wykonać początkowej sekwencji TAB w Epic Games Launcher.";
+                    error = Loc.Get("ErrSendKeys", "Epic Games Launcher");
                     return false;
                 }
 
@@ -65,53 +65,53 @@ namespace PlayniteAccountManager.Services
                 log("Epic INPUT: AHK krok 2 — wpisuję login.");
                 if (!NativeKeyboardInput.TypeText(username, hwnd, log))
                 {
-                    error = "Nie udało się wpisać loginu Epic Games.";
+                    error = Loc.Get("ErrTypeLogin", "Epic Games");
                     return false;
                 }
 
                 Thread.Sleep(300);
-                if (!SendTab()) return Fail("Nie udało się przejść do kolejnego pola Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
-                if (!SendTab()) return Fail("Nie udało się przejść do kolejnego pola Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
 
                 log("Epic INPUT: AHK krok 3 — ENTER.");
                 if (!NativeKeyboardInput.SendEnter(log))
-                    return Fail("Nie udało się wysłać ENTER w Epic Games Launcher.", out error);
+                    return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
 
                 log("Epic INPUT: AHK krok 4 — czekam 10 sekund.");
                 Thread.Sleep(10000);
 
                 log("Epic INPUT: AHK krok 5 — TAB, TAB, TAB.");
-                if (!SendTab()) return Fail("Nie udało się wykonać TAB #1 po loginie Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
-                if (!SendTab()) return Fail("Nie udało się wykonać TAB #2 po loginie Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
-                if (!SendTab()) return Fail("Nie udało się wykonać TAB #3 po loginie Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
 
                 log("Epic INPUT: AHK krok 6 — wpisuję hasło.");
                 if (!NativeKeyboardInput.TypeText(password, hwnd, log))
                 {
-                    error = "Nie udało się wpisać hasła Epic Games.";
+                    error = Loc.Get("ErrTypePassword", "Epic Games");
                     return false;
                 }
 
                 Thread.Sleep(300);
                 log("Epic INPUT: AHK — TAB, TAB, TAB, TAB.");
-                if (!SendTab()) return Fail("Nie udało się wykonać TAB #1 po haśle Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
-                if (!SendTab()) return Fail("Nie udało się wykonać TAB #2 po haśle Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
-                if (!SendTab()) return Fail("Nie udało się wykonać TAB #3 po haśle Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
-                if (!SendTab()) return Fail("Nie udało się wykonać TAB #4 po haśle Epic Games.", out error);
+                if (!SendTab()) return Fail(Loc.Get("ErrSendKeys", "Epic Games Launcher"), out error);
                 Thread.Sleep(300);
 
                 log("Epic INPUT: AHK krok 7 — ENTER.");
                 if (!NativeKeyboardInput.SendEnter(log))
                 {
-                    error = "Nie udało się wysłać końcowego ENTER w Epic Games Launcher.";
+                    error = Loc.Get("ErrSendKeys", "Epic Games Launcher");
                     return false;
                 }
 
@@ -121,7 +121,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Błąd automatycznego logowania Epic Games: " + ex.Message;
+                error = Loc.Get("ErrAutoLogin", "Epic Games", ex.Message);
                 return false;
             }
         }

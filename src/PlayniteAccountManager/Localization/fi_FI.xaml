@@ -1,14 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
-<sys:String x:Key="LOCPlayniteAccountManagerTitle">Tilienhallinta</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Hallitse käynnistimien tilejä ja liitä ne peleihin</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  LISÄÄ TILI</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">TALLENNETUT TILIT</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Uusi tili</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLauncher">Käynnistin</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAccountName">Tilin nimi</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Kirjautuminen / sähköposti</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerPassword">Salasana</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSave">TALLENNA TILI</sys:String>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">Tilienhallinta</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Hallitse käynnistimien tilejä ja määritä ne peleille</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  LISÄÄ TILI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">TALLENNETUT TILIT</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Ei tallennettuja tilejä.
+
+Lisää ensimmäinen tilisi napsauttamalla &quot;LISÄÄ TILI&quot;.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Uusi tili</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Käynnistin</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Tilin nimi</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Käyttäjätunnus / sähköposti</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">Salasana</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Muokattaessa jätä tyhjäksi, jos haluat säilyttää nykyisen salasanan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Vaihda tähän tiliin, kun peli käynnistyy</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Kirjaudu ulos pelin jälkeen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Ensisijainen Steam-tili</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Epic Gamesin kirjautumistapa</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Manuaalinen kirjautuminen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Automaattinen kirjautuminen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Manuaalinen: näyttää tiedot kopioitavaksi. Automaattinen: palauttaa tilin tallennetun &quot;Muista minut&quot; -istunnon; ensimmäisellä kerralla (tai istunnon vanhennuttua) käyttäjätunnus ja salasana kirjoitetaan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">TESTAA AUTOMAATTINEN KIRJAUTUMINEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">NÄYTÄ KIRJAUTUMISTIEDOT</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">MÄÄRITÄ VALITUILLE PELEILLE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">POISTA TILI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">TALLENNA TILI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Valitse tili tai lisää uusi.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Valittu: {0}. Valitse tili ja napsauta MÄÄRITÄ.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Valitse yksi tai useampi peli Playnitessa määrittääksesi tilin.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Kirjautuminen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Kirjautuminen — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Peli: {0}
+
+Kirjaudu manuaalisesti seuraavalle tilille käynnistimessä {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Salasana on piilotettu näytöllä. Kopioi käyttäjätunnus tai salasana leikepöydälle napsauttamalla sitä. Liitä se sitten käynnistimeen Ctrl+V:llä ja kirjaudu manuaalisesti.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Käynnistin on käynnistetty. Kirjaudu manuaalisesti.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">PERUUTA KÄYNNISTYS</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">VALMIS — KÄYNNISTÄ PELI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Tili &quot;{0}&quot; määritetty {1} pelille.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Tili poistettu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Tili tallennettu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Käynnistetään {0} ja syötetään tallennetut kirjautumistiedot...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Automaattinen kirjautuminen kohteeseen {0} onnistui.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Automaattinen kirjautuminen epäonnistui.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Automaattinen kirjautuminen ei ole vielä käytettävissä tälle käynnistimelle.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Kirjautumistiedot näytetty.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Kirjautumistietoja ei voitu avata.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Valitse ensin tallennettu tili.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Valitse ensin vähintään yksi peli Playnitessa.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Poistetaanko tili &quot;{0}&quot;?
+
+Myös tämän tilin pelimääritykset poistetaan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Poista tili</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Muokkaa: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">ENSISIJAINEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">AUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">MANUAALINEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Tilienhallinta</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Määritä tili</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Poista tilin määritys</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Poista määritys: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Kopioi käyttäjätunnus napsauttamalla</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Kopioi salasana napsauttamalla</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Käyttäjätunnus kopioitu leikepöydälle. Liitä se käynnistimeen Ctrl+V:llä.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Salasana kopioitu leikepöydälle. Liitä se käynnistimeen Ctrl+V:llä.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">EA Appin kirjautumistapa</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Manuaalinen: näyttää tiedot kopioitavaksi. Automaattinen: käynnistää EA Appin ja täyttää käyttäjätunnuksen ja salasanan; jos kenttiä ei löydy, käytetään näppäinsarjaa.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Battle.netin kirjautumistapa</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Manuaalinen: näyttää tiedot kopioitavaksi. Automaattinen: käynnistää Battle.netin uudelleen ja syöttää käyttäjätunnuksen ja salasanan; jos se epäonnistuu, näytetään manuaalinen ikkuna.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">GOG Galaxyn kirjautumistapa</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Manuaalinen: näyttää tiedot kopioitavaksi. Automaattinen: käynnistää GOG Galaxyn uudelleen ja syöttää käyttäjätunnuksen ja salasanan; jos se epäonnistuu, näytetään manuaalinen ikkuna.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Ubisoft Connectin kirjautumistapa</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Manuaalinen: näyttää tiedot kopioitavaksi. Automaattinen: käynnistää Ubisoft Connectin ja täyttää käyttäjätunnuksen ja salasanan; jos kenttiä ei löydy, käytetään näppäinsarjaa.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Tili</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Kirjautuminen</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Pelimääritys</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Peliä ei ole valittu. Valitse yksi tai useampi peli Playnitessa ja avaa sitten Tilienhallinta (tai käytä pelin pikavalikkoa) määrittääksesi tilin.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Valitse tili vasemmalta ja napsauta MÄÄRITÄ VALITUILLE PELEILLE. Nämä asetukset tallennetaan määrityksen kanssa.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Tiliä ei ole määritetty</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">MÄÄRITETTÄVÄ PELI</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">MÄÄRITETTÄVÄT PELIT ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} lisää</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Nykyinen tili: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">MÄÄRITETTY</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam vaihtaa muistettujen tilien välillä ilman salasanaa. Kirjaudu tälle tilille kerran Steamissa &quot;Muista minut&quot; -valinnalla. Käyttäjätunnus = Steam-tilin nimi.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automaattinen: käynnistin käynnistetään uudelleen ja sen kirjautumisikkuna täytetään; jos se epäonnistuu, näytetään manuaalinen ikkuna.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automaattinen: tili valitaan Windowsin tilinvalitsimessa. Lisää Microsoft-tili kohdassa Windowsin asetukset &gt; Tilit &gt; Sähköposti ja tilit. Salasana on valinnainen.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ei automaatiota tälle käynnistimelle: manuaalinen ikkuna kirjautumistietoineen näytetään ennen pelin käynnistymistä.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Tilin määritys poistettu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">manuaalinen kirjautumistesti</sys:String>
 </ResourceDictionary>

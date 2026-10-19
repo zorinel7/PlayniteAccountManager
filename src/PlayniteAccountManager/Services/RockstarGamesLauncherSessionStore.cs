@@ -50,12 +50,12 @@ namespace PlayniteAccountManager.Services
             }
             catch (UnauthorizedAccessException ex)
             {
-                error = "Brak uprawnień do wyczyszczenia danych sesji Rockstar Games Launcher: " + ex.Message;
+                error = Loc.Get("ErrClearSessionAccess", "Rockstar Games Launcher", ex.Message);
                 return false;
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji Rockstar Games Launcher: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "Rockstar Games Launcher", ex.Message);
                 return false;
             }
         }
@@ -91,43 +91,82 @@ namespace PlayniteAccountManager.Services
                 roots.Add(fullPath);
         }
 
-        private static void ClearDirectoryContents(string directory)
+        private void ClearDirectoryContents(string directory)
         {
             if (!Directory.Exists(directory))
                 return;
 
+            var locked = new List<string>();
+            ClearDirectory(directory, locked);
+
+            if (locked.Count == 0)
+                return;
+
+            // Log files can stay locked by a helper that is still shutting down; they
+            // hold no sign-in state, so leave them. Sign-in/profile files must go.
+            string blocking = locked.FirstOrDefault(IsSessionFile);
+            if (blocking != null)
+                throw new IOException(blocking);
+
+            log("Rockstar Games Launcher: pominięto zablokowane pliki bez danych logowania: " +
+                string.Join(", ", locked.Select(Path.GetFileName)));
+        }
+
+        private static void ClearDirectory(string directory, List<string> locked)
+        {
             foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.TopDirectoryOnly).ToList())
             {
-                try { File.SetAttributes(file, FileAttributes.Normal); } catch { }
-                File.Delete(file);
+                if (!TryDeleteFile(file))
+                    locked.Add(file);
             }
 
             foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.TopDirectoryOnly).ToList())
             {
-                ClearReadOnlyAttributes(child);
-                Directory.Delete(child, true);
+                ClearDirectory(child, locked);
+                try
+                {
+                    File.SetAttributes(child, FileAttributes.Normal);
+                    if (!Directory.EnumerateFileSystemEntries(child).Any())
+                        Directory.Delete(child, false);
+                }
+                catch (IOException)
+                {
+                }
             }
         }
 
-        private static void ClearReadOnlyAttributes(string directory)
+        private static bool TryDeleteFile(string file)
         {
-            try
+            for (int attempt = 0; attempt < 4; attempt++)
             {
-                foreach (string file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
+                try
                 {
                     try { File.SetAttributes(file, FileAttributes.Normal); } catch { }
+                    File.Delete(file);
+                    return true;
                 }
-
-                foreach (string child in Directory.EnumerateDirectories(directory, "*", SearchOption.AllDirectories))
+                catch (IOException)
                 {
-                    try { File.SetAttributes(child, FileAttributes.Normal); } catch { }
+                    System.Threading.Thread.Sleep(250);
                 }
+            }
 
-                try { File.SetAttributes(directory, FileAttributes.Normal); } catch { }
-            }
-            catch
-            {
-            }
+            return false;
+        }
+
+        private static bool IsSessionFile(string path)
+        {
+            string name = Path.GetFileName(path) ?? string.Empty;
+            string extension = Path.GetExtension(name);
+            if (extension.Equals(".log", StringComparison.OrdinalIgnoreCase) ||
+                extension.Equals(".tmp", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return path.IndexOf(Path.DirectorySeparatorChar + "Profiles" + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("signin", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("auth", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("cookie", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                   name.IndexOf("token", StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 }

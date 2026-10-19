@@ -6,11 +6,90 @@
     <sys:String x:Key="LOCPlayniteAccountManagerTitle">Rekeningbestuurder</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">Bestuur lanseerderrekeninge en ken hulle aan speletjies toe</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  VOEG REKENING BY</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">GESTORDE REKENINGE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">GESTOORDE REKENINGE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">Geen gestoorde rekeninge nie.
+
+Klik op &quot;VOEG REKENING BY&quot; om jou eerste rekening by te voeg.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">Nuwe rekening</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerLauncher">Lanseerder</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAccountName">Rekeningnaam</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Aanmelding / e-pos</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">Aanmeldnaam / e-pos</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerPassword">Wagwoord</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">Laat leeg wanneer jy wysig om die huidige wagwoord te behou.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">Skakel oor na hierdie rekening wanneer die speletjie begin</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">Meld af ná die speletjie</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">Primêre Steam-rekening</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Epic Games-aanmeldmodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">Handmatige aanmelding</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">Outomatiese aanmelding</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">Handmatig: wys die aanmelddata om te kopieer. Outomaties: herstel die gestoorde &quot;Onthou my&quot;-sessie van hierdie rekening; die eerste keer (of wanneer die sessie verval) word die aanmeldnaam en wagwoord ingetik.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">TOETS OUTOMATIESE AANMELDING</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">WYS AANMELDDATA</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">KEN TOE AAN GEKOSE SPELETJIES</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">VEE REKENING UIT</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSave">STOOR REKENING</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">Kies 'n rekening of voeg 'n nuwe een by.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">Gekies: {0}. Kies 'n rekening en klik op KEN TOE.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">Kies een of meer speletjies in Playnite om 'n rekening toe te ken.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">Aanmelding</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">Aanmelding — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">Speletjie: {0}
+
+Meld handmatig aan by die volgende rekening in {1}.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">Die wagwoord is op die skerm versteek. Klik op die aanmeldnaam of wagwoord om dit na die knipbord te kopieer. Gebruik dan Ctrl+V in die lanseerder en meld handmatig aan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">Die lanseerder is begin. Meld handmatig aan.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">KANSELLEER BEGIN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">KLAAR — BEGIN SPELETJIE</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">Rekening &quot;{0}&quot; is aan {1} speletjies toegeken.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">Rekening uitgevee.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">Rekening gestoor.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">Begin {0} en voer die gestoorde aanmelddata in...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">Outomatiese aanmelding by {0} was suksesvol.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">Outomatiese aanmelding het misluk.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">Outomatiese aanmelding is nog nie vir hierdie lanseerder beskikbaar nie.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">Aanmelddata gewys.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">Kon nie die aanmelddata oopmaak nie.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">Kies eers 'n gestoorde rekening.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">Kies eers minstens een speletjie in Playnite.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">Vee rekening &quot;{0}&quot; uit?
+
+Die toekennings van hierdie rekening aan speletjies sal ook verwyder word.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">Vee rekening uit</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">Wysig: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">PRIMÊR</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">OUTO</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">HANDMATIG</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">Rekeningbestuurder</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">Ken rekening toe</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">Verwyder rekeningtoekenning</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">Verwyder toekenning: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">Klik om die aanmeldnaam te kopieer</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">Klik om die wagwoord te kopieer</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">Aanmeldnaam na die knipbord gekopieer. Plak dit in die lanseerder met Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">Wagwoord na die knipbord gekopieer. Plak dit in die lanseerder met Ctrl+V.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">EA App-aanmeldmodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">Handmatig: wys die aanmelddata om te kopieer. Outomaties: begin EA App en vul die aanmeldnaam en wagwoord in; as die velde nie gevind word nie, word 'n sleutelvolgorde gebruik.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Battle.net-aanmeldmodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">Handmatig: wys die aanmelddata om te kopieer. Outomaties: herbegin Battle.net en voer die aanmeldnaam en wagwoord in; as dit misluk, word die handmatige venster gewys.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">GOG Galaxy-aanmeldmodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">Handmatig: wys die aanmelddata om te kopieer. Outomaties: herbegin GOG Galaxy en voer die aanmeldnaam en wagwoord in; as dit misluk, word die handmatige venster gewys.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Ubisoft Connect-aanmeldmodus</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">Handmatig: wys die aanmelddata om te kopieer. Outomaties: begin Ubisoft Connect en vul die aanmeldnaam en wagwoord in; as die velde nie gevind word nie, word 'n sleutelvolgorde gebruik.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">Rekening</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">Aanmelding</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">Toekenning aan speletjies</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">Geen speletjie gekies nie. Kies een of meer speletjies in Playnite en maak dan die Rekeningbestuurder oop (of gebruik die speletjie se kontekskieslys) om 'n rekening toe te ken.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">Kies 'n rekening aan die linkerkant en klik op KEN TOE AAN GEKOSE SPELETJIES. Hierdie opsies word saam met die toekenning gestoor.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">Geen rekening toegeken nie</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">SPELETJIE OM TOE TE KEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">SPELETJIES OM TOE TE KEN ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} meer</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">Huidige rekening: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">TOEGEKEN</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam skakel sonder wagwoord tussen onthoude rekeninge oor. Meld een keer in Steam by hierdie rekening aan met &quot;Onthou my&quot;. Aanmeldnaam = Steam-rekeningnaam.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Outomaties: die lanseerder word herbegin en sy aanmeldvenster ingevul; as dit misluk, word die handmatige venster gewys.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Outomaties: die rekening word in die Windows-rekeningkieser gekies. Voeg die Microsoft-rekening by in Windows-instellings &gt; Rekeninge &gt; E-pos en rekeninge. Die wagwoord is opsioneel.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Geen outomatisering vir hierdie lanseerder nie: die handmatige venster met die aanmelddata word gewys voordat die speletjie begin.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Rekeningtoekenning verwyder.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">handmatige aanmeldtoets</sys:String>
 </ResourceDictionary>

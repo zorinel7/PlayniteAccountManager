@@ -43,7 +43,7 @@ namespace PlayniteAccountManager.Services
                 string launcherPath = FindLauncherExecutable();
                 if (string.IsNullOrWhiteSpace(launcherPath) || !File.Exists(launcherPath))
                 {
-                    error = "Nie znaleziono GOG Galaxy na tym komputerze. Przeszukano standardowe lokalizacje, rejestr, uruchomione procesy i skróty Start Menu.";
+                    error = Loc.Get("ErrLauncherNotFound", "GOG Galaxy");
                     return false;
                 }
 
@@ -65,7 +65,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przygotować GOG Galaxy do ręcznego logowania: " + ex.Message;
+                error = Loc.Get("ErrPrepareManual", "GOG Galaxy", ex.Message);
                 return false;
             }
         }
@@ -79,7 +79,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się wyczyścić sesji GOG Galaxy: " + ex.Message;
+                error = Loc.Get("ErrClearSession", "GOG Galaxy", ex.Message);
                 return false;
             }
         }
@@ -139,7 +139,7 @@ namespace PlayniteAccountManager.Services
 
                     try
                     {
-                        string path = process.MainModule.FileName;
+                        string path = ProcessPaths.Get(process);
                         if (!string.IsNullOrWhiteSpace(path) &&
                             string.Equals(Path.GetFileName(path), "GalaxyClient.exe", StringComparison.OrdinalIgnoreCase))
                         {

@@ -85,8 +85,17 @@ namespace PlayniteAccountManager.Views
             }
             PasswordBox.Password = string.Empty;
             vm.Refresh();
+            SelectAccount(vm.LastSavedAccountId);
             UpdateButtons();
             UpdateStatus(L("LOCPlayniteAccountManagerAccountSaved"));
+        }
+
+        /// <summary>Keeps the edited account selected after the list is rebuilt.</summary>
+        private void SelectAccount(Guid accountId)
+        {
+            var item = vm.Accounts.FirstOrDefault(x => x.Id == accountId);
+            if (item != null)
+                AccountsList.SelectedItem = item;
         }
 
         private async void TestLoginButton_Click(object sender, RoutedEventArgs e)
@@ -228,13 +237,18 @@ namespace PlayniteAccountManager.Views
                 return;
             }
 
+            bool autoLogin = vm.EditAutoLogin;
+            bool logoutAfterGame = vm.EditLogoutAfterGame;
             foreach (var game in games)
                 store.SetAssignment(
                     game.Id,
                     account.Id,
-                    vm.EditAutoLogin,
-                    vm.EditLogoutAfterGame);
+                    autoLogin,
+                    logoutAfterGame);
 
+            vm.Refresh();
+            SelectAccount(account.Id);
+            UpdateButtons();
             UpdateStatus(
                 string.Format(L("LOCPlayniteAccountManagerAccountAssigned"), account.Name, games.Count));
         }
@@ -290,9 +304,8 @@ namespace PlayniteAccountManager.Views
                 return;
             }
 
-            var count = vm.ContextGames.Count;
-            StatusText.Text = count > 0
-                ? string.Format(L("LOCPlayniteAccountManagerSelectedGames"), count)
+            StatusText.Text = vm.HasContextGames
+                ? string.Format(L("LOCPlayniteAccountManagerSelectedGames"), vm.ContextBannerGames)
                 : L("LOCPlayniteAccountManagerSelectGames");
         }
     }
@@ -415,55 +428,64 @@ namespace PlayniteAccountManager.Views
         public string Name { get; }
         public string UserName { get; }
         public string DisplayText { get; }
-        public string DisplayLauncher { get; }
+        public string LauncherName { get; }
+        public string ModeTag { get; }
+        public bool HasModeTag => !string.IsNullOrEmpty(ModeTag);
+        public bool IsAutomatic { get; }
+        public bool IsPrimary { get; }
+        public string PrimaryTag { get; }
+        public bool IsAssignedToContext { get; }
+        public string AssignedTag { get; }
 
-        public AccountListItem(AccountRecord record)
+        public AccountListItem(AccountRecord record, bool assignedToContext)
         {
             Id = record.Id;
             Name = record.Name;
             UserName = record.UserName;
-            DisplayText = record.Name + "  •  " + record.Launcher.GetDisplayName();
-            DisplayLauncher =
-                record.Launcher.GetDisplayName() +
-                ((record.Launcher == LauncherType.Steam) && record.IsPrimary
-                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerPrimarySteamShort")
-                    : "");
-
-            if (record.Launcher == LauncherType.EpicGames)
-                DisplayLauncher += record.EpicLoginMode == EpicLoginMode.Automatic
-                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
-                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
-
-            if (record.Launcher == LauncherType.EAApp)
-                DisplayLauncher += record.EALoginMode == EALoginMode.Automatic
-                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
-                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
-
-            if (record.Launcher == LauncherType.UbisoftConnect)
-                DisplayLauncher += record.UbisoftLoginMode == UbisoftLoginMode.Automatic
-                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
-                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
-
-            if (record.Launcher == LauncherType.GOGGalaxy)
-                DisplayLauncher += record.GOGLoginMode == GOGLoginMode.Automatic
-                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
-                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
-
-            if (record.Launcher == LauncherType.BattleNet)
-                DisplayLauncher += record.BattleNetLoginMode == BattleNetLoginMode.Automatic
-                    ? "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort")
-                    : "  •  " + ResourceProvider.GetString("LOCPlayniteAccountManagerManualShort");
-
-            if (record.Launcher == LauncherType.RockstarGamesLauncher)
-                DisplayLauncher += "  •  " +
-                                   ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort");
-
-            if (record.Launcher == LauncherType.XboxApp)
-                DisplayLauncher += "  •  " +
-                                   ResourceProvider.GetString("LOCPlayniteAccountManagerAutoShort");
-
+            LauncherName = record.Launcher.GetDisplayName();
+            DisplayText = record.Name + "  \u2022  " + LauncherName;
             if (!string.IsNullOrWhiteSpace(record.UserName))
-                DisplayText += "  •  " + record.UserName;
+                DisplayText += "  \u2022  " + record.UserName;
+
+            IsPrimary = record.Launcher == LauncherType.Steam && record.IsPrimary;
+            PrimaryTag = ResourceProvider.GetString("LOCPlayniteAccountManagerPrimarySteamShort");
+
+            bool? automatic = GetAutomatic(record);
+            IsAutomatic = automatic == true;
+            ModeTag = automatic == null
+                ? null
+                : ResourceProvider.GetString(automatic.Value
+                    ? "LOCPlayniteAccountManagerAutoShort"
+                    : "LOCPlayniteAccountManagerManualShort");
+
+            IsAssignedToContext = assignedToContext;
+            AssignedTag = ResourceProvider.GetString("LOCPlayniteAccountManagerAssignedTag");
         }
+
+        /// <summary>True = automatic, false = manual, null = launcher without a login mode.</summary>
+        private static bool? GetAutomatic(AccountRecord record)
+        {
+            switch (record.Launcher)
+            {
+                case LauncherType.EpicGames: return record.EpicLoginMode == EpicLoginMode.Automatic;
+                case LauncherType.EAApp: return record.EALoginMode == EALoginMode.Automatic;
+                case LauncherType.UbisoftConnect: return record.UbisoftLoginMode == UbisoftLoginMode.Automatic;
+                case LauncherType.GOGGalaxy: return record.GOGLoginMode == GOGLoginMode.Automatic;
+                case LauncherType.BattleNet: return record.BattleNetLoginMode == BattleNetLoginMode.Automatic;
+                case LauncherType.RockstarGamesLauncher:
+                case LauncherType.XboxApp:
+                    return true;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    /// <summary>A game selected in Playnite and the account currently assigned to it.</summary>
+    public sealed class ContextGameRow
+    {
+        public string Name { get; set; }
+        public string AssignmentText { get; set; }
+        public bool HasAssignment { get; set; }
     }
 }

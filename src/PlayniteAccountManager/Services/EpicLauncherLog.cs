@@ -61,7 +61,7 @@ namespace PlayniteAccountManager.Services
                             return true;
                         }
 
-                        error = "Epic Games odrzucił logowanie (zapisana sesja wygasła lub jest nieprawidłowa).";
+                        error = Loc.Get("ErrEpicRejected");
                         return false;
                     }
                 }
@@ -69,7 +69,7 @@ namespace PlayniteAccountManager.Services
                 Thread.Sleep(500);
             }
 
-            error = "Epic Games nie potwierdził logowania w ciągu " + (int)timeout.TotalSeconds + " s.";
+            error = Loc.Get("ErrNotConfirmedIn", "Epic Games", (int)timeout.TotalSeconds);
             return false;
         }
 

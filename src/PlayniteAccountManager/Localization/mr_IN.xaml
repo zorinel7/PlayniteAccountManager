@@ -1,14 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib">
-<ResourceDictionary.MergedDictionaries><ResourceDictionary Source="en_US.xaml"/></ResourceDictionary.MergedDictionaries>
-<sys:String x:Key="LOCPlayniteAccountManagerTitle">खाते व्यवस्थापक</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSubtitle">लाँचर खाती व्यवस्थापित करा आणि ती गेम्सना नियुक्त करा</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  खाते जोडा</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">जतन केलेली खाती</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerNewAccount">नवीन खाते</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLauncher">लाँचर</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerAccountName">खात्याचे नाव</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">लॉगिन / ई-मेल</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerPassword">पासवर्ड</sys:String>
-<sys:String x:Key="LOCPlayniteAccountManagerSave">खाते जतन करा</sys:String>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="en_US.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <sys:String x:Key="LOCPlayniteAccountManagerTitle">खाते व्यवस्थापक</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSubtitle">लाँचर खाती व्यवस्थापित करा आणि ती गेम्सना नियुक्त करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAddAccount">＋  खाते जोडा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSavedAccounts">जतन केलेली खाती</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoSavedAccounts" xml:space="preserve">जतन केलेली खाती नाहीत.
+
+पहिले खाते जोडण्यासाठी &quot;खाते जोडा&quot; वर क्लिक करा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNewAccount">नवीन खाते</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncher">लाँचर</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountName">खात्याचे नाव</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginEmail">लॉगिन / ई-मेल</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPassword">पासवर्ड</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerKeepPassword">संपादन करताना सध्याचा पासवर्ड ठेवण्यासाठी रिकामे सोडा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoLogin">गेम सुरू होताना या खात्यावर बदला</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLogoutAfterGame">गेमनंतर लॉग आउट करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteam">मुख्य Steam खाते</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicLoginMode">Epic Games लॉगिन पद्धत</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualLogin">मॅन्युअल लॉगिन</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutomaticLogin">स्वयंचलित लॉगिन</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEpicManualHint">मॅन्युअल: कॉपी करण्यासाठी लॉगिन माहिती दाखवते. स्वयंचलित: या खात्याचे जतन केलेले &quot;मला लक्षात ठेवा&quot; सत्र पुनर्संचयित करते; पहिल्यांदा (किंवा सत्र संपल्यावर) लॉगिन आणि पासवर्ड टाइप केले जातात.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestAuto">स्वयंचलित लॉगिन तपासा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerTestManual">लॉगिन माहिती दाखवा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssign">निवडलेल्या गेम्सना नियुक्त करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDelete">खाते हटवा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSave">खाते जतन करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerStatusEmpty">एखादे खाते निवडा किंवा नवीन जोडा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectedGames">निवडलेले: {0}. खाते निवडा आणि नियुक्त करा वर क्लिक करा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGames">खाते नियुक्त करण्यासाठी Playnite मध्ये एक किंवा अधिक गेम्स निवडा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitleFallback">लॉगिन</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginTitle">लॉगिन — {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginGameInstruction" xml:space="preserve">गेम: {0}
+
+{1} मध्ये पुढील खात्यात मॅन्युअली लॉगिन करा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginInstruction">पासवर्ड स्क्रीनवर लपवलेला आहे. क्लिपबोर्डवर कॉपी करण्यासाठी लॉगिन किंवा पासवर्डवर क्लिक करा. नंतर लाँचरमध्ये Ctrl+V वापरा आणि मॅन्युअली लॉगिन करा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLauncherStarted">लाँचर सुरू झाला आहे. मॅन्युअली लॉगिन करा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCancelStart">सुरुवात रद्द करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDoneLaunch">झाले — गेम सुरू करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountAssigned">खाते &quot;{0}&quot; {1} गेम्सना नियुक्त केले.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountDeleted">खाते हटवले.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAccountSaved">खाते जतन केले.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoRunning">{0} सुरू करत आहे आणि जतन केलेली लॉगिन माहिती भरत आहे...</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoSuccess">{0} मध्ये स्वयंचलित लॉगिन यशस्वी झाले.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoFail">स्वयंचलित लॉगिन अयशस्वी झाले.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoUnavailable">या लाँचरसाठी स्वयंचलित लॉगिन अद्याप उपलब्ध नाही.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataShown">लॉगिन माहिती दाखवली.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualDataFail">लॉगिन माहिती उघडता आली नाही.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectAccountFirst">आधी जतन केलेले खाते निवडा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSelectGamesFirst">आधी Playnite मध्ये किमान एक गेम निवडा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteConfirm" xml:space="preserve">खाते &quot;{0}&quot; हटवायचे?
+
+या खात्याच्या गेम्सवरील नियुक्त्याही काढल्या जातील.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerDeleteTitle">खाते हटवा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEditAccount">संपादित करा: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPrimarySteamShort">मुख्य</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAutoShort">ऑटो</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualShort">मॅन्युअल</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuTitle">खाते व्यवस्थापक</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuAssign">खाते नियुक्त करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassign">खाते नियुक्ती काढा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMenuUnassignNamed">नियुक्ती काढा: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyLoginTooltip">लॉगिन कॉपी करण्यासाठी क्लिक करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCopyPasswordTooltip">पासवर्ड कॉपी करण्यासाठी क्लिक करा</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerLoginCopied">लॉगिन क्लिपबोर्डवर कॉपी केले. लाँचरमध्ये Ctrl+V ने पेस्ट करा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerPasswordCopied">पासवर्ड क्लिपबोर्डवर कॉपी केला. लाँचरमध्ये Ctrl+V ने पेस्ट करा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEALoginMode">EA App लॉगिन पद्धत</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerEAManualHint">मॅन्युअल: कॉपी करण्यासाठी लॉगिन माहिती दाखवते. स्वयंचलित: EA App सुरू करून लॉगिन आणि पासवर्ड भरते; फील्ड सापडली नाहीत तर कीबोर्ड क्रम वापरला जातो.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetLoginMode">Battle.net लॉगिन पद्धत</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerBattleNetManualHint">मॅन्युअल: कॉपी करण्यासाठी लॉगिन माहिती दाखवते. स्वयंचलित: Battle.net पुन्हा सुरू करून लॉगिन आणि पासवर्ड भरते; अयशस्वी झाल्यास मॅन्युअल विंडो दाखवली जाते.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGLoginMode">GOG Galaxy लॉगिन पद्धत</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGOGManualHint">मॅन्युअल: कॉपी करण्यासाठी लॉगिन माहिती दाखवते. स्वयंचलित: GOG Galaxy पुन्हा सुरू करून लॉगिन आणि पासवर्ड भरते; अयशस्वी झाल्यास मॅन्युअल विंडो दाखवली जाते.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftLoginMode">Ubisoft Connect लॉगिन पद्धत</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerUbisoftManualHint">मॅन्युअल: कॉपी करण्यासाठी लॉगिन माहिती दाखवते. स्वयंचलित: Ubisoft Connect सुरू करून लॉगिन आणि पासवर्ड भरते; फील्ड सापडली नाहीत तर कीबोर्ड क्रम वापरला जातो.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAccount">खाते</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionLogin">लॉगिन</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSectionAssignment">गेम्सना नियुक्ती</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoGameSelected">कोणताही गेम निवडलेला नाही. Playnite मध्ये एक किंवा अधिक गेम्स निवडा, नंतर खाते नियुक्त करण्यासाठी खाते व्यवस्थापक (किंवा गेमचा संदर्भ मेनू) उघडा.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentHint">डावीकडे खाते निवडा आणि निवडलेल्या गेम्सना नियुक्त करा वर क्लिक करा. हे पर्याय नियुक्तीसोबत जतन होतात.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerNoAssignment">कोणतेही खाते नियुक्त नाही</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGameToAssign">नियुक्त करायचा गेम</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerGamesToAssign">नियुक्त करायचे गेम्स ({0})</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerMoreGames">+{0} आणखी</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerCurrentAssignment">सध्याचे खाते: {0}</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignedTag">नियुक्त</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam लक्षात ठेवलेल्या खात्यांमध्ये पासवर्डशिवाय बदल करते. Steam मध्ये &quot;मला लक्षात ठेवा&quot; सह या खात्यात एकदा लॉगिन करा. लॉगिन = Steam खात्याचे नाव.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">स्वयंचलित: लाँचर पुन्हा सुरू केला जातो आणि त्याची लॉगिन विंडो भरली जाते; अयशस्वी झाल्यास मॅन्युअल विंडो दाखवली जाते.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">स्वयंचलित: Windows खाते निवडकामध्ये खाते निवडले जाते. Windows सेटिंग्ज &gt; खाती &gt; ई-मेल आणि खाती येथे Microsoft खाते जोडा. पासवर्ड ऐच्छिक आहे.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">या लाँचरसाठी स्वयंचलन नाही: गेम सुरू होण्यापूर्वी लॉगिन माहितीसह मॅन्युअल विंडो दाखवली जाते.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">खाते नियुक्ती काढली.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">मॅन्युअल लॉगिन चाचणी</sys:String>
 </ResourceDictionary>

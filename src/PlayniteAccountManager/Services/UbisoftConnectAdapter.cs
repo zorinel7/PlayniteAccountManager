@@ -47,7 +47,7 @@ namespace PlayniteAccountManager.Services
                 string launcherPath = FindLauncherExecutable();
                 if (string.IsNullOrWhiteSpace(launcherPath) || !File.Exists(launcherPath))
                 {
-                    error = "Nie znaleziono programu Ubisoft Connect na tym komputerze. Przeszukano standardowe lokalizacje, rejestr, skróty Start Menu i katalogi instalacyjne.";
+                    error = Loc.Get("ErrLauncherNotFound", "Ubisoft Connect");
                     return false;
                 }
 
@@ -66,7 +66,7 @@ namespace PlayniteAccountManager.Services
 
                 if (launcher == null)
                 {
-                    error = "Windows nie uruchomił Ubisoft Connect.";
+                    error = Loc.Get("ErrStartFailed", "Ubisoft Connect");
                     return false;
                 }
 
@@ -76,7 +76,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Nie udało się przygotować Ubisoft Connect do ręcznego logowania: " + ex.Message;
+                error = Loc.Get("ErrPrepareManual", "Ubisoft Connect", ex.Message);
                 return false;
             }
         }
@@ -86,26 +86,26 @@ namespace PlayniteAccountManager.Services
             error = null;
             if (account == null || account.Id == Guid.Empty)
             {
-                error = "Nie wybrano konta Ubisoft Connect.";
+                error = Loc.Get("ErrNoAccountSelected", "Ubisoft Connect");
                 return false;
             }
 
             if (account.Launcher != LauncherType.UbisoftConnect)
             {
-                error = "Wybrane konto nie jest kontem Ubisoft Connect.";
+                error = Loc.Get("ErrWrongLauncher", "Ubisoft Connect");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
             {
-                error = "Brak loginu lub hasła zapisanego dla konta „" + account.Name + "”.";
+                error = Loc.Get("ErrNoCredentialsAccount", account.Name);
                 return false;
             }
 
             string launcherPath = FindLauncherExecutable();
             if (string.IsNullOrWhiteSpace(launcherPath) || !File.Exists(launcherPath))
             {
-                error = "Nie znaleziono programu Ubisoft Connect na tym komputerze. Przeszukano standardowe lokalizacje, rejestr i skróty Start Menu.";
+                error = Loc.Get("ErrLauncherNotFound", "Ubisoft Connect");
                 return false;
             }
 
@@ -127,7 +127,7 @@ namespace PlayniteAccountManager.Services
 
                 if (launcher == null)
                 {
-                    error = "Windows nie uruchomił Ubisoft Connect.";
+                    error = Loc.Get("ErrStartFailed", "Ubisoft Connect");
                     return false;
                 }
 
@@ -147,7 +147,7 @@ namespace PlayniteAccountManager.Services
             }
             catch (Exception ex)
             {
-                error = "Błąd automatycznego logowania Ubisoft Connect: " + ex.Message;
+                error = Loc.Get("ErrAutoLogin", "Ubisoft Connect", ex.Message);
                 return false;
             }
         }
@@ -247,7 +247,7 @@ namespace PlayniteAccountManager.Services
             {
                 try
                 {
-                    string path = process.MainModule.FileName;
+                    string path = ProcessPaths.Get(process);
                     if (!string.IsNullOrWhiteSpace(path))
                         candidates.Add(path);
                 }

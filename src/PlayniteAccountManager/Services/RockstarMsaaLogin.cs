@@ -31,7 +31,14 @@ namespace PlayniteAccountManager.Services
                 // The launcher updates itself and starts several helper processes
                 // before the sign-in window appears.
                 WindowTimeout = TimeSpan.FromSeconds(90),
-                SlowAccessibility = true
+                SlowAccessibility = true,
+                SubmitDelay = TimeSpan.FromSeconds(1),
+                // The first request is sometimes answered with "we cannot process your
+                // request right now"; pressing "Sign in" again on the same form works.
+                ResubmitAfter = TimeSpan.FromSeconds(8),
+                MaxResubmits = 1,
+                // The page rejects the accessibility "click"; a real click works.
+                ClickSubmitWithMouse = true
             }, log);
         }
 
