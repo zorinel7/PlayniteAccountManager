@@ -246,6 +246,12 @@ namespace PlayniteAccountManager
                     return false;
                 case LauncherType.XboxApp:
                     return xbox.PrepareAndLogin(account, out error);
+                case LauncherType.GOGGalaxy:
+                    if (account.GOGLoginMode == GOGLoginMode.Automatic)
+                        return TryGogAutomaticLogin(account, password, out error);
+
+                    error = "To konto GOG Galaxy jest ustawione na logowanie ręczne.";
+                    return false;
                 default:
                     error = "Automatyczne logowanie nie jest jeszcze zaimplementowane dla: " + account.Launcher.GetDisplayName() + ".";
                     return false;
@@ -263,7 +269,8 @@ namespace PlayniteAccountManager
                     return;
 
                 bool manualLauncher =
-                    account.Launcher == LauncherType.GOGGalaxy ||
+                    (account.Launcher == LauncherType.GOGGalaxy &&
+                     account.GOGLoginMode == GOGLoginMode.Manual) ||
                     account.Launcher == LauncherType.BattleNet ||
                     account.Launcher == LauncherType.RockstarGamesLauncher ||
                     (account.Launcher == LauncherType.UbisoftConnect &&
@@ -281,10 +288,14 @@ namespace PlayniteAccountManager
                     account.Launcher == LauncherType.EAApp &&
                     account.EALoginMode == EALoginMode.Automatic;
 
+                bool automaticGOG =
+                    account.Launcher == LauncherType.GOGGalaxy &&
+                    account.GOGLoginMode == GOGLoginMode.Automatic;
+
                 bool xboxApp = account.Launcher == LauncherType.XboxApp;
 
                 bool runAssignedFlow =
-                    assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA || xboxApp;
+                    assignment.AutoLogin || manualLauncher || automaticEpic || automaticEA || automaticGOG || xboxApp;
 
                 if (runAssignedFlow)
                 {
@@ -293,6 +304,7 @@ namespace PlayniteAccountManager
                         !manualLauncher &&
                         !automaticEpic &&
                         !automaticEA &&
+                        !automaticGOG &&
                         !xboxApp)
                         return;
 
@@ -316,7 +328,9 @@ namespace PlayniteAccountManager
                                      ", AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
                     else if (account.Launcher == LauncherType.GOGGalaxy)
-                        logger.Info("GOG Galaxy: ręczne logowanie, AutoLogin przypisania = " +
+                        logger.Info("GOG Galaxy: zapisany tryb logowania = " +
+                                     account.GOGLoginMode +
+                                     ", AutoLogin przypisania = " +
                                      assignment.AutoLogin + ".");
                     else if (account.Launcher == LauncherType.BattleNet)
                         logger.Info("Battle.net: ręczne logowanie, AutoLogin przypisania = " +
@@ -341,6 +355,8 @@ namespace PlayniteAccountManager
                         else if (account.Launcher == LauncherType.EAApp &&
                                  account.EALoginMode == (EALoginMode)1)
                             ok = ea.PrepareAndLogin(account, password, out error);
+                        else if (automaticGOG)
+                            ok = PrepareGogAutomaticLogin(account, password, args.Game.Name, out error);
                         else if (xboxApp)
                             ok = PrepareXboxLogin(account, password, args.Game.Name, out error);
                         else if (manualLauncher)
@@ -536,6 +552,65 @@ namespace PlayniteAccountManager
                 logger.Error(ex, "Manual launcher login preparation failed.");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// GOG Galaxy automatic login: the session is cleared and Galaxy restarted as
+        /// for manual login, then the sign-in window is filled automatically. When that
+        /// fails the shared manual login window is shown, like the other launchers.
+        /// </summary>
+        private bool PrepareGogAutomaticLogin(AccountRecord account, string password, string gameName, out string error)
+        {
+            if (TryGogAutomaticLogin(account, password, out error))
+                return true;
+
+            if (!string.IsNullOrEmpty(error) && error.StartsWith(GogPrepareErrorPrefix, StringComparison.Ordinal))
+                return false;
+
+            logger.Warn("GOG Galaxy: automatyczne logowanie nie powiodło się: " + error + " Pokazuję okno ręcznego logowania.");
+            PlayniteApi.Notifications.Add(new NotificationMessage(
+                "PlayniteAccountManager-GOG",
+                error,
+                NotificationType.Info));
+
+            bool accepted = ShowManualLoginWindow(
+                account.Launcher.GetDisplayName(),
+                gameName,
+                account.UserName ?? string.Empty,
+                password ?? string.Empty);
+
+            if (accepted)
+            {
+                error = null;
+                return true;
+            }
+
+            error = "Logowanie do GOG Galaxy zostało anulowane.";
+            return false;
+        }
+
+        private const string GogPrepareErrorPrefix = "GOG Galaxy (przygotowanie): ";
+
+        private bool TryGogAutomaticLogin(AccountRecord account, string password, out string error)
+        {
+            if (string.IsNullOrWhiteSpace(account.UserName) || string.IsNullOrEmpty(password))
+            {
+                error = "Konto „" + account.Name + "” nie ma zapisanych danych logowania.";
+                return false;
+            }
+
+            DateTime startedLocal = DateTime.Now;
+            string prepareError;
+            if (!gog.PrepareForManualLogin(out prepareError))
+            {
+                error = GogPrepareErrorPrefix + prepareError;
+                return false;
+            }
+
+            MsaaLoginResult result = new GOGGalaxyUiAutomation(message => logger.Info(message))
+                .Login(account.UserName, password, startedLocal, out error);
+
+            return result == MsaaLoginResult.Success;
         }
 
         /// <summary>

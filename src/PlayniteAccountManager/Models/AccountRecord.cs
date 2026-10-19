@@ -12,6 +12,7 @@ namespace PlayniteAccountManager.Models
         public EpicLoginMode EpicLoginMode { get; set; }
         public EALoginMode EALoginMode { get; set; }
         public UbisoftLoginMode UbisoftLoginMode { get; set; }
+        public GOGLoginMode GOGLoginMode { get; set; }
 
         public AccountRecord()
         {
@@ -22,6 +23,7 @@ namespace PlayniteAccountManager.Models
             EpicLoginMode = EpicLoginMode.Manual;
             EALoginMode = EALoginMode.Manual;
             UbisoftLoginMode = UbisoftLoginMode.Automatic;
+            GOGLoginMode = GOGLoginMode.Manual;
             Launcher = LauncherType.UbisoftConnect;
         }
     }

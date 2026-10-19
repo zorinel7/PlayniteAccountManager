@@ -5,7 +5,14 @@ $project = Join-Path $root 'src\PlayniteAccountManager\PlayniteAccountManager.cs
 $msbuild = $null
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
 if (Test-Path $vswhere) {
-    $msbuild = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | Select-Object -First 1
+    # Several Visual Studio instances can be installed (e.g. Build Tools without the
+    # .NET workload). Use the newest one whose MSBuild can resolve Microsoft.NET.Sdk.
+    $msbuild = & $vswhere -all -sort -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe |
+        Where-Object {
+            $msbuildRoot = Split-Path (Split-Path (Split-Path $_ -Parent) -Parent) -Parent
+            Test-Path (Join-Path $msbuildRoot 'Sdks\Microsoft.NET.Sdk\Sdk')
+        } |
+        Select-Object -First 1
 }
 
 if (-not $msbuild) {

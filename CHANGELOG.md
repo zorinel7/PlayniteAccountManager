@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.64 - GOG Galaxy automatic login
+- GOG Galaxy accounts have a per-account **Manual / Automatic** login mode, like EA App, Epic Games and Ubisoft Connect (new and existing accounts default to Manual).
+- Automatic mode clears the local Galaxy session, restarts GOG Galaxy and fills its sign-in window. The page runs in QtWebEngine and exposes no accessibility tree, so the plugin waits for `GalaxyClient.log` to report the loaded login page, clicks the e-mail and password fields at fixed positions of the fixed-size sign-in window and types the credentials (keyboard input only while the Galaxy window has focus). Success is the sign-in window closing or the login redirect in the log.
+- If the automatic login fails (form not shown, wrong password, verification), a notification and the shared manual login window are shown.
+- `build.ps1` picks a Visual Studio / Build Tools instance whose MSBuild can resolve `Microsoft.NET.Sdk` (an installed Build Tools instance without the .NET workload broke local builds).
+
 ## 0.9.63 - Rockstar Games Launcher automatic login
 - Rockstar Games Launcher signs in automatically: after the local session is cleared and the launcher restarts, its sign-in window ("Rockstar Games Authentication", Chromium) is filled through the accessibility tree (MSAA) and success is detected when the window closes. Any failure (fields not found, 2FA, rejected password) shows a notification and the existing manual login window.
 - The MSAA engine recognises a default "Sign in" button aligned with the right edge of the form when the page has no full-width submit button.

@@ -491,6 +491,24 @@
                                 </ComboBox>
                                 <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerEAManualHint}" Margin="2,5,2,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
                             </StackPanel>
+
+                            <StackPanel Margin="0,12,0,0"
+                                        Visibility="{Binding IsGOGGalaxyLauncher, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerGOGLoginMode}"
+                                           Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="GOGLoginModeCombo"
+                                          Style="{StaticResource LauncherComboBox}"
+                                          ItemsSource="{Binding GOGLoginModes}"
+                                          SelectedValuePath="Value"
+                                          SelectedValue="{Binding EditGOGLoginMode, Mode=TwoWay}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding DisplayName}" Foreground="#F2F2F2" FontSize="13"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerGOGManualHint}" Margin="2,5,2,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
+                            </StackPanel>
                             <TextBlock Text="{DynamicResource LOCPlayniteAccountManagerLauncherHint}"
                                        Margin="0,8,0,0" FontSize="10" Foreground="#777777" TextWrapping="Wrap"/>
                         </StackPanel>

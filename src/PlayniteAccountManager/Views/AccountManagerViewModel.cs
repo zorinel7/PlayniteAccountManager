@@ -23,6 +23,7 @@ namespace PlayniteAccountManager.Views
         private EpicLoginMode editEpicLoginMode = EpicLoginMode.Manual;
         private EALoginMode editEALoginMode = EALoginMode.Manual;
         private UbisoftLoginMode editUbisoftLoginMode = UbisoftLoginMode.Automatic;
+        private GOGLoginMode editGOGLoginMode = GOGLoginMode.Manual;
         private bool editingExisting;
 
         public ObservableCollection<AccountListItem> Accounts { get; private set; }
@@ -31,6 +32,7 @@ namespace PlayniteAccountManager.Views
         public ObservableCollection<EpicLoginModeOption> EpicLoginModes { get; private set; }
         public ObservableCollection<EALoginModeOption> EALoginModes { get; private set; }
         public ObservableCollection<UbisoftLoginModeOption> UbisoftLoginModes { get; private set; }
+        public ObservableCollection<GOGLoginModeOption> GOGLoginModes { get; private set; }
 
         public AccountListItem SelectedAccount
         {
@@ -56,6 +58,7 @@ namespace PlayniteAccountManager.Views
                 OnPropertyChanged(nameof(IsEpicGamesLauncher));
                 OnPropertyChanged(nameof(IsEAAppLauncher));
                 OnPropertyChanged(nameof(IsUbisoftConnectLauncher));
+                OnPropertyChanged(nameof(IsGOGGalaxyLauncher));
             }
         }
         public bool EditAutoLogin { get => editAutoLogin; set => SetValue(ref editAutoLogin, value); }
@@ -66,9 +69,11 @@ namespace PlayniteAccountManager.Views
         public bool IsEpicGamesLauncher => EditLauncher == LauncherType.EpicGames;
         public bool IsEAAppLauncher => EditLauncher == LauncherType.EAApp;
         public bool IsUbisoftConnectLauncher => EditLauncher == LauncherType.UbisoftConnect;
+        public bool IsGOGGalaxyLauncher => EditLauncher == LauncherType.GOGGalaxy;
         public EpicLoginMode EditEpicLoginMode { get => editEpicLoginMode; set => SetValue(ref editEpicLoginMode, value); }
         public EALoginMode EditEALoginMode { get => editEALoginMode; set => SetValue(ref editEALoginMode, value); }
         public UbisoftLoginMode EditUbisoftLoginMode { get => editUbisoftLoginMode; set => SetValue(ref editUbisoftLoginMode, value); }
+        public GOGLoginMode EditGOGLoginMode { get => editGOGLoginMode; set => SetValue(ref editGOGLoginMode, value); }
 
         internal AccountManagerViewModel(AccountManagerStore store)
         {
@@ -78,6 +83,7 @@ namespace PlayniteAccountManager.Views
             EpicLoginModes = new ObservableCollection<EpicLoginModeOption>(Enum.GetValues(typeof(EpicLoginMode)).Cast<EpicLoginMode>().Select(x => new EpicLoginModeOption(x)));
             EALoginModes = new ObservableCollection<EALoginModeOption>(Enum.GetValues(typeof(EALoginMode)).Cast<EALoginMode>().Select(x => new EALoginModeOption(x)));
             UbisoftLoginModes = new ObservableCollection<UbisoftLoginModeOption>(Enum.GetValues(typeof(UbisoftLoginMode)).Cast<UbisoftLoginMode>().Select(x => new UbisoftLoginModeOption(x)));
+            GOGLoginModes = new ObservableCollection<GOGLoginModeOption>(Enum.GetValues(typeof(GOGLoginMode)).Cast<GOGLoginMode>().Select(x => new GOGLoginModeOption(x)));
             Refresh();
             BeginNewAccount();
         }
@@ -108,6 +114,7 @@ namespace PlayniteAccountManager.Views
             EditEpicLoginMode = EpicLoginMode.Manual;
             EditEALoginMode = EALoginMode.Manual;
             EditUbisoftLoginMode = UbisoftLoginMode.Automatic;
+            EditGOGLoginMode = GOGLoginMode.Manual;
         }
 
         public void LoadSelectedAccount()
@@ -124,6 +131,7 @@ namespace PlayniteAccountManager.Views
             EditEpicLoginMode = model.EpicLoginMode;
             EditEALoginMode = model.EALoginMode;
             EditUbisoftLoginMode = model.UbisoftLoginMode;
+            EditGOGLoginMode = model.GOGLoginMode;
             EditIsPrimary = model.IsPrimary;
 
             var assignment = ContextGames.Count == 1 ? store.GetAssignment(ContextGames[0].Id) : null;
@@ -175,6 +183,9 @@ namespace PlayniteAccountManager.Views
             record.UbisoftLoginMode = record.Launcher == LauncherType.UbisoftConnect
                 ? EditUbisoftLoginMode
                 : UbisoftLoginMode.Automatic;
+            record.GOGLoginMode = record.Launcher == LauncherType.GOGGalaxy
+                ? EditGOGLoginMode
+                : GOGLoginMode.Manual;
             record.IsPrimary = IsPrimaryEligibleLauncher && EditIsPrimary;
 
             if (record.Launcher == LauncherType.Steam && record.IsPrimary)
