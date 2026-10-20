@@ -4,6 +4,8 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 
 **Version 0.10.0** · Windows · Playnite SDK 6 · GPL-3.0
 
+[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/zorinel)
+
 ## Screenshots
 
 ![Account Manager with a selected game and a Steam account](docs/images/account-manager-steam.png)
@@ -17,8 +19,8 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 | Launcher | Login modes | How the account is switched | Password needed | If it fails |
 |---|---|---|---|---|
 | **Steam** | automatic | Selects a remembered account (`loginusers.vdf`) and restarts Steam | no | notification |
-| **Epic Games** | automatic / manual | Restores the account's saved, encrypted "Remember me" session (~5 s, no typing) | yes (first login) | keyboard sequence |
-| **EA App** | automatic / manual | Fills e-mail and password on the login page through its accessibility tree (MSAA), ~8 s | yes | keyboard sequence |
+| **Epic Games** | automatic / manual | Restores the account's saved, encrypted "Remember me" session (~5 s, no typing) | yes (first login) | types the credentials (TAB sequence) |
+| **EA App** | automatic / manual | Fills e-mail and password on the login page through its accessibility tree (MSAA), ~8 s | yes | keyboard (TAB) sequence |
 | **Ubisoft Connect** | automatic / manual | Fills the login page through MSAA | yes | keyboard sequence |
 | **GOG Galaxy** | automatic / manual | Clears the session, restarts Galaxy and types into its sign-in window | yes | manual window |
 | **Battle.net** | automatic / manual | Clears the session, restarts Battle.net and fills its sign-in window through MSAA | yes | manual window |
@@ -125,6 +127,10 @@ src/PlayniteAccountManager/
 ```
 
 Tested on Windows 11 (i5-12400, RTX 5060 Ti, 2560×1440) with Steam, EA App 13.809, Ubisoft Connect 170, Epic Games Launcher 20.3, GOG Galaxy 2.1, Battle.net and Xbox App 2610.
+
+## Support
+
+If the extension saves you time, you can support its development on [Ko-fi](https://ko-fi.com/zorinel). Bug reports and testing with other launchers help just as much.
 
 ## History and license
 
