@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam بدون رمز عبور بین حساب‌های به‌خاطرسپرده جابه‌جا می‌شود. یک بار با گزینه «مرا به خاطر بسپار» در Steam وارد این حساب شوید. نام کاربری = نام حساب Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">خودکار: لانچر دوباره اجرا می‌شود و پنجره ورود آن پر می‌شود؛ در صورت شکست، پنجره دستی نمایش داده می‌شود.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">خودکار: حساب در انتخابگر حساب Windows انتخاب می‌شود. حساب Microsoft را در تنظیمات Windows &gt; حساب‌ها &gt; ایمیل و حساب‌ها اضافه کنید. رمز عبور اختیاری است.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">برای این لانچر خودکارسازی وجود ندارد: پیش از شروع بازی، پنجره دستی با اطلاعات ورود نمایش داده می‌شود.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">برای این لانچر خودکارسازی وجود ندارد: حساب فقط ذخیره می‌شود و هنگام شروع بازی هیچ کاری انجام نمی‌شود.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">اختصاص حساب حذف شد.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">آزمایش ورود دستی</sys:String>
 </ResourceDictionary>

@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam මතක තබා ගත් ගිණුම් අතර මුරපදයක් නොමැතිව මාරු වේ. Steam හි &quot;මා මතක තබා ගන්න&quot; සමඟ මෙම ගිණුමට එක් වරක් පිවිසෙන්න. පිවිසුම් නාමය = Steam ගිණුමේ නම.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">ස්වයංක්‍රීය: දියත්කරනය නැවත ආරම්භ කර එහි පිවිසුම් කවුළුව පුරවයි; අසාර්ථක වුවහොත් අතින් කවුළුව පෙන්වයි.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">ස්වයංක්‍රීය: Windows ගිණුම් තේරීමේ කවුළුවෙන් ගිණුම තෝරයි. Windows සැකසීම් &gt; ගිණුම් &gt; ඊ-තැපෑල සහ ගිණුම් තුළ Microsoft ගිණුම එක් කරන්න. මුරපදය අත්‍යවශ්‍ය නොවේ.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">මෙම දියත්කරනය සඳහා ස්වයංක්‍රීයකරණයක් නැත: ක්‍රීඩාව ආරම්භ වීමට පෙර පිවිසුම් දත්ත සහිත අතින් කවුළුව පෙන්වයි.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">මෙම දියත්කරනය සඳහා ස්වයංක්‍රීයකරණයක් නැත: ගිණුම සුරැකෙන්නේ පමණක් වන අතර ක්‍රීඩාව ආරම්භ වන විට කිසිවක් සිදු නොවේ.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">ගිණුම් පැවරුම ඉවත් කරන ලදී.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">අතින් පිවිසීමේ පරීක්ෂණය</sys:String>
 </ResourceDictionary>

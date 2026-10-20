@@ -89,7 +89,7 @@ També se suprimiran les assignacions d'aquest compte als jocs.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam canvia entre comptes recordats sense contrasenya. Inicia la sessió una vegada en aquest compte a Steam amb «Recorda'm». Usuari = nom del compte de Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automàtic: el launcher es reinicia i s'omple la seva finestra d'inici de sessió; si falla, es mostra la finestra manual.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automàtic: el compte es tria al selector de comptes de Windows. Afegeix el compte Microsoft a Configuració de Windows &gt; Comptes &gt; Correu electrònic i comptes. La contrasenya és opcional.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Sense automatització per a aquest launcher: abans d'iniciar el joc es mostra la finestra manual amb les dades d'accés.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Sense automatització per a aquest launcher: el compte només es desa i no passa res en iniciar el joc.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">S'ha tret l'assignació del compte.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">prova d'inici de sessió manual</sys:String>
 </ResourceDictionary>

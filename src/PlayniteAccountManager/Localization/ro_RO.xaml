@@ -89,7 +89,7 @@ Vor fi eliminate și atribuirile acestui cont la jocuri.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam comută între conturile memorate fără parolă. Autentifică-te o dată în acest cont în Steam cu „Ține-mă minte”. Utilizator = numele contului Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automat: launcherul este repornit și fereastra de autentificare este completată; dacă eșuează, se afișează fereastra manuală.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automat: contul este ales în selectorul de conturi Windows. Adaugă contul Microsoft în Setări Windows &gt; Conturi &gt; E-mail și conturi. Parola este opțională.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Nicio automatizare pentru acest launcher: înainte de pornirea jocului se afișează fereastra manuală cu datele de autentificare.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Nicio automatizare pentru acest launcher: contul este doar salvat și nu se întâmplă nimic la pornirea jocului.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Atribuirea contului a fost eliminată.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test de autentificare manuală</sys:String>
 </ResourceDictionary>

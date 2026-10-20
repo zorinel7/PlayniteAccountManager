@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam은 기억된 계정 간에 비밀번호 없이 전환합니다. Steam에서 &quot;로그인 상태 유지&quot;를 켜고 이 계정에 한 번 로그인하세요. 로그인 = Steam 계정 이름.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">자동: 런처를 다시 시작하고 로그인 창을 채웁니다. 실패하면 수동 창을 표시합니다.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">자동: Windows 계정 선택 창에서 계정을 선택합니다. Windows 설정 &gt; 계정 &gt; 이메일 및 계정에서 Microsoft 계정을 추가하세요. 비밀번호는 선택 사항입니다.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">이 런처에는 자동화가 없습니다: 게임 시작 전에 로그인 정보가 있는 수동 창이 표시됩니다.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">이 런처에는 자동화가 없습니다: 계정은 저장만 되며 게임을 시작해도 아무 작업도 하지 않습니다.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">계정 할당이 제거되었습니다.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">수동 로그인 테스트</sys:String>
 </ResourceDictionary>

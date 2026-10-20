@@ -86,7 +86,7 @@ Assignments of this account to games will also be removed.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam switches between remembered accounts without a password. Sign in to this account once in Steam with &quot;Remember me&quot;. Login = Steam account name.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatic: the launcher is restarted and its sign-in window is filled in; if that fails, the manual window is shown.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatic: the account is selected in the Windows account picker. Add the Microsoft account in Windows Settings &gt; Accounts &gt; Email &amp; accounts. The password is optional.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">No automation for this launcher: the manual window with the login data is shown before the game starts.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">No automation for this launcher: the account is only saved, and nothing happens when the game starts.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerErrorName">Enter the account name.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerErrorLogin">Enter the login or e-mail address.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerErrorPassword">Enter the password for the new account.</sys:String>

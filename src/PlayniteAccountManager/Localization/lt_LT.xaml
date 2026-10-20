@@ -89,7 +89,7 @@ Bus pašalinti ir šios paskyros priskyrimai žaidimams.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">„Steam“ perjungia įsimintas paskyras be slaptažodžio. Vieną kartą prisijunkite prie šios paskyros „Steam“ su „Prisiminti mane“. Prisijungimo vardas = „Steam“ paskyros vardas.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatinis: paleidyklė paleidžiama iš naujo ir užpildomas jos prisijungimo langas; nepavykus rodomas rankinis langas.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatinis: paskyra pasirenkama „Windows“ paskyrų parinkiklyje. Pridėkite „Microsoft“ paskyrą „Windows“ parametruose &gt; Paskyros &gt; El. paštas ir paskyros. Slaptažodis neprivalomas.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Šiai paleidyklei automatizavimo nėra: prieš paleidžiant žaidimą rodomas rankinis langas su prisijungimo duomenimis.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Šiai paleidyklei automatizavimo nėra: paskyra tik išsaugoma, o paleidžiant žaidimą nieko nevyksta.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Paskyros priskyrimas pašalintas.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">rankinio prisijungimo testas</sys:String>
 </ResourceDictionary>

@@ -89,7 +89,7 @@ Biće uklonjene i dodele ovog naloga igrama.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam prelazi između zapamćenih naloga bez lozinke. Jednom se prijavite na ovaj nalog u Steam-u sa opcijom „Zapamti me”. Korisničko ime = naziv Steam naloga.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatski: pokretač se ponovo pokreće i popunjava se njegov prozor za prijavu; ako ne uspe, prikazuje se ručni prozor.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatski: nalog se bira u Windows biraču naloga. Dodajte Microsoft nalog u Windows podešavanjima &gt; Nalozi &gt; E-pošta i nalozi. Lozinka nije obavezna.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Nema automatizacije za ovaj pokretač: pre pokretanja igre prikazuje se ručni prozor sa podacima za prijavu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Nema automatizacije za ovaj pokretač: nalog se samo čuva i pri pokretanju igre ništa se ne dešava.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Dodela naloga je uklonjena.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test ručne prijave</sys:String>
 </ResourceDictionary>

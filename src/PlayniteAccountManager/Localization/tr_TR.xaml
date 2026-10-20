@@ -89,7 +89,7 @@ Bu hesabın oyunlara atamaları da kaldırılacak.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam, hatırlanan hesaplar arasında parolasız geçiş yapar. Bu hesaba Steam'de bir kez &quot;Beni hatırla&quot; ile giriş yapın. Kullanıcı adı = Steam hesap adı.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Otomatik: başlatıcı yeniden başlatılır ve giriş penceresi doldurulur; başarısız olursa elle giriş penceresi gösterilir.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Otomatik: hesap Windows hesap seçicisinde seçilir. Microsoft hesabını Windows Ayarları &gt; Hesaplar &gt; E-posta ve hesaplar bölümünden ekleyin. Parola isteğe bağlıdır.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Bu başlatıcı için otomasyon yok: oyun başlamadan önce giriş bilgilerini içeren elle giriş penceresi gösterilir.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Bu başlatıcı için otomasyon yok: hesap yalnızca kaydedilir ve oyun başladığında hiçbir şey olmaz.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Hesap ataması kaldırıldı.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">elle giriş testi</sys:String>
 </ResourceDictionary>

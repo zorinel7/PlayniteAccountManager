@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">يبدّل Steam بين الحسابات المحفوظة دون كلمة مرور. سجّل الدخول إلى هذا الحساب مرة واحدة في Steam مع خيار &quot;تذكرني&quot;. اسم الدخول = اسم حساب Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">تلقائي: يُعاد تشغيل المشغّل وتُملأ نافذة تسجيل الدخول الخاصة به؛ إذا فشل ذلك، تظهر النافذة اليدوية.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">تلقائي: يتم اختيار الحساب في أداة اختيار الحسابات في Windows. أضف حساب Microsoft من إعدادات Windows &gt; الحسابات &gt; البريد الإلكتروني والحسابات. كلمة المرور اختيارية.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">لا توجد أتمتة لهذا المشغّل: تظهر النافذة اليدوية مع بيانات الدخول قبل بدء اللعبة.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">لا توجد أتمتة لهذا المشغّل: يتم حفظ الحساب فقط، ولا يحدث شيء عند بدء اللعبة.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">تمت إزالة تعيين الحساب.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">اختبار تسجيل الدخول اليدوي</sys:String>
 </ResourceDictionary>

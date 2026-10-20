@@ -86,7 +86,7 @@ Przypisania tego konta do gier również zostaną usunięte.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam przełącza zapamiętane konta bez hasła. Zaloguj się na to konto raz w Steam z opcją „Zapamiętaj mnie”. Login = nazwa konta Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatyczne: launcher jest uruchamiany ponownie, a okno logowania wypełniane; jeśli się nie uda, pojawi się okno ręczne.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatyczne: konto jest wybierane w systemowym oknie wyboru konta. Dodaj konto Microsoft w Ustawieniach Windows &gt; Konta &gt; E-mail i konta. Hasło jest opcjonalne.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Brak automatyzacji dla tego launchera: przed startem gry pojawi się okno ręczne z danymi logowania.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Brak automatyzacji dla tego launchera: konto jest tylko zapisane, a przy starcie gry nic się nie dzieje.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerErrorName">Podaj nazwę konta.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerErrorLogin">Podaj login lub adres e-mail.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerErrorPassword">Podaj hasło dla nowego konta.</sys:String>

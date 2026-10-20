@@ -89,7 +89,7 @@ Les associations de ce compte aux jeux seront également supprimées.</sys:Strin
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam bascule entre les comptes mémorisés sans mot de passe. Connectez-vous une fois à ce compte dans Steam avec « Se souvenir de moi ». Identifiant = nom du compte Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatique : le launcher est redémarré et sa fenêtre de connexion est remplie ; en cas d’échec, la fenêtre manuelle s’affiche.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatique : le compte est choisi dans le sélecteur de comptes Windows. Ajoutez le compte Microsoft dans Paramètres Windows &gt; Comptes &gt; E-mail et comptes. Le mot de passe est facultatif.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Aucune automatisation pour ce launcher : la fenêtre manuelle avec les identifiants s’affiche avant le lancement du jeu.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Aucune automatisation pour ce launcher : le compte est seulement enregistré et rien ne se passe au lancement du jeu.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Association du compte retirée.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test de connexion manuelle</sys:String>
 </ResourceDictionary>

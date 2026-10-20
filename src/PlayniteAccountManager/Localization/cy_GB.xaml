@@ -89,7 +89,7 @@ Bydd neilltuadau'r cyfrif hwn i gemau hefyd yn cael eu tynnu.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Mae Steam yn newid rhwng cyfrifon a gofiwyd heb gyfrinair. Mewngofnodwch i'r cyfrif hwn unwaith yn Steam gyda &quot;Cofio fi&quot;. Mewngofnod = enw'r cyfrif Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Awtomatig: mae'r lanswr yn cael ei ailgychwyn a'i ffenestr mewngofnodi'n cael ei llenwi; os bydd hynny'n methu, dangosir y ffenestr â llaw.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Awtomatig: dewisir y cyfrif yn newisydd cyfrifon Windows. Ychwanegwch y cyfrif Microsoft yng Ngosodiadau Windows &gt; Cyfrifon &gt; E-bost a chyfrifon. Mae'r cyfrinair yn ddewisol.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Dim awtomeiddio ar gyfer y lanswr hwn: dangosir y ffenestr â llaw gyda'r manylion mewngofnodi cyn i'r gêm ddechrau.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Dim awtomeiddio ar gyfer y lanswr hwn: dim ond cadw'r cyfrif a wneir, ac nid oes dim yn digwydd pan fydd y gêm yn dechrau.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Tynnwyd neilltuad y cyfrif.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">prawf mewngofnodi â llaw</sys:String>
 </ResourceDictionary>

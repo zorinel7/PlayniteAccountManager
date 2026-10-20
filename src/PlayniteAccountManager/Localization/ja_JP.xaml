@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam は記憶されたアカウント間をパスワードなしで切り替えます。Steam で「サインインしたままにする」を有効にして、このアカウントに一度ログインしてください。ログイン = Steam アカウント名。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">自動: ランチャーを再起動し、ログインウィンドウに入力します。失敗した場合は手動ウィンドウを表示します。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">自動: Windows のアカウント選択画面でアカウントを選択します。Windows の設定 &gt; アカウント &gt; メールとアカウント で Microsoft アカウントを追加してください。パスワードは任意です。</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">このランチャーには自動化がありません: ゲーム起動前にログイン情報付きの手動ウィンドウを表示します。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">このランチャーには自動化がありません: アカウントは保存されるだけで、ゲーム起動時には何も行われません。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">アカウントの割り当てを解除しました。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">手動ログインのテスト</sys:String>
 </ResourceDictionary>

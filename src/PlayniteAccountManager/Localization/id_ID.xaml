@@ -89,7 +89,7 @@ Penetapan akun ini ke game juga akan dihapus.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam beralih di antara akun yang diingat tanpa kata sandi. Masuk ke akun ini sekali di Steam dengan &quot;Ingat saya&quot;. Login = nama akun Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Otomatis: launcher dimulai ulang dan jendela loginnya diisi; jika gagal, jendela manual akan ditampilkan.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Otomatis: akun dipilih di pemilih akun Windows. Tambahkan akun Microsoft di Pengaturan Windows &gt; Akun &gt; Email &amp; akun. Kata sandi bersifat opsional.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Tidak ada otomatisasi untuk launcher ini: jendela manual dengan data login ditampilkan sebelum game dimulai.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Tidak ada otomatisasi untuk launcher ini: akun hanya disimpan dan tidak ada yang terjadi saat game dimulai.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Penetapan akun dihapus.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">uji login manual</sys:String>
 </ResourceDictionary>

@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Το Steam εναλλάσσει απομνημονευμένους λογαριασμούς χωρίς κωδικό. Συνδεθείτε μία φορά σε αυτόν τον λογαριασμό στο Steam με «Να με θυμάσαι». Όνομα χρήστη = όνομα λογαριασμού Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Αυτόματα: το launcher επανεκκινείται και συμπληρώνεται το παράθυρο σύνδεσής του· αν αποτύχει, εμφανίζεται το χειροκίνητο παράθυρο.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Αυτόματα: ο λογαριασμός επιλέγεται στον επιλογέα λογαριασμών των Windows. Προσθέστε τον λογαριασμό Microsoft στις Ρυθμίσεις Windows &gt; Λογαριασμοί &gt; Email και λογαριασμοί. Ο κωδικός είναι προαιρετικός.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Δεν υπάρχει αυτοματοποίηση για αυτό το launcher: πριν από την εκκίνηση του παιχνιδιού εμφανίζεται το χειροκίνητο παράθυρο με τα στοιχεία σύνδεσης.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Δεν υπάρχει αυτοματοποίηση για αυτό το launcher: ο λογαριασμός απλώς αποθηκεύεται και δεν συμβαίνει τίποτα κατά την εκκίνηση του παιχνιδιού.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Η αντιστοίχιση λογαριασμού καταργήθηκε.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">δοκιμή χειροκίνητης σύνδεσης</sys:String>
 </ResourceDictionary>

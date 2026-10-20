@@ -89,7 +89,7 @@ Eemaldatakse ka selle konto määramised mängudele.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam vahetab meelde jäetud kontode vahel ilma paroolita. Logi sellele kontole Steamis üks kord sisse valikuga „Jäta mind meelde“. Kasutajanimi = Steami konto nimi.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automaatne: käiviti taaskäivitatakse ja selle sisselogimisaken täidetakse; ebaõnnestumisel kuvatakse käsitsi aken.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automaatne: konto valitakse Windowsi kontovalijas. Lisa Microsofti konto jaotises Windowsi sätted &gt; Kontod &gt; Meil ja kontod. Parool on valikuline.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Selle käiviti jaoks automatiseerimist pole: enne mängu käivitamist kuvatakse käsitsi aken sisselogimisandmetega.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Selle käiviti jaoks automatiseerimist pole: konto ainult salvestatakse ja mängu käivitamisel ei juhtu midagi.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Konto määramine eemaldatud.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">käsitsi sisselogimise test</sys:String>
 </ResourceDictionary>

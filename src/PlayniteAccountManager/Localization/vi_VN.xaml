@@ -89,7 +89,7 @@ Các lần gán tài khoản này cho trò chơi cũng sẽ bị xóa.</sys:Stri
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam chuyển đổi giữa các tài khoản đã ghi nhớ mà không cần mật khẩu. Hãy đăng nhập vào tài khoản này một lần trong Steam với &quot;Ghi nhớ tôi&quot;. Tên đăng nhập = tên tài khoản Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Tự động: launcher được khởi động lại và cửa sổ đăng nhập được điền; nếu thất bại, cửa sổ thủ công sẽ hiện ra.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Tự động: tài khoản được chọn trong bộ chọn tài khoản của Windows. Thêm tài khoản Microsoft trong Cài đặt Windows &gt; Tài khoản &gt; Email và tài khoản. Mật khẩu là tùy chọn.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Không có tự động hóa cho launcher này: cửa sổ thủ công với thông tin đăng nhập sẽ hiện ra trước khi trò chơi khởi động.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Không có tự động hóa cho launcher này: tài khoản chỉ được lưu và không có gì xảy ra khi trò chơi khởi động.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Đã bỏ gán tài khoản.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">thử đăng nhập thủ công</sys:String>
 </ResourceDictionary>

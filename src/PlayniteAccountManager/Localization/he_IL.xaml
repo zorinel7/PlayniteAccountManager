@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam עובר בין חשבונות שמורים ללא סיסמה. התחבר פעם אחת לחשבון זה ב-Steam עם &quot;זכור אותי&quot;. שם משתמש = שם חשבון Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">אוטומטי: המשגר מופעל מחדש וחלון ההתחברות שלו ממולא; אם זה נכשל, מוצג החלון הידני.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">אוטומטי: החשבון נבחר בבורר החשבונות של Windows. הוסף את חשבון Microsoft בהגדרות Windows &gt; חשבונות &gt; דואר אלקטרוני וחשבונות. הסיסמה אופציונלית.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">אין אוטומציה למשגר זה: לפני תחילת המשחק מוצג החלון הידני עם פרטי ההתחברות.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">אין אוטומציה למשגר זה: החשבון רק נשמר, ושום דבר לא קורה כשהמשחק מתחיל.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">הקצאת החשבון הוסרה.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">בדיקת התחברות ידנית</sys:String>
 </ResourceDictionary>

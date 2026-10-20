@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam превключва между запомнени акаунти без парола. Влезте веднъж в този акаунт в Steam с „Запомни ме“. Потребителско име = име на акаунта в Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Автоматично: лаунчерът се рестартира и прозорецът му за вход се попълва; при неуспех се показва ръчният прозорец.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Автоматично: акаунтът се избира в инструмента за избор на акаунт на Windows. Добавете акаунта в Microsoft в Настройки на Windows &gt; Акаунти &gt; Имейл и акаунти. Паролата не е задължителна.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Няма автоматизация за този лаунчер: преди стартиране на играта се показва ръчният прозорец с данните за вход.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Няма автоматизация за този лаунчер: акаунтът само се запазва и при стартиране на играта нищо не се случва.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Присвояването на акаунта е премахнато.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">тест на ръчен вход</sys:String>
 </ResourceDictionary>

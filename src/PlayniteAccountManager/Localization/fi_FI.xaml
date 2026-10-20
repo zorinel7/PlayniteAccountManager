@@ -89,7 +89,7 @@ Myös tämän tilin pelimääritykset poistetaan.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam vaihtaa muistettujen tilien välillä ilman salasanaa. Kirjaudu tälle tilille kerran Steamissa &quot;Muista minut&quot; -valinnalla. Käyttäjätunnus = Steam-tilin nimi.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automaattinen: käynnistin käynnistetään uudelleen ja sen kirjautumisikkuna täytetään; jos se epäonnistuu, näytetään manuaalinen ikkuna.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automaattinen: tili valitaan Windowsin tilinvalitsimessa. Lisää Microsoft-tili kohdassa Windowsin asetukset &gt; Tilit &gt; Sähköposti ja tilit. Salasana on valinnainen.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ei automaatiota tälle käynnistimelle: manuaalinen ikkuna kirjautumistietoineen näytetään ennen pelin käynnistymistä.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ei automaatiota tälle käynnistimelle: tili vain tallennetaan, eikä pelin käynnistyessä tapahdu mitään.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Tilin määritys poistettu.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">manuaalinen kirjautumistesti</sys:String>
 </ResourceDictionary>

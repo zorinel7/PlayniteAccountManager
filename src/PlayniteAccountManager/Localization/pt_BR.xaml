@@ -89,7 +89,7 @@ As atribuições desta conta a jogos também serão removidas.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">A Steam alterna entre contas lembradas sem senha. Entre nesta conta uma vez na Steam com &quot;Lembrar de mim&quot;. Login = nome da conta Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automático: o launcher é reiniciado e sua janela de login é preenchida; se falhar, a janela manual é exibida.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automático: a conta é escolhida no seletor de contas do Windows. Adicione a conta Microsoft em Configurações do Windows &gt; Contas &gt; Email e contas. A senha é opcional.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Sem automação para este launcher: a janela manual com os dados de login é exibida antes do início do jogo.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Sem automação para este launcher: a conta é apenas salva e nada acontece quando o jogo é iniciado.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Atribuição de conta removida.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">teste de login manual</sys:String>
 </ResourceDictionary>

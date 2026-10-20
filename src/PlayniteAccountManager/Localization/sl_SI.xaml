@@ -89,7 +89,7 @@ Odstranjene bodo tudi dodelitve tega računa igram.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam preklaplja med zapomnjenimi računi brez gesla. V ta račun se v Steamu enkrat prijavite z možnostjo »Zapomni si me«. Uporabniško ime = ime računa Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Samodejno: zaganjalnik se znova zažene in izpolni se njegovo okno za prijavo; če to ne uspe, se prikaže ročno okno.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Samodejno: račun se izbere v izbirniku računov Windows. Račun Microsoft dodajte v Nastavitve Windows &gt; Računi &gt; E-pošta in računi. Geslo ni obvezno.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Za ta zaganjalnik ni avtomatizacije: pred zagonom igre se prikaže ročno okno s podatki za prijavo.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Za ta zaganjalnik ni avtomatizacije: račun je samo shranjen, ob zagonu igre se ne zgodi nič.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Dodelitev računa odstranjena.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">preizkus ročne prijave</sys:String>
 </ResourceDictionary>

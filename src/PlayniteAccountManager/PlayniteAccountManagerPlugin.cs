@@ -62,14 +62,25 @@ namespace PlayniteAccountManager
             if (args.Games == null || args.Games.Count == 0)
                 yield break;
 
-            yield return new GameMenuItem
+            if (PlayniteApi.ApplicationInfo.Mode == ApplicationMode.Fullscreen)
             {
-                MenuSection = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuTitle"),
-                Description = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuAssign"),
-                Action = _ => OpenManager(args.Games)
-            };
+                // The Account Manager window needs mouse and keyboard; in Fullscreen
+                // mode the saved accounts are listed in the game menu instead, which
+                // Playnite navigates with a gamepad.
+                foreach (GameMenuItem item in GetFullscreenAssignItems(args.Games))
+                    yield return item;
+            }
+            else
+            {
+                yield return new GameMenuItem
+                {
+                    MenuSection = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuTitle"),
+                    Description = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuAssign"),
+                    Action = _ => OpenManager(args.Games)
+                };
+            }
 
-            if (args.Games.Count == 1)
+            if (args.Games.Count == 1 && PlayniteApi.ApplicationInfo.Mode != ApplicationMode.Fullscreen)
             {
                 var assignment = Store.GetAssignment(args.Games[0].Id);
                 if (assignment != null)
@@ -92,6 +103,100 @@ namespace PlayniteAccountManager
                     };
                 }
             }
+        }
+
+        // Library plugin ids of Playnite's built-in integrations.
+        private static readonly Dictionary<Guid, LauncherType> LibraryLaunchers = new Dictionary<Guid, LauncherType>
+        {
+            { Guid.Parse("cb91dfc9-b977-43bf-8e70-55f46e410fab"), LauncherType.Steam },
+            { Guid.Parse("00000002-dbd1-46c6-b5d0-b1ba559d10e4"), LauncherType.EpicGames },
+            { Guid.Parse("aebe8b7c-6dc3-4a66-af31-e7375c6b5e9e"), LauncherType.GOGGalaxy },
+            { Guid.Parse("85dd7072-2f20-4e76-a007-41035e390724"), LauncherType.EAApp },
+            { Guid.Parse("c2f038e5-8b92-4877-91f1-da9094155fc5"), LauncherType.UbisoftConnect },
+            { Guid.Parse("e3c26a3d-d695-4cb7-a769-5ff7612c7edd"), LauncherType.BattleNet },
+            { Guid.Parse("7e4fbb5e-2ae3-48d4-8ba0-6b30e7a4e287"), LauncherType.XboxApp }
+        };
+
+        /// <summary>
+        /// Game menu for Fullscreen mode: "Account Manager > Assign account > account"
+        /// for every saved account (accounts of the game's own launcher first, the
+        /// current one marked with ✓) and "Remove assignment".
+        /// </summary>
+        private IEnumerable<GameMenuItem> GetFullscreenAssignItems(List<Game> games)
+        {
+            string section = ResourceProvider.GetString("LOCPlayniteAccountManagerMenuTitle");
+            string assignSection = section + "|" + ResourceProvider.GetString("LOCPlayniteAccountManagerMenuAssign");
+
+            LauncherType gameLauncher = LauncherType.Other;
+            bool knownLauncher = games.Count > 0 && LibraryLaunchers.TryGetValue(games[0].PluginId, out gameLauncher);
+
+            var assignedIds = new HashSet<Guid>(games
+                .Select(x => Store.GetAssignment(x.Id))
+                .Where(x => x != null)
+                .Select(x => x.AccountId));
+
+            var accounts = Store.Settings.Accounts
+                .OrderBy(x => knownLauncher && x.Launcher == gameLauncher ? 0 : 1)
+                .ThenBy(x => x.Launcher.GetDisplayName())
+                .ThenBy(x => x.Name, StringComparer.CurrentCultureIgnoreCase)
+                .ToList();
+
+            foreach (AccountRecord account in accounts)
+            {
+                AccountRecord target = account;
+                bool current = games.Count == 1 && assignedIds.Contains(account.Id);
+                yield return new GameMenuItem
+                {
+                    MenuSection = assignSection,
+                    Description = (current ? "✓ " : string.Empty) +
+                                  account.Name + "  •  " + account.Launcher.GetDisplayName(),
+                    Action = _ => AssignFromMenu(games, target)
+                };
+            }
+
+            if (assignedIds.Count == 0)
+                yield break;
+
+            AccountRecord assigned = games.Count == 1 ? Store.GetAccount(assignedIds.First()) : null;
+            yield return new GameMenuItem
+            {
+                MenuSection = section,
+                Description = assigned == null
+                    ? ResourceProvider.GetString("LOCPlayniteAccountManagerMenuUnassign")
+                    : string.Format(ResourceProvider.GetString("LOCPlayniteAccountManagerMenuUnassignNamed"), assigned.Name),
+                Action = _ =>
+                {
+                    foreach (Game game in games)
+                        Store.ClearAssignment(game.Id);
+                    PlayniteApi.Notifications.Add(new NotificationMessage(
+                        "PlayniteAccountManager",
+                        Loc.Get("AssignmentRemoved"),
+                        NotificationType.Info));
+                }
+            };
+        }
+
+        /// <summary>
+        /// Assigns the account to the games. Existing options of a game are kept;
+        /// new assignments switch the account at start and log out after the game,
+        /// like a new assignment in the Account Manager window.
+        /// </summary>
+        private void AssignFromMenu(List<Game> games, AccountRecord account)
+        {
+            foreach (Game game in games)
+            {
+                GameAccountAssignment existing = Store.GetAssignment(game.Id);
+                Store.SetAssignment(
+                    game.Id,
+                    account.Id,
+                    existing == null || existing.AutoLogin,
+                    existing == null || existing.LogoutAfterGame);
+            }
+
+            PlayniteApi.Notifications.Add(new NotificationMessage(
+                "PlayniteAccountManager",
+                string.Format(ResourceProvider.GetString("LOCPlayniteAccountManagerAccountAssigned"), account.Name, games.Count),
+                NotificationType.Info));
         }
 
         /// <summary>

@@ -17,8 +17,8 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 | Launcher | Login modes | How the account is switched | Password needed | If it fails |
 |---|---|---|---|---|
 | **Steam** | automatic | Selects a remembered account (`loginusers.vdf`) and restarts Steam | no | notification |
-| **Epic Games** | automatic / manual | Restores the account's saved, encrypted "Remember me" session (~5 s, no typing) | yes (first login) | keyboard sequence |
-| **EA App** | automatic / manual | Fills e-mail and password on the login page through its accessibility tree MSAA, ~8 s | yes | keyboard sequence |
+| **Epic Games** | automatic / manual | Restores the account's saved, encrypted "Remember me" session (~5 s, no typing) | yes (first login) | types the credentials (TAB sequence) |
+| **EA App** | automatic / manual | Fills e-mail and password on the login page through its accessibility tree (MSAA), ~8 s | yes | keyboard (TAB) sequence |
 | **Ubisoft Connect** | automatic / manual | Fills the login page through MSAA | yes | keyboard sequence |
 | **GOG Galaxy** | automatic / manual | Clears the session, restarts Galaxy and types into its sign-in window | yes | manual window |
 | **Battle.net** | automatic / manual | Clears the session, restarts Battle.net and fills its sign-in window through MSAA | yes | manual window |
@@ -40,6 +40,8 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 2. **Assign it** — select games in Playnite and open Account Manager: the selected games and their current account are shown at the top. Choose an account and click *Assign to selected games* next to them. Each assignment has:
    - **Switch to this account when the game starts** — keep it on for Steam and for Ubisoft Connect in automatic mode;
    - **Log out after game** — see [After the game](#after-the-game).
+
+   In **Fullscreen mode** use the gamepad: open the game's *···* menu → *Extensions* → *Account Manager* → *Assign account* and pick a saved account (accounts of the game's launcher are listed first, the current one has ✓). *Remove assignment* is in the same menu. Accounts are added and edited in Desktop mode.
 3. **Test** — the *Test* button runs the automatic login or shows the manual window.
 4. **Start the game** — the assigned account is signed in first. Games without an assignment are left alone (except Steam, see below).
 

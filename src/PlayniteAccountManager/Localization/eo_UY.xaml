@@ -89,7 +89,7 @@ La asignoj de ĉi tiu konto al ludoj ankaŭ estos forigitaj.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam ŝanĝas inter memoritaj kontoj sen pasvorto. Ensalutu unufoje al ĉi tiu konto en Steam kun „Memori min“. Ensaluto = nomo de la Steam-konto.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Aŭtomata: la lanĉilo estas restartigita kaj ĝia ensaluta fenestro plenigita; se tio malsukcesas, la mana fenestro aperas.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Aŭtomata: la konto estas elektata en la kontelektilo de Windows. Aldonu la Microsoft-konton en Agordoj de Windows &gt; Kontoj &gt; Retpoŝto kaj kontoj. La pasvorto estas laŭvola.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Neniu aŭtomatigo por ĉi tiu lanĉilo: la mana fenestro kun la ensalutaj datumoj aperas antaŭ ol la ludo startas.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Neniu aŭtomatigo por ĉi tiu lanĉilo: la konto estas nur konservata, kaj nenio okazas kiam la ludo startas.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Asigno de konto forigita.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">testo de mana ensaluto</sys:String>
 </ResourceDictionary>

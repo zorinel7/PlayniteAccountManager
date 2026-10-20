@@ -89,7 +89,7 @@ Die toekennings van hierdie rekening aan speletjies sal ook verwyder word.</sys:
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam skakel sonder wagwoord tussen onthoude rekeninge oor. Meld een keer in Steam by hierdie rekening aan met &quot;Onthou my&quot;. Aanmeldnaam = Steam-rekeningnaam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Outomaties: die lanseerder word herbegin en sy aanmeldvenster ingevul; as dit misluk, word die handmatige venster gewys.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Outomaties: die rekening word in die Windows-rekeningkieser gekies. Voeg die Microsoft-rekening by in Windows-instellings &gt; Rekeninge &gt; E-pos en rekeninge. Die wagwoord is opsioneel.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Geen outomatisering vir hierdie lanseerder nie: die handmatige venster met die aanmelddata word gewys voordat die speletjie begin.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Geen outomatisering vir hierdie lanseerder nie: die rekening word net gestoor en niks gebeur wanneer die speletjie begin nie.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Rekeningtoekenning verwyder.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">handmatige aanmeldtoets</sys:String>
 </ResourceDictionary>

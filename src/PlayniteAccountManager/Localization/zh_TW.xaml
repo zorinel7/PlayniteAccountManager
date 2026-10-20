@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam 可在已記住的帳號之間免密碼切換。請在 Steam 中勾選「記住我」並登入此帳號一次。登入名稱 = Steam 帳號名稱。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">自動：重新啟動啟動器並填寫其登入視窗；若失敗，則顯示手動視窗。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">自動：在 Windows 帳戶選擇器中選擇帳號。請在 Windows 設定 &gt; 帳戶 &gt; 電子郵件與帳戶 中新增 Microsoft 帳戶。密碼為選填。</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">此啟動器沒有自動化：遊戲啟動前會顯示含登入資料的手動視窗。</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">此啟動器沒有自動化：帳號僅會儲存，遊戲啟動時不會執行任何動作。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">已移除帳號指派。</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">手動登入測試</sys:String>
 </ResourceDictionary>

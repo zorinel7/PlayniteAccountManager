@@ -89,7 +89,7 @@ Verranno rimosse anche le assegnazioni di questo account ai giochi.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam passa tra gli account memorizzati senza password. Accedi una volta a questo account in Steam con «Ricordami». Login = nome dell’account Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatico: il launcher viene riavviato e la sua finestra di accesso compilata; in caso di errore viene mostrata la finestra manuale.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatico: l’account viene scelto nel selettore account di Windows. Aggiungi l’account Microsoft in Impostazioni di Windows &gt; Account &gt; E-mail e account. La password è facoltativa.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Nessuna automazione per questo launcher: prima dell’avvio del gioco viene mostrata la finestra manuale con i dati di accesso.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Nessuna automazione per questo launcher: l’account viene solo salvato e all’avvio del gioco non succede nulla.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Assegnazione account rimossa.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test di accesso manuale</sys:String>
 </ResourceDictionary>

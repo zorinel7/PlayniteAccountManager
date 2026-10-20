@@ -89,7 +89,7 @@ Bainfear sannacháin an chuntais seo do chluichí freisin.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Athraíonn Steam idir cuntais a cuimhníodh gan pasfhocal. Logáil isteach sa chuntas seo uair amháin in Steam le &quot;Cuimhnigh orm&quot;. Ainm logála isteach = ainm an chuntais Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Uathoibríoch: atosaítear an lainseálaí agus líontar a fhuinneog logála isteach; má theipeann air sin, taispeántar an fhuinneog láimhe.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Uathoibríoch: roghnaítear an cuntas i roghnóir cuntas Windows. Cuir an cuntas Microsoft leis i Socruithe Windows &gt; Cuntais &gt; Ríomhphost agus cuntais. Tá an pasfhocal roghnach.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Níl uathoibriú ann don lainseálaí seo: taispeántar an fhuinneog láimhe leis na sonraí logála isteach sula dtosaíonn an cluiche.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Níl uathoibriú ann don lainseálaí seo: ní dhéantar ach an cuntas a shábháil, agus ní tharlaíonn aon rud nuair a thosaíonn an cluiche.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Baineadh sannadh an chuntais.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">tástáil logála isteach de láimh</sys:String>
 </ResourceDictionary>

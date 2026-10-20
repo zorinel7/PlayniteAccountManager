@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam перемикається між запам'ятованими обліковими записами без пароля. Один раз увійдіть у цей обліковий запис у Steam з опцією «Запам'ятати мене». Логін = ім'я облікового запису Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Автоматично: лаунчер перезапускається, і його вікно входу заповнюється; у разі невдачі показується вікно ручного входу.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Автоматично: обліковий запис вибирається у вікні вибору облікового запису Windows. Додайте обліковий запис Microsoft у Параметри Windows &gt; Облікові записи &gt; Електронна пошта й облікові записи. Пароль необов'язковий.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Для цього лаунчера немає автоматизації: перед запуском гри показується вікно ручного входу з даними.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Для цього лаунчера немає автоматизації: обліковий запис лише зберігається, під час запуску гри нічого не відбувається.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Призначення облікового запису видалено.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">перевірка ручного входу</sys:String>
 </ResourceDictionary>

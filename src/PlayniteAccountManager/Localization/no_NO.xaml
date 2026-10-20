@@ -89,7 +89,7 @@ Kontoens tildelinger til spill fjernes også.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam bytter mellom huskede kontoer uten passord. Logg inn på denne kontoen én gang i Steam med &quot;Husk meg&quot;. Pålogging = Steam-kontonavn.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatisk: launcheren startes på nytt og påloggingsvinduet fylles ut; hvis det mislykkes, vises det manuelle vinduet.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatisk: kontoen velges i Windows-kontovelgeren. Legg til Microsoft-kontoen under Windows-innstillinger &gt; Kontoer &gt; E-post og kontoer. Passordet er valgfritt.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ingen automatisering for denne launcheren: det manuelle vinduet med påloggingsdataene vises før spillet starter.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ingen automatisering for denne launcheren: kontoen lagres bare, og ingenting skjer når spillet starter.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Kontotildeling fjernet.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">manuell påloggingstest</sys:String>
 </ResourceDictionary>

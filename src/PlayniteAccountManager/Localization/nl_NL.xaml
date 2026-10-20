@@ -89,7 +89,7 @@ De toewijzingen van dit account aan games worden ook verwijderd.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam wisselt zonder wachtwoord tussen onthouden accounts. Meld je één keer in Steam aan bij dit account met &quot;Onthoud mij&quot;. Login = Steam-accountnaam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatisch: de launcher wordt herstart en het aanmeldvenster wordt ingevuld; als dat mislukt, wordt het handmatige venster getoond.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatisch: het account wordt gekozen in de Windows-accountkiezer. Voeg het Microsoft-account toe via Windows-instellingen &gt; Accounts &gt; E-mail en accounts. Het wachtwoord is optioneel.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Geen automatisering voor deze launcher: vóór het starten van de game wordt het handmatige venster met de aanmeldgegevens getoond.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Geen automatisering voor deze launcher: het account wordt alleen opgeslagen en er gebeurt niets bij het starten van de game.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Accounttoewijzing verwijderd.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">handmatige aanmeldtest</sys:String>
 </ResourceDictionary>

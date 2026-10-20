@@ -89,7 +89,7 @@ A fiók játékokhoz rendelései is törlődnek.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">A Steam jelszó nélkül vált a megjegyzett fiókok között. Egyszer jelentkezz be ebbe a fiókba a Steamben az „Emlékezz rám” opcióval. Felhasználónév = Steam-fióknév.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatikus: az indító újraindul, és kitöltődik a bejelentkezési ablaka; ha ez nem sikerül, a kézi ablak jelenik meg.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatikus: a fiók a Windows fiókválasztójában lesz kiválasztva. Add hozzá a Microsoft-fiókot a Windows Beállítások &gt; Fiókok &gt; E-mail és fiókok menüpontban. A jelszó nem kötelező.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ehhez az indítóhoz nincs automatizálás: a játék indítása előtt megjelenik a kézi ablak a bejelentkezési adatokkal.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Ehhez az indítóhoz nincs automatizálás: a fiók csak mentésre kerül, a játék indításakor nem történik semmi.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Fiók-hozzárendelés eltávolítva.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">kézi bejelentkezési teszt</sys:String>
 </ResourceDictionary>

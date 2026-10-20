@@ -89,7 +89,7 @@
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam लक्षात ठेवलेल्या खात्यांमध्ये पासवर्डशिवाय बदल करते. Steam मध्ये &quot;मला लक्षात ठेवा&quot; सह या खात्यात एकदा लॉगिन करा. लॉगिन = Steam खात्याचे नाव.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">स्वयंचलित: लाँचर पुन्हा सुरू केला जातो आणि त्याची लॉगिन विंडो भरली जाते; अयशस्वी झाल्यास मॅन्युअल विंडो दाखवली जाते.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">स्वयंचलित: Windows खाते निवडकामध्ये खाते निवडले जाते. Windows सेटिंग्ज &gt; खाती &gt; ई-मेल आणि खाती येथे Microsoft खाते जोडा. पासवर्ड ऐच्छिक आहे.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">या लाँचरसाठी स्वयंचलन नाही: गेम सुरू होण्यापूर्वी लॉगिन माहितीसह मॅन्युअल विंडो दाखवली जाते.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">या लाँचरसाठी स्वयंचलन नाही: खाते फक्त जतन केले जाते आणि गेम सुरू झाल्यावर काहीही होत नाही.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">खाते नियुक्ती काढली.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">मॅन्युअल लॉगिन चाचणी</sys:String>
 </ResourceDictionary>

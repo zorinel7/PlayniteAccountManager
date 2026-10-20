@@ -89,7 +89,7 @@ Odstránia sa aj priradenia tohto účtu k hrám.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam prepína medzi zapamätanými účtami bez hesla. Raz sa k tomuto účtu prihláste v Steame s voľbou „Zapamätať si ma“. Prihlasovacie meno = názov účtu Steam.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automaticky: launcher sa reštartuje a vyplní sa jeho prihlasovacie okno; ak to zlyhá, zobrazí sa ručné okno.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automaticky: účet sa vyberie vo výbere účtov Windows. Pridajte konto Microsoft v Nastaveniach Windows &gt; Kontá &gt; E-mail a kontá. Heslo je voliteľné.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Pre tento launcher nie je automatizácia: pred spustením hry sa zobrazí ručné okno s prihlasovacími údajmi.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Pre tento launcher nie je automatizácia: účet sa iba uloží a pri spustení hry sa nič nestane.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Priradenie účtu odstránené.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">test ručného prihlásenia</sys:String>
 </ResourceDictionary>

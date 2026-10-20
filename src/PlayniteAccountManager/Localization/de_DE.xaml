@@ -89,7 +89,7 @@ Die Zuweisungen dieses Kontos zu Spielen werden ebenfalls entfernt.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerSteamNote">Steam wechselt ohne Passwort zwischen gespeicherten Konten. Melde dich einmal in Steam mit „Angemeldet bleiben“ bei diesem Konto an. Login = Steam-Kontoname.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerRockstarNote">Automatisch: Der Launcher wird neu gestartet und sein Anmeldefenster ausgefüllt; schlägt das fehl, wird das manuelle Fenster angezeigt.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerXboxNote">Automatisch: Das Konto wird in der Windows-Kontoauswahl ausgewählt. Füge das Microsoft-Konto unter Windows-Einstellungen &gt; Konten &gt; E-Mail und Konten hinzu. Das Passwort ist optional.</sys:String>
-    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Keine Automatisierung für diesen Launcher: Vor dem Spielstart wird das manuelle Fenster mit den Anmeldedaten angezeigt.</sys:String>
+    <sys:String x:Key="LOCPlayniteAccountManagerOtherNote">Keine Automatisierung für diesen Launcher: Das Konto wird nur gespeichert, beim Spielstart passiert nichts.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerAssignmentRemoved">Kontozuweisung entfernt.</sys:String>
     <sys:String x:Key="LOCPlayniteAccountManagerManualTestGame">manueller Anmeldetest</sys:String>
 </ResourceDictionary>
