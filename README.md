@@ -128,9 +128,14 @@ src/PlayniteAccountManager/
 
 Tested on Windows 11 (i5-12400, RTX 5060 Ti, 2560×1440) with Steam, EA App 13.809, Ubisoft Connect 170, Epic Games Launcher 20.3, GOG Galaxy 2.1, Battle.net and Xbox App 2610.
 
-## Support
+## ☕ Support
 
-If the extension saves you time, you can support its development on [Ko-fi](https://ko-fi.com/zorinel). Bug reports and testing with other launchers help just as much.
+PlayniteAccountManager is free. If it makes your Playnite setup better and you'd like to support further development, you can buy me a coffee on Ko-fi:
+
+[![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20me-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/zorinel)
+
+https://ko-fi.com/zorinel
+
 
 ## History and license
 
