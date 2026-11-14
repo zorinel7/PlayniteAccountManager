@@ -2,7 +2,7 @@
 
 A [Playnite](https://playnite.link) extension that keeps several accounts per game launcher and signs the right one in before a game starts. Each game is assigned an account; starting the game switches the launcher to it — automatically where the launcher allows it, otherwise with a controller-friendly manual login window.
 
-**Version 0.10.0** · Windows · Playnite SDK 6 · GPL-3.0
+**Version 0.10.1** · Windows · Playnite SDK 6 · GPL-3.0
 
 [![Support me on Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/zorinel)
 
@@ -32,7 +32,7 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 
 ## Installation
 
-1. Download `PlayniteAccountManager_0.10.0.pext` from the latest [release](../../releases/latest) (or build it, see below).
+1. Download `PlayniteAccountManager_0.10.1.pext` from the latest [release](../../releases/latest) (or build it, see below).
 2. Drag the file onto Playnite (or install it from *Add-ons*) and restart Playnite.
 3. Open **Account Manager** (*Menadżer Kont*) from the Playnite main menu or from a game's context menu.
 
@@ -63,7 +63,7 @@ A [Playnite](https://playnite.link) extension that keeps several accounts per ga
 - **Battle.net** — after the local session is cleared and Battle.net restarts, its sign-in window (Chromium) is filled through MSAA: a remembered account is left with *Switch account*, then e-mail → *Continue* and password → *Log in*. Fields are clicked before typing and the form is re-read after each step, because the page animates between steps. Success is the sign-in window closing; any failure shows the manual window.
 - **GOG Galaxy** — the sign-in page runs in QtWebEngine, which exposes no accessibility tree. After clearing the session and restarting Galaxy, the plugin waits until `GalaxyClient.log` reports the loaded login page, clicks the e-mail and password fields at fixed positions of the fixed-size sign-in window, types the credentials and presses Enter. Success is the sign-in window closing or the log reporting the login redirect; otherwise the manual window is shown.
 - **Epic Games** — the launcher draws its UI in Unreal Engine and exposes no accessibility tree, so accounts are switched with sessions instead: before switching, the current account's session is saved; the assigned account's session is restored and the launcher log confirms that the expected Epic account signed in. The rotated token is saved again right after login.
-- **Xbox App** — profile menu → *Sign out* → *Sign in* → the account tile with the assigned e-mail in the Windows picker → *Continue* → Gaming Services confirmation (checked against the e-mail). Nothing happens if the remembered gamertag is already signed in.
+- **Xbox App** — profile menu → *Sign out* → *Sign in* → the account tile with the assigned e-mail in the Windows picker → *Continue* → Gaming Services confirmation (checked against the e-mail). Nothing happens if the remembered gamertag is already signed in. The redesigned Xbox app (2701.x, Insider) is detected automatically: its profile button, title-bar *Sign in* button and the in-app "Welcome back" confirmation are used instead; the older app keeps the original flow.
 - **Manual window** — shows the login and a masked password; clicking a field copies it to the clipboard for Ctrl+V in the launcher. Used for manual-mode accounts and as the Battle.net, GOG Galaxy, Rockstar and Xbox fallback.
 
 Keyboard input is only sent while the launcher window has focus and stops immediately if focus moves to another application.
@@ -112,7 +112,7 @@ Requirements: Windows, Visual Studio 2022+ (MSBuild), .NET Framework 4.6.2 targe
 
 ```powershell
 ./build.ps1      # Release build
-./package.ps1    # creates PlayniteAccountManager_0.10.0.pext
+./package.ps1    # creates PlayniteAccountManager_0.10.1.pext
 ```
 
 Every push to `main` runs a secret scan, the Release build and packaging in GitHub Actions and uploads the `.pext` as an artifact.
@@ -126,7 +126,7 @@ src/PlayniteAccountManager/
 └── Localization/  44 Playnite languages (en_US base; full UI in all, errors in en/pl)
 ```
 
-Tested on Windows 11 (i5-12400, RTX 5060 Ti, 2560×1440) with Steam, EA App 13.809, Ubisoft Connect 170, Epic Games Launcher 20.3, GOG Galaxy 2.1, Battle.net and Xbox App 2610.
+Tested on Windows 11 (i5-12400, RTX 5060 Ti, 2560×1440) with Steam, EA App 13.809, Ubisoft Connect 170, Epic Games Launcher 20.3, GOG Galaxy 2.1, Battle.net and Xbox App 2610 and 2701 (Insider).
 
 ## ☕ Support
 

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.10.1 - Redesigned Xbox app support
+- Xbox App: automatic account switching works in the redesigned Xbox app (2701.x, Insider builds), which is now a Chromium page (`XboxPcAppCE.exe`, window class `XboxAppDashboardWindow`). The plugin detects the design from the window and uses its profile button (`title-bar-me`, gamertag shown as `Name#1234`), the *Sign out* button of the profile menu, the id-less *Sign in* button in the title bar and the "Welcome back" confirmation shown inside the Xbox app (checked against the account e-mail). The Windows account picker step is unchanged.
+- The previous Xbox app (2610.x) keeps the original flow unchanged.
+- Remembered gamertags are compared without `#`, so an account already signed in is recognised in both app versions.
+
 ## 0.10.0 - New Account Manager UI, gamepad assignment in Fullscreen, full localization, Rockstar and Xbox fixes
 - Redesigned Account Manager: the window size adapts to the screen (share of the work area with sensible limits), the editor is split into *Account*, *Login* and *Assignment to games* sections and scrolls, and the Save / Delete / Test buttons stay visible at the bottom.
 - The games selected in Playnite are shown in a banner at the top with their current account, and the *Assign to selected games* button sits next to them. Accounts in the list show the launcher, an AUTO / MANUAL tag, the Steam PRIMARY tag and an ASSIGNED tag for accounts used by the selected games; the edited account stays selected after saving or assigning.

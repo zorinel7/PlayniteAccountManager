@@ -28,6 +28,15 @@ namespace PlayniteAccountManager.Services
     ///   Windows picker  ListItem Account_N (first line = e-mail) → ContinueButton
     ///   Gaming Services confirmation (gamingservicestcui) shows the e-mail → its only button
     ///   Xbox app        profile button shows the new gamertag
+    ///
+    /// The redesigned Xbox app (2701.x, Insider; XboxPcAppCE.exe) is a Chromium page in
+    /// a window of class "XboxAppDashboardWindow" and is detected by that class:
+    ///   profile button  title-bar-me, gamertag in its image gamerpic-visual ("Name#1234")
+    ///   profile menu    Button "Sign out"
+    ///   sign-in button  the button without AutomationId in the title-bar toolbar
+    ///                   (next to title-bar-notifications)
+    ///   Windows picker  unchanged
+    ///   confirmation    a child window of the Xbox app with a document showing the e-mail
     /// </summary>
     internal sealed class XboxAppUiAutomation
     {
@@ -37,6 +46,12 @@ namespace PlayniteAccountManager.Services
         private const string PickerContinueId = "ContinueButton";
         private const string PickerAccountPrefix = "Account_";
         private const string GamingServicesUiProcess = "gamingservicestcui";
+
+        // Redesigned Xbox app (2701.x).
+        private const string NewAppWindowClass = "XboxAppDashboardWindow";
+        private const string NewProfileButtonId = "title-bar-me";
+        private const string NewGamerpicId = "gamerpic-visual";
+        private const string NewNotificationsButtonId = "title-bar-notifications";
 
         // The profile menu items have no AutomationId; the sign-out item is found by
         // its (localized) caption.
@@ -115,14 +130,18 @@ namespace PlayniteAccountManager.Services
                 return XboxSwitchResult.Failed;
             }
 
-            log("Xbox: aplikacja znaleziona po " + timer.Elapsed.TotalSeconds.ToString("0.0") + " s.");
+            log("Xbox: aplikacja znaleziona po " + timer.Elapsed.TotalSeconds.ToString("0.0") + " s" +
+                (IsNewDesign(app) ? " (nowy interfejs)." : "."));
 
-            AutomationElement profile = FindById(app, ProfileButtonId);
+            // The redesigned app builds its accessibility tree after the first query.
+            WaitFor(() => FindProfile(app) ?? FindSignIn(app), StepTimeout);
+
+            AutomationElement profile = FindProfile(app);
             if (profile != null)
             {
-                string current = ParseGamertag(profile);
+                string current = GetGamertag(profile);
                 if (!string.IsNullOrEmpty(knownGamertag) &&
-                    string.Equals(current, knownGamertag, StringComparison.OrdinalIgnoreCase))
+                    string.Equals(NormalizeGamertag(current), NormalizeGamertag(knownGamertag), StringComparison.OrdinalIgnoreCase))
                 {
                     gamertag = current;
                     log("Xbox: aplikacja jest już zalogowana na przypisane konto.");
@@ -134,7 +153,7 @@ namespace PlayniteAccountManager.Services
                     return XboxSwitchResult.Failed;
             }
 
-            AutomationElement signIn = WaitFor(() => FindById(app, SignInButtonId), StepTimeout);
+            AutomationElement signIn = WaitFor(() => FindSignIn(app), StepTimeout);
             if (signIn == null || !Invoke(signIn))
             {
                 error = Loc.Get("ErrXboxNoSignIn");
@@ -174,14 +193,14 @@ namespace PlayniteAccountManager.Services
             if (!ConfirmGamingServices(app, email, out error))
                 return XboxSwitchResult.Failed;
 
-            AutomationElement signedIn = WaitFor(() => FindById(app, ProfileButtonId), SignInTimeout);
+            AutomationElement signedIn = WaitFor(() => FindProfile(app), SignInTimeout);
             if (signedIn == null)
             {
                 error = Loc.Get("ErrNotConfirmed", "Xbox");
                 return XboxSwitchResult.Failed;
             }
 
-            gamertag = ParseGamertag(signedIn);
+            gamertag = WaitFor(() => GetGamertag(signedIn), TimeSpan.FromSeconds(5)) ?? GetGamertag(signedIn);
             log("Xbox: zalogowano konto aplikacji Xbox.");
             return XboxSwitchResult.Switched;
         }
@@ -196,9 +215,10 @@ namespace PlayniteAccountManager.Services
                 EAAppUiAutomation.EnsureWindowForeground(hwnd);
                 Thread.Sleep(300);
 
-                // The profile button exposes no Invoke pattern; the menu reliably
-                // opens with a click.
-                ClickCenter(profile);
+                // The old profile button exposes no Invoke pattern; the menu reliably
+                // opens with a click. The redesigned one is a web button with Invoke.
+                if (!IsNewDesign(app) || !Invoke(profile))
+                    ClickCenter(profile);
 
                 AutomationElement item = WaitFor(() => FindSignOutItem(app), TimeSpan.FromSeconds(4));
                 if (item != null)
@@ -206,7 +226,7 @@ namespace PlayniteAccountManager.Services
                     if (!Invoke(item))
                         ClickCenter(item);
 
-                    if (WaitFor(() => FindById(app, SignInButtonId), StepTimeout) != null)
+                    if (WaitFor(() => FindSignIn(app), StepTimeout) != null)
                         return true;
 
                     error = Loc.Get("ErrXboxNoSignInScreen");
@@ -228,7 +248,7 @@ namespace PlayniteAccountManager.Services
 
             while (DateTime.UtcNow < deadline)
             {
-                AutomationElement dialog = FindGamingServicesDialog();
+                AutomationElement dialog = FindGamingServicesDialog() ?? FindInAppConfirmation(app);
                 if (dialog != null)
                 {
                     List<string> addresses = FindEmailTexts(dialog);
@@ -248,7 +268,7 @@ namespace PlayniteAccountManager.Services
                         return true;
                     }
                 }
-                else if (FindById(app, ProfileButtonId) != null)
+                else if (FindProfile(app) != null)
                 {
                     // Some sign-ins finish without the confirmation dialog.
                     return true;
@@ -323,7 +343,11 @@ namespace PlayniteAccountManager.Services
             {
                 try
                 {
-                    if (window.Current.ClassName != "ApplicationFrameWindow")
+                    string className = window.Current.ClassName;
+                    if (className == NewAppWindowClass)
+                        return window;
+
+                    if (className != "ApplicationFrameWindow")
                         continue;
 
                     if (FindById(window, ProfileButtonId) != null || FindById(window, SignInButtonId) != null)
@@ -464,7 +488,8 @@ namespace PlayniteAccountManager.Services
         private static AutomationElement FindSignOutItem(AutomationElement app)
         {
             AutomationElementCollection items = app.FindAll(TreeScope.Descendants,
-                new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.MenuItem));
+                new PropertyCondition(AutomationElement.ControlTypeProperty,
+                    IsNewDesign(app) ? ControlType.Button : ControlType.MenuItem));
 
             foreach (AutomationElement item in items)
             {
@@ -521,6 +546,105 @@ namespace PlayniteAccountManager.Services
             {
                 return null;
             }
+        }
+
+        private static bool IsNewDesign(AutomationElement app)
+        {
+            try { return app.Current.ClassName == NewAppWindowClass; }
+            catch { return false; }
+        }
+
+        private static AutomationElement FindProfile(AutomationElement app)
+        {
+            return FindById(app, IsNewDesign(app) ? NewProfileButtonId : ProfileButtonId);
+        }
+
+        /// <summary>
+        /// Old app: the sign-in screen button. Redesigned app: the button without
+        /// AutomationId in the title-bar toolbar (the profile button's place when
+        /// signed out); found by position, so it does not depend on the language.
+        /// </summary>
+        private static AutomationElement FindSignIn(AutomationElement app)
+        {
+            if (!IsNewDesign(app))
+                return FindById(app, SignInButtonId);
+
+            try
+            {
+                AutomationElement notifications = FindById(app, NewNotificationsButtonId);
+                if (notifications == null)
+                    return null;
+
+                AutomationElement toolbar = TreeWalker.ControlViewWalker.GetParent(notifications);
+                if (toolbar == null)
+                    return null;
+
+                foreach (AutomationElement button in toolbar.FindAll(TreeScope.Children,
+                    new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Button)))
+                {
+                    if (string.IsNullOrEmpty(button.Current.AutomationId) && !button.Current.IsOffscreen)
+                        return button;
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
+        }
+
+        private static string GetGamertag(AutomationElement profile)
+        {
+            if (profile == null)
+                return null;
+
+            try
+            {
+                if (profile.Current.AutomationId == NewProfileButtonId)
+                {
+                    AutomationElement picture = FindById(profile, NewGamerpicId);
+                    string name = picture == null ? null : picture.Current.Name;
+                    return string.IsNullOrWhiteSpace(name) ? null : name.Trim();
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            return ParseGamertag(profile);
+        }
+
+        /// <summary>The old app shows "Name1234", the redesigned one "Name#1234".</summary>
+        private static string NormalizeGamertag(string gamertag)
+        {
+            return (gamertag ?? string.Empty).Replace("#", string.Empty).Replace(" ", string.Empty);
+        }
+
+        /// <summary>
+        /// Redesigned app: the "Welcome back" confirmation is a child window of the Xbox
+        /// app with a web document (e-mail and the "Let's go" button).
+        /// </summary>
+        private static AutomationElement FindInAppConfirmation(AutomationElement app)
+        {
+            if (!IsNewDesign(app))
+                return null;
+
+            try
+            {
+                foreach (AutomationElement child in app.FindAll(TreeScope.Children,
+                    new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Window)))
+                {
+                    if (child.FindFirst(TreeScope.Descendants,
+                            new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Document)) != null)
+                        return child;
+                }
+            }
+            catch
+            {
+            }
+
+            return null;
         }
 
         /// <summary>"Profile and settings — signed-in user: Gamertag" → "Gamertag".</summary>
